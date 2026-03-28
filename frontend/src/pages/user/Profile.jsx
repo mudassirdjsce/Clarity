@@ -26,6 +26,7 @@ import { WrappedTriggerButton } from '../common/WrappedPage';
 export default function UserProfile() {
   const [biometric, setBiometric] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
+  const [proFlipped, setProFlipped] = useState(false);
 
   const storedUser = localStorage.getItem('clarity_user');
   const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera", email: "alex@synthetic.io", phone: "+1 234 567 8900" };
@@ -200,12 +201,13 @@ export default function UserProfile() {
         <div className="relative group">
           <div className="absolute -inset-1 bg-[#39ff14] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
           <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#39ff14] to-[#1A231C]">
-            <img
-              src="https://picsum.photos/seed/alex/300/300"
-              alt="Alex Rivera"
-              className="w-32 h-32 rounded-full object-cover border-4 border-[#0B0F0C]"
-              referrerPolicy="no-referrer"
-            />
+            <div className="w-32 h-32 rounded-full border-4 border-[#0B0F0C] bg-[#0B0F0C] flex items-center justify-center select-none"
+              style={{ boxShadow: "inset 0 0 30px rgba(57,255,20,0.08)" }}>
+              <span className="text-5xl font-black text-[#39ff14] leading-none"
+                style={{ textShadow: "0 0 20px rgba(57,255,20,0.7), 0 0 40px rgba(57,255,20,0.4)" }}>
+                {(user.name || "U").charAt(0).toUpperCase()}
+              </span>
+            </div>
           </div>
           <div className="absolute bottom-1 right-1 bg-[#39ff14] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
             <CheckCircle2 size={16} className="text-[#0B0F0C]" />
@@ -578,51 +580,143 @@ export default function UserProfile() {
             </div>
           </Card>
 
-          {/* Financial Wrapped + Get Pro — single card */}
-          <Card className="p-6 relative overflow-hidden flex flex-col gap-5">
-            <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#8EFF71]/8 rounded-full blur-[60px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#00d4ff]/5 rounded-full blur-[60px] pointer-events-none" />
+          {/* Clarity Pro — flip card */}
+          <div className="relative" style={{ perspective: '1000px', minHeight: '100%' }}>
+            <motion.div
+              animate={{ rotateY: proFlipped ? 180 : 0 }}
+              transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+              style={{ transformStyle: 'preserve-3d', position: 'relative', height: '100%' }}
+            >
+              {/* FRONT */}
+              <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                <Card className="p-6 relative overflow-hidden flex flex-col h-full">
+                  <div className="absolute -top-12 -right-12 w-56 h-56 bg-[#39ff14]/10 rounded-full blur-[70px] pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#00d4ff]/8 rounded-full blur-[60px] pointer-events-none" />
 
-            {/* Financial Wrapped */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-[#39ff14]/10 p-2.5 rounded-full text-[#39ff14] border border-[#39ff14]/20">
-                  <span className="text-sm font-black leading-none">✦</span>
-                </div>
-                <h3 className="font-bold text-[#E8F5E9] text-sm">Financial Wrapped</h3>
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gradient-to-br from-[#39ff14]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#39ff14]/20">
+                        <span className="text-sm leading-none">⚡</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-[#E8F5E9] text-sm leading-tight">Clarity Pro</h3>
+                        <p className="text-[9px] text-[#9FB8A7] uppercase tracking-[0.15em] font-bold">Premium Plan</p>
+                      </div>
+                    </div>
+                    <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/30 text-[#39ff14] animate-pulse">
+                      Free · Hackathon
+                    </span>
+                  </div>
+
+                  {/* Benefits list */}
+                  <ul className="space-y-1.5 mb-5 relative z-10 flex-1">
+                    {[
+                      { label: 'AI-Powered Insights',  desc: 'Personalised financial nudges daily'   },
+                      { label: 'Advanced Charting',     desc: 'Multi-timeframe technical overlays'    },
+                      { label: 'Unlimited Portfolios',  desc: 'Track stocks, MFs, bonds & more'       },
+                      { label: 'Priority Alerts',       desc: 'Real-time price & event notifications' },
+                      { label: 'Early API Access',      desc: 'Be first to new Clarity features'      },
+                    ].map(({ label, desc }) => (
+                      <li key={label} className="flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-[#39ff14] flex-shrink-0" />
+                        <span className="text-[10px] font-bold text-[#E8F5E9]">{label}</span>
+                        <span className="text-[9px] text-[#9FB8A7]">— {desc}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
+                  <div className="relative z-10">
+                    <motion.button
+                      onClick={() => setProFlipped(true)}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)',
+                        boxShadow: '0 0 24px rgba(57,255,20,0.3)',
+                      }}
+                    >
+                      <motion.div
+                        className="absolute inset-0 bg-white/20"
+                        initial={{ x: '-100%' }}
+                        animate={{ x: '100%' }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                      />
+                      <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
+                    </motion.button>
+                    <p className="text-center text-[9px] text-[#9FB8A7] mt-1.5 font-mono uppercase tracking-widest">No credit card required</p>
+                  </div>
+                </Card>
               </div>
-              <WrappedTriggerButton />
-            </div>
 
-            <div className="border-t border-white/5" />
+              {/* BACK */}
+              <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', position: 'absolute', inset: 0 }}>
+                <Card className="p-6 relative overflow-hidden flex flex-col h-full">
+                  <div className="absolute -top-12 -right-12 w-56 h-56 bg-[#00d4ff]/10 rounded-full blur-[70px] pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#39ff14]/8 rounded-full blur-[60px] pointer-events-none" />
 
-            {/* Get Pro */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-gradient-to-br from-[#8EFF71]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#8EFF71]/20">
-                  <span className="text-sm">⚡</span>
-                </div>
-                <h3 className="font-bold text-[#E8F5E9] text-sm">Clarity Pro</h3>
+                  {/* Back header */}
+                  <div className="flex items-center justify-between mb-3 relative z-10">
+                    <div>
+                      <h3 className="font-bold text-[#E8F5E9] text-sm">Choose Your Plan</h3>
+                      <p className="text-[9px] text-[#9FB8A7] uppercase tracking-[0.12em] font-bold mt-0.5">Pick how to unlock Pro</p>
+                    </div>
+                    <button
+                      onClick={() => setProFlipped(false)}
+                      className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Options */}
+                  <div className="space-y-2 flex-1 relative z-10">
+                    {/* Royalty Points */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full p-3 rounded-2xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/10 hover:border-amber-400/70 transition-all text-left"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider">Royalty Points</span>
+                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-400 uppercase tracking-widest">Recommended</span>
+                      </div>
+                      <p className="text-lg font-black text-white font-mono leading-tight">250 <span className="text-xs text-amber-400">pts</span></p>
+                      <p className="text-[9px] text-[#9FB8A7] mt-0.5">Use your earned Clarity reward points</p>
+                    </motion.button>
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-px bg-white/5" />
+                      <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest">or</span>
+                      <div className="flex-1 h-px bg-white/5" />
+                    </div>
+
+                    {/* Rupees */}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full p-3 rounded-2xl border-2 border-[#39ff14]/30 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 hover:border-[#39ff14]/60 transition-all text-left"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-black text-[#39ff14] uppercase tracking-wider">One-time Payment</span>
+                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/25 text-[#39ff14] uppercase tracking-widest">Instant</span>
+                      </div>
+                      <p className="text-lg font-black text-white font-mono leading-tight">₹499</p>
+                      <p className="text-[9px] text-[#9FB8A7] mt-0.5">Secure checkout · Annual access</p>
+                    </motion.button>
+                  </div>
+
+                  <p className="text-center text-[9px] text-[#9FB8A7] mt-2 font-mono uppercase tracking-widest relative z-10">Cancel anytime · No hidden fees</p>
+                </Card>
+
               </div>
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)",
-                  boxShadow: "0 0 24px rgba(142,255,113,0.3)",
-                }}
-              >
-                <motion.div
-                  className="absolute inset-0 bg-white/20"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
-                <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
-              </motion.button>
-            </div>
-          </Card>
+            </motion.div>
+          </div>
+
+
         </div>
       </section>
 
