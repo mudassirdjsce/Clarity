@@ -10,7 +10,8 @@ import {
   Globe,
   GraduationCap,
   TrendingUp,
-  PieChart
+  PieChart,
+  Users
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -27,6 +28,10 @@ export function Sidebar() {
     { icon: PieChart,        label: 'Mutual Funds', path: `${basePath}/mutualfunds`},
     { icon: MessageSquare,   label: 'Clarity AI', path: `${basePath}/assistant` },
   ];
+
+  if (!isCompany) {
+    navItems.splice(5, 0, { icon: Users, label: 'Family', path: `${basePath}/family` });
+  }
 
   const secondaryItems = [
     { icon: Settings, label: 'Settings', path: '/settings' },
