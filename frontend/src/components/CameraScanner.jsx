@@ -55,7 +55,7 @@ export default function CameraScanner({ isOpen, onClose }) {
     if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
     stopDetection();
     onClose();
-    window.open(`https://buyhatke.com/search?q=${encodeURIComponent(detectedObject)}`, '_blank');
+    window.open(`https://buyhatke.com/search?product=${encodeURIComponent(detectedObject)}`, '_blank');
   };
 
   return (
