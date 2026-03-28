@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   MapPin,
@@ -27,9 +28,20 @@ import { WrappedTriggerButton } from '../common/WrappedPage';
 import CameraScanner from '../../components/CameraScanner';
 
 export default function UserProfile() {
+  const location = useLocation();
   const [biometric, setBiometric] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  // Scroll to section if navigated with state
+  useEffect(() => {
+    if (location.state?.scrollTo) {
+      const el = document.getElementById(location.state.scrollTo);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+      }
+    }
+  }, [location.state]);
 
   const storedUser = localStorage.getItem('clarity_user');
   const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera", email: "alex@synthetic.io", phone: "+1 234 567 8900" };
@@ -408,7 +420,7 @@ export default function UserProfile() {
       </div>
 
       {/* Goals & Events Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+      <div id="savings-goals" className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
         <Card className="lg:col-span-7 space-y-8">
           <div className="flex justify-between items-center">
             <div>
