@@ -310,8 +310,8 @@ const NewsInstitution = () => {
                   </div>
                 ))
                 : filteredNews.length === 0
-                ? <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "80px 20px" }}><div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>📭</div><p style={{ color: TEXT_SECONDARY, fontWeight: 700, fontSize: 15 }}>No news matches your filters</p></div>
-                : filteredNews.map(n => <NewsCard key={n.id} news={n} />)
+                  ? <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "80px 20px" }}><div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>📭</div><p style={{ color: TEXT_SECONDARY, fontWeight: 700, fontSize: 15 }}>No news matches your filters</p></div>
+                  : filteredNews.map(n => <NewsCard key={n.id} news={n} />)
               }
             </div>
           </div>

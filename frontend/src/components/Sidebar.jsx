@@ -27,7 +27,7 @@ export function Sidebar() {
     { icon: TrendingUp,      label: 'Stocks',       path: `${basePath}/stocks`    },
     { icon: PieChart,        label: 'Mutual Funds', path: `${basePath}/mutualfunds`},
     { icon: Newspaper,       label: 'News',         path: `${basePath}/news`      },
-    { icon: GraduationCap,   label: 'Academy',    path: `${basePath}/academy`   },
+    ...(isCompany ? [] : [{ icon: GraduationCap,   label: 'Academy',    path: `${basePath}/academy`   }]),
     { icon: MessageSquare,   label: 'Clarity AI', path: `${basePath}/assistant` },
   ];
 
