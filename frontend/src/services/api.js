@@ -38,3 +38,34 @@ export const fetchInsights = () => apiFetch("/insights");
 
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+const apiPost = async (path, body) => {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+};
+
+export const signup = (payload) => apiPost("/auth/signup", payload);
+export const login  = (payload) => apiPost("/auth/login", payload);
+
+// ── Token helpers ─────────────────────────────────────────────────────────────
+export const saveSession = ({ token, user }) => {
+  localStorage.setItem("clarity_token", token);
+  localStorage.setItem("clarity_user", JSON.stringify(user));
+};
+
+export const getSession = () => {
+  const user = localStorage.getItem("clarity_user");
+  return { token: localStorage.getItem("clarity_token"), user: user ? JSON.parse(user) : null };
+};
+
+export const clearSession = () => {
+  localStorage.removeItem("clarity_token");
+  localStorage.removeItem("clarity_user");
+};
