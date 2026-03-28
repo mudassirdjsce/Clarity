@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   MapPin,
   Mail,
@@ -75,6 +75,70 @@ export default function UserProfile() {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [expandedAccount, setExpandedAccount] = useState(null);
+
+  // Check Safety State
+  const [isCheckingSafety, setIsCheckingSafety] = useState(false);
+  const [suspiciousFound, setSuspiciousFound] = useState(false);
+  const [fraudReport, setFraudReport] = useState(null);
+  const sirenRef = useRef(null);
+
+  // Hardcoded fraud report template
+  const FRAUD_REPORT = {
+    account: 'HDFC Bank • Savings ••••4821',
+    transaction: 'INR 24,999 debit',
+    merchant: 'UNKNOWN_MERCHANT_SG',
+    date: '28 Mar 2026, 11:47 PM',
+    location: 'Singapore (IP: 103.14.xx.xx)',
+    txnId: 'TXN8823910XF',
+  };
+
+  // Cleanup siren on unmount
+  useEffect(() => {
+    return () => {
+      if (sirenRef.current) {
+        try { sirenRef.current.osc.stop(); sirenRef.current.ctx.close(); } catch {}
+      }
+    };
+  }, []);
+
+  const handleCheckSafety = () => {
+    if (isCheckingSafety || suspiciousFound) return;
+    setIsCheckingSafety(true);
+
+    setTimeout(() => {
+      setIsCheckingSafety(false);
+      setSuspiciousFound(true);
+
+      // Build wailing siren with Web Audio API
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      gain.gain.value = 0.25;
+
+      // Wail: sweep 700 Hz → 1300 Hz → 700 Hz every 0.8s
+      const start = ctx.currentTime;
+      const cycle = 0.8;
+      const totalCycles = Math.ceil(3 / cycle);
+      for (let i = 0; i < totalCycles; i++) {
+        osc.frequency.setValueAtTime(700, start + i * cycle);
+        osc.frequency.linearRampToValueAtTime(1300, start + i * cycle + cycle / 2);
+        osc.frequency.linearRampToValueAtTime(700, start + i * cycle + cycle);
+      }
+      osc.start();
+      osc.stop(start + 3);
+      sirenRef.current = { ctx, osc };
+
+      // Auto-dismiss siren after 3s, then show fraud report
+      setTimeout(() => {
+        setSuspiciousFound(false);
+        sirenRef.current = null;
+        setFraudReport(FRAUD_REPORT);
+      }, 3000);
+    }, 1500);
+  };
 
   const [points, setPoints] = useState(() => {
     return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
@@ -246,6 +310,110 @@ export default function UserProfile() {
     <div className="fintech-wrapper space-y-12 relative overflow-hidden z-0">
       {/* Camera Scanner Modal */}
       <CameraScanner isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
+
+      {/* ── Suspicious Activity Overlay ── */}
+      <AnimatePresence>
+        {suspiciousFound && (
+          <>
+            {/* Pulsing red screen flash */}
+            <motion.div
+              key="redflash"
+              className="fixed inset-0 z-[500] pointer-events-none"
+              animate={{ backgroundColor: ['rgba(220,38,38,0.25)', 'rgba(220,38,38,0.0)', 'rgba(220,38,38,0.25)'] }}
+              transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            {/* Alert modal */}
+            <motion.div
+              key="alertmodal"
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[600] bg-[#1a0505] border border-red-500/50 rounded-2xl px-8 py-5 flex items-center gap-4 shadow-[0_0_40px_rgba(220,38,38,0.5)]"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0 animate-pulse">
+                <ShieldCheck className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <p className="text-red-400 font-bold text-sm uppercase tracking-widest">⚠ Suspicious Activity Detected</p>
+                <p className="text-red-400/60 text-[10px] mt-0.5 font-mono">Unusual transaction patterns found · Siren active for 5s</p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── Fraud Report Card (appears after siren ends) ── */}
+      <AnimatePresence>
+        {fraudReport && (
+          <motion.div
+            key="fraudcard"
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[600] w-[520px] bg-[#130505] border border-red-500/30 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden"
+          >
+            {/* Top accent bar */}
+            <div className="h-1 w-full bg-gradient-to-r from-red-600 via-red-400 to-red-600" />
+
+            <div className="p-7 space-y-5">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-red-400 text-[13px] font-bold uppercase tracking-[0.18em]">Fraud Alert</p>
+                    <p className="text-white/50 text-[10px] font-mono mt-0.5">Ref: {fraudReport.txnId}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setFraudReport(null)}
+                  className="text-white/20 hover:text-white/60 transition-colors mt-0.5"
+                >
+                  <span className="text-lg leading-none">&times;</span>
+                </button>
+              </div>
+
+              {/* Transaction detail rows */}
+              <div className="space-y-3 bg-red-500/5 border border-red-500/10 rounded-xl p-5">
+                {[
+                  { label: 'Account', value: fraudReport.account },
+                  { label: 'Transaction', value: fraudReport.transaction },
+                  { label: 'Merchant', value: fraudReport.merchant },
+                  { label: 'Date & Time', value: fraudReport.date },
+                  { label: 'Origin', value: fraudReport.location },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-start justify-between gap-3 text-[11px]">
+                    <span className="text-white/30 uppercase tracking-widest font-bold whitespace-nowrap">{label}</span>
+                    <span className="text-white/70 font-mono text-right">{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Warning message */}
+              <p className="text-red-400/80 text-[11px] font-mono leading-relaxed">
+                ⚠ This transaction appears fraudulent. Contact your bank immediately and freeze your card.
+              </p>
+
+              {/* CTA buttons */}
+              <div className="flex gap-3">
+                <button className="flex-1 py-3 rounded-xl bg-red-500 text-white text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-red-400 transition-colors shadow-[0_0_15px_rgba(220,38,38,0.4)]">
+                  Contact Immediately
+                </button>
+                <button
+                  onClick={() => setFraudReport(null)}
+                  className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white/40 text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-white/10 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <GlobalProfileTheme />
       {/* Ambient backgrounds */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#39ff14]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
@@ -319,15 +487,26 @@ export default function UserProfile() {
         </Card>
 
         <Card className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
-              <Wallet size={24} />
+        <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
+                <Wallet size={24} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold">Bank Accounts</h2>
+                <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Connected Institutions</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-semibold">Bank Accounts</h2>
-              <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Connected Institutions</p>
-            </div>
+            <button
+              onClick={handleCheckSafety}
+              disabled={isCheckingSafety || suspiciousFound}
+              className="flex items-center gap-2 bg-white/5 text-white/40 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white/10 hover:text-white/60 border border-white/10 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ShieldCheck size={14} />
+              {isCheckingSafety ? 'Scanning...' : suspiciousFound ? 'Alert Active' : 'Check Safety'}
+            </button>
           </div>
+
 
           <div className="space-y-4 pt-2">
             {bankAccounts.length === 0 ? (
