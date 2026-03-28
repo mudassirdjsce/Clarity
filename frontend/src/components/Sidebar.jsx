@@ -20,6 +20,7 @@ export function Sidebar() {
     { icon: LayoutDashboard, label: 'Dashboard', path: `${basePath}/dashboard` },
     { icon: Wallet, label: 'Portfolio', path: `${basePath}/portfolio` },
     { icon: LineChart, label: 'Markets', path: `${basePath}/markets` },
+    { icon: MessageSquare, label: 'Clarity AI', path: `${basePath}/assistant` },
   ];
 
   const secondaryItems = [
