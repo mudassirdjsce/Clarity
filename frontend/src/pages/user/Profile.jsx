@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   MapPin,
@@ -17,16 +18,34 @@ import {
   Wallet,
   Target,
   User,
-  Trash2
+  Trash2,
+  Camera,
+  ScanLine
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
 import { WrappedTriggerButton } from '../common/WrappedPage';
+import CameraScanner from '../../components/CameraScanner';
 
 export default function UserProfile() {
+  const location = useLocation();
   const [biometric, setBiometric] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  // Scroll to section if navigated with state
+  useEffect(() => {
+    if (location.state?.scrollTo) {
+      const el = document.getElementById(location.state.scrollTo);
+      if (el) {
+        setTimeout(() => {
+          const top = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }, 300);
+      }
+    }
+  }, [location.state]);
 
   const storedUser = localStorage.getItem('clarity_user');
   const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera", email: "alex@synthetic.io", phone: "+1 234 567 8900" };
@@ -225,6 +244,8 @@ export default function UserProfile() {
 
   return (
     <div className="fintech-wrapper space-y-12 relative overflow-hidden z-0">
+      {/* Camera Scanner Modal */}
+      <CameraScanner isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
       <GlobalProfileTheme />
       {/* Ambient backgrounds */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#39ff14]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
@@ -437,7 +458,7 @@ export default function UserProfile() {
       </div>
 
       {/* Goals & Events Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+      <div id="savings-goals" className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
         <Card className="lg:col-span-7 space-y-8">
           <div className="flex justify-between items-center">
             <div>
@@ -584,7 +605,7 @@ export default function UserProfile() {
       {/* Security & Experience */}
       <section className="space-y-6 relative z-10">
         <h2 className="text-2xl font-semibold">Security & Experience</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
               <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
@@ -611,6 +632,37 @@ export default function UserProfile() {
                 <Toggle active={twoFactor} onToggle={() => setTwoFactor(!twoFactor)} />
               </div>
             </div>
+          </Card>
+
+          {/* Scan Product — BuyHatke Camera Scanner */}
+          <Card className="p-6 flex flex-col gap-5 relative overflow-hidden">
+            <div className="absolute -top-8 -right-8 w-36 h-36 bg-[#39ff14]/5 rounded-full blur-[50px] pointer-events-none" />
+            <div className="flex items-center gap-3">
+              <div className="bg-[#39ff14]/10 p-2.5 rounded-full text-[#39ff14] border border-[#39ff14]/20">
+                <Camera size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Scan Product</h3>
+                <p className="text-xs text-[#9FB8A7]">Compare prices instantly</p>
+              </div>
+            </div>
+            <p className="text-xs text-[#9FB8A7] leading-relaxed">
+              Point your camera at any item — laptop, bottle, phone — and we'll find the best price on BuyHatke instantly.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setIsScannerOpen(true)}
+              className="relative w-full py-3.5 rounded-2xl font-bold text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] flex items-center justify-center gap-2 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #39ff14 0%, #8EFF71 100%)',
+                boxShadow: '0 0 20px rgba(57,255,20,0.3)',
+              }}
+            >
+              <Camera size={14} />
+              Open Camera Scanner
+            </motion.button>
+            <p className="text-[9px] text-[#9FB8A7]/50 text-center font-mono uppercase tracking-widest">Powered by TensorFlow · COCO-SSD</p>
           </Card>
 
           {/* Financial Wrapped + Get Pro — single card */}

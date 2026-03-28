@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   MapPin, Mail, Phone, CheckCircle2, Eye, Plus, PlusCircle, Building2, Globe, Users, ShieldCheck,
-  Fingerprint, LayoutDashboard, Wallet, Target, TrendingUp, BarChart3, Briefcase, Trash2, X
+  Fingerprint, LayoutDashboard, Wallet, Target, TrendingUp, BarChart3, Briefcase, Trash2, X, Camera
 } from 'lucide-react';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import {
   fetchTreasuryAccounts, addTreasuryAccount, deleteTreasuryAccount,
   fetchTeamMembers, addTeamMember, deleteTeamMember
 } from '../../services/api';
+import CameraScanner from '../../components/CameraScanner';
 
 const EMPTY_TREASURY = { bankName: '', bankIconText: '', accountType: '', balance: '', isPrimary: false };
 
@@ -130,6 +131,7 @@ function AddTeamModal({ onClose, onSave }) {
 export default function CompanyProfile() {
   const [biometric, setBiometric] = useState(true);
   const [mode, setMode] = useState('pro');
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const [treasuryAccounts, setTreasuryAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -182,6 +184,8 @@ export default function CompanyProfile() {
 
   return (
     <div className="fintech-wrapper space-y-12 relative overflow-hidden z-0">
+      {/* Camera Scanner Modal */}
+      <CameraScanner isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
       {showModal && <AddTreasuryModal onClose={() => setShowModal(false)} onSave={handleAddTreasury} />}
       {showTeamModal && <AddTeamModal onClose={() => setShowTeamModal(false)} onSave={handleAddTeam} />}
       <GlobalProfileTheme />
@@ -404,7 +408,7 @@ export default function CompanyProfile() {
       {/* Enterprise Security */}
       <section className="space-y-6 relative z-10">
         <h2 className="text-2xl font-semibold">Enterprise Security</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
               <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
@@ -431,6 +435,37 @@ export default function CompanyProfile() {
                 <Toggle active={true} onToggle={() => { }} />
               </div>
             </div>
+          </Card>
+
+          {/* Scan Product — BuyHatke Camera Scanner */}
+          <Card className="p-6 flex flex-col gap-5 relative overflow-hidden">
+            <div className="absolute -top-8 -right-8 w-36 h-36 bg-[#39ff14]/5 rounded-full blur-[50px] pointer-events-none" />
+            <div className="flex items-center gap-3">
+              <div className="bg-[#39ff14]/10 p-2.5 rounded-full text-[#39ff14] border border-[#39ff14]/20">
+                <Camera size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Scan Product</h3>
+                <p className="text-xs text-[#9FB8A7]">Compare prices instantly</p>
+              </div>
+            </div>
+            <p className="text-xs text-[#9FB8A7] leading-relaxed">
+              Point your camera at any item — laptop, bottle, phone — and we'll find the best price on BuyHatke instantly.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setIsScannerOpen(true)}
+              className="relative w-full py-3.5 rounded-2xl font-bold text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] flex items-center justify-center gap-2 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #39ff14 0%, #8EFF71 100%)',
+                boxShadow: '0 0 20px rgba(57,255,20,0.3)',
+              }}
+            >
+              <Camera size={14} />
+              Open Camera Scanner
+            </motion.button>
+            <p className="text-[9px] text-[#9FB8A7]/50 text-center font-mono uppercase tracking-widest">Powered by TensorFlow · COCO-SSD</p>
           </Card>
 
           <Card className="p-6">
