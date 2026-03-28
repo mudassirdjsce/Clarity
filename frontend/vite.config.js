@@ -16,10 +16,6 @@ export default defineConfig(({mode}) => {
         '@': path.resolve(__dirname, '.'),
       },
     },
-    optimizeDeps: {
-      // TF.js ships its own ESM — exclude from Vite pre-bundling to avoid CJS/ESM conflicts
-      exclude: ['@tensorflow/tfjs', '@tensorflow-models/coco-ssd'],
-    },
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',
     },
