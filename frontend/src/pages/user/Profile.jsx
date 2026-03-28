@@ -14,7 +14,6 @@ import {
   ShieldCheck, 
   Fingerprint, 
   MessageSquare, 
-  LayoutDashboard, 
   Wallet, 
   Target,
   User,
@@ -22,11 +21,11 @@ import {
 } from 'lucide-react';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
+import { WrappedTriggerButton } from '../common/WrappedPage';
 
 export default function UserProfile() {
   const [biometric, setBiometric] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
-  const [mode, setMode] = useState('retail');
 
   const storedUser = localStorage.getItem('clarity_user');
   const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera", email: "alex@synthetic.io", phone: "+1 234 567 8900" };
@@ -579,37 +578,50 @@ export default function UserProfile() {
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
-                <LayoutDashboard size={24} />
+          {/* Financial Wrapped + Get Pro — single card */}
+          <Card className="p-6 relative overflow-hidden flex flex-col gap-5">
+            <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#8EFF71]/8 rounded-full blur-[60px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#00d4ff]/5 rounded-full blur-[60px] pointer-events-none" />
+
+            {/* Financial Wrapped */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-[#8EFF71]/10 p-2.5 rounded-full text-[#8EFF71] border border-[#8EFF71]/20">
+                  <span className="text-sm font-black leading-none">✦</span>
+                </div>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Financial Wrapped</h3>
               </div>
-              <div>
-                <h3 className="font-bold text-[#E8F5E9]">Interface Preference</h3>
-                <p className="text-xs text-[#9FB8A7]">Tailor your data view</p>
+              <WrappedTriggerButton />
+            </div>
+
+            <div className="border-t border-white/5" />
+
+            {/* Get Pro */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-gradient-to-br from-[#8EFF71]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#8EFF71]/20">
+                  <span className="text-sm">⚡</span>
+                </div>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Clarity Pro</h3>
               </div>
-            </div>
-            <div className="flex bg-[#0B0F0C] p-1 rounded-[2rem] border border-[#2A3B2E] shadow-inner">
-              <button 
-                onClick={() => setMode('retail')}
-                className={`flex-1 py-3 rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'retail' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
-                }`}
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, #8EFF71 0%, #00d4ff 100%)",
+                  boxShadow: "0 0 24px rgba(142,255,113,0.3)",
+                }}
               >
-                Retail
-              </button>
-              <button 
-                onClick={() => setMode('pro')}
-                className={`flex-1 py-3 rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'pro' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
-                }`}
-              >
-                Pro Engine
-              </button>
+                <motion.div
+                  className="absolute inset-0 bg-white/20"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+                <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
+              </motion.button>
             </div>
-            <p className="mt-6 text-[10px] text-center text-[#9FB8A7] italic uppercase tracking-wider font-bold leading-relaxed">
-              "Pro Engine" enables real-time candle charts and gas fee optimization.
-            </p>
           </Card>
         </div>
       </section>

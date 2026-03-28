@@ -1,22 +1,23 @@
 import React from 'react';
-import { 
-  TrendingUp, 
-  Zap, 
+import {
+  TrendingUp,
+  Zap,
   Activity,
   BarChart3,
   ChevronRight,
   Clock
 } from 'lucide-react';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer
 } from 'recharts';
 import { cn } from '../../lib/utils';
+import { WrappedTriggerButton } from '../common/WrappedPage';
 
 const data = [
   { name: '00:00', value: 42000 },
@@ -77,6 +78,25 @@ export function UserDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── Financial Wrapped Banner ─────────────────────────────────────── */}
+      <div
+        className="relative overflow-hidden rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
+        style={{
+          background: "linear-gradient(120deg, #0a1a0a 0%, #0b1a1a 100%)",
+          border: "1px solid rgba(57,255,20,0.18)",
+          boxShadow: "0 0 40px rgba(57,255,20,0.04)",
+        }}
+      >
+        {/* Glow blob */}
+        <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-neon-green/5 blur-[80px] pointer-events-none" />
+        <div>
+          <p className="text-xs font-mono tracking-[4px] text-neon-green/60 uppercase mb-1">New · Annual Review</p>
+          <h3 className="text-xl font-black text-white mb-1">Your Financial Wrapped 2026 is here ✦</h3>
+          <p className="text-sm text-white/40">See your top sectors, risk profile, and AI-powered insights.</p>
+        </div>
+        <WrappedTriggerButton />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
