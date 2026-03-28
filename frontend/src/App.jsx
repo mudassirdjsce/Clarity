@@ -24,6 +24,7 @@ import GamifiedLearningPath           from './pages/user/GamifiedLearningPath';
 import Stocks                         from './pages/user/Stocks';
 import MutualFunds                    from './pages/user/MutualFunds';
 import StockDetail                    from './pages/user/StockDetail';
+import Family                         from './pages/user/Family';
 
 // ── Company Pages ─────────────────────────────────────────────────────────────
 import { CompanyDashboard }              from './pages/company/Dashboard';
@@ -67,6 +68,7 @@ export default function App() {
               <Route path="stocks"    element={<Stocks />} />
               <Route path="mutualfunds" element={<MutualFunds />} />
               <Route path="stock/:ticker" element={<StockDetail />} />
+              <Route path="family"    element={<Family />} />
             </Route>
 
             {/* Institution / Company */}

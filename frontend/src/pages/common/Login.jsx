@@ -41,6 +41,66 @@ const labelStyle = {
   display: "block",
 };
 
+const AnimatedGlobe = () => (
+  <div style={{
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    width: '700px',
+    height: '700px',
+    marginLeft: '-350px',
+    marginTop: '-350px',
+    perspective: '1000px',
+    pointerEvents: 'none',
+    zIndex: 0,
+    opacity: 0.15,
+  }}>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      transformStyle: 'preserve-3d',
+      animation: 'spinGlobe 40s linear infinite',
+    }}>
+      {/* Longitude rings */}
+      {[0, 20, 40, 60, 80, 100, 120, 140, 160].map(deg => (
+        <div key={`long-${deg}`} style={{
+          position: 'absolute',
+          inset: 0,
+          border: `1px solid ${NEON}`,
+          borderRadius: '50%',
+          transform: `rotateY(${deg}deg)`
+        }} />
+      ))}
+      {/* Latitude rings */}
+      {[
+        { t: -300, s: 0.514 },
+        { t: -230, s: 0.753 },
+        { t: -150, s: 0.903 },
+        { t: -75, s: 0.976 },
+        { t: 0, s: 1 },
+        { t: 75, s: 0.976 },
+        { t: 150, s: 0.903 },
+        { t: 230, s: 0.753 },
+        { t: 300, s: 0.514 },
+      ].map((lat, i) => (
+        <div key={`lat-${i}`} style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '700px',
+          height: '700px',
+          marginLeft: '-350px',
+          marginTop: '-350px',
+          border: `1px solid ${NEON}`,
+          borderRadius: '50%',
+          transform: `translateY(${lat.t}px) scale(${lat.s}) rotateX(90deg)`
+        }} />
+      ))}
+    </div>
+  </div>
+);
+
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -83,6 +143,7 @@ export default function Login() {
         input::placeholder { color: #404040; }
         @keyframes glow-pulse { 0%,100%{box-shadow:0 0 8px ${NEON}66} 50%{box-shadow:0 0 20px ${NEON}99} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spinGlobe { 0% { transform: rotateX(15deg) rotateY(0deg); } 100% { transform: rotateX(15deg) rotateY(360deg); } }
       `}</style>
 
       {/* Fixed language switcher — top right */}
@@ -93,8 +154,9 @@ export default function Login() {
       {/* Background grid effect */}
       <div style={{ position: "fixed", inset: 0, backgroundImage: `radial-gradient(circle at 1px 1px, #1a1a1a 1px, transparent 0)`, backgroundSize: "32px 32px", opacity: 0.4, pointerEvents: "none" }} />
 
-      {/* Ambient glow */}
-      <div style={{ position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)", width: 400, height: 400, background: `radial-gradient(circle, ${NEON}08 0%, transparent 70%)`, pointerEvents: "none" }} />
+      {/* Ambient glow and Globe */}
+      <div style={{ position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: `radial-gradient(circle, ${NEON}06 0%, transparent 70%)`, pointerEvents: "none" }} />
+      <AnimatedGlobe />
 
       <div style={{ width: "100%", maxWidth: 440, animation: "fadeUp 0.4s ease both", position: "relative" }}>
 

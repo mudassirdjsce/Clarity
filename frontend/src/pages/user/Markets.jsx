@@ -719,11 +719,23 @@ export function Markets() {
         @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
         @keyframes fadeSlideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         input::placeholder { color: ${TEXT_MUTED}; }
+
+        @media (max-width: 1024px) {
+          .markets-main-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .markets-cards-grid { grid-template-columns: 1fr !important; }
+          .markets-header { flex-direction: column !important; gap: 16px !important; }
+        }
+        @media (max-width: 480px) {
+          .markets-bottom-row { grid-template-columns: 1fr !important; }
+          .markets-confidence-wrapper { width: 100% !important; }
+        }
       `}</style>
 
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 12px" }}>
         {/* ── PAGE HEADER ── */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
+        <div className="markets-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 28 }}>
           <div>
             <div style={{ fontSize: 10, color: TEXT_MUTED, letterSpacing: 3, marginBottom: 7, fontWeight: 700, textTransform: "uppercase" }}>Live Intelligence</div>
             <h1 style={{ fontSize: 36, fontWeight: 900, color: TEXT_PRIMARY, letterSpacing: -0.5, lineHeight: 1 }}>
@@ -742,14 +754,14 @@ export function Markets() {
         <FilterBar active={activeFilter} setActive={setActiveFilter} search={search} setSearch={setSearch} />
 
         {/* ── CONTENT GRID ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 20 }}>
+        <div className="markets-main-grid" style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 20 }}>
 
           {/* LEFT: News Feed */}
           <div>
             {loading ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <SkeletonCard />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div className="markets-cards-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                   <SkeletonCard /><SkeletonCard />
                 </div>
               </div>
@@ -768,7 +780,7 @@ export function Markets() {
                 )}
 
                 {/* Cards Grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div className="markets-cards-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                   {filtered.map((item, i) => (
                     <SmallCard key={item.id} item={item} index={i} />
                   ))}
@@ -776,9 +788,9 @@ export function Markets() {
 
                 {/* Bottom row */}
                 {activeFilter === "All" && search === "" && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 14, marginTop: 14 }}>
+                  <div className="markets-bottom-row" style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 14, marginTop: 14 }}>
                     <WeeklyPulseCard />
-                    <div style={{ width: 155 }}><ConfidenceCard /></div>
+                    <div className="markets-confidence-wrapper" style={{ width: 155 }}><ConfidenceCard /></div>
                   </div>
                 )}
               </>

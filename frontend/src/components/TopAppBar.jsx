@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, Languages, Type, Eye, Globe, Accessibility } from 'lucide-react';
+import { Bell, User, Languages, Type, Eye, Globe, Accessibility, Menu } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import logo from '../assets/CLARITY1.svg';
@@ -45,7 +45,7 @@ function IconBtn({ active, onClick, label, children }) {
   );
 }
 
-export function TopAppBar() {
+export function TopAppBar({ onMenuClick }) {
   const { t, i18n } = useTranslation();
   const location  = useLocation();
   const isCompany = location.pathname.startsWith('/company');
