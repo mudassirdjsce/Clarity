@@ -1,35 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import RadarSection from '../../components/radar/RadarSection';
-import { 
-  TrendingUp, 
-  Zap, 
+import {
+  TrendingUp,
+  Zap,
   Activity,
   BarChart3,
   ChevronRight,
-  Clock
 } from 'lucide-react';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer
-} from 'recharts';
+import { ResponsiveContainer } from 'recharts';
 import { cn } from '../../lib/utils';
 import ReactECharts from 'echarts-for-react';
 import RiskExposureMetrics from './RiskExposureMetrics';
 
-const data = [
-  { name: '00:00', value: 42000 },
-  { name: '04:00', value: 43500 },
-  { name: '08:00', value: 41800 },
-  { name: '12:00', value: 44200 },
-  { name: '16:00', value: 45100 },
-  { name: '20:00', value: 44800 },
-  { name: '23:59', value: 46200 },
+// ── Mock candlestick OHLC data (30-min candles, today's session) ──────────────
+// Format: [open, close, low, high]
+const rawCandles = [
+  ['09:00', 41200, 41800, 40900, 42100],
+  ['09:30', 41800, 41400, 41100, 42000],
+  ['10:00', 41400, 42300, 41200, 42500],
+  ['10:30', 42300, 43100, 42100, 43400],
+  ['11:00', 43100, 42700, 42400, 43300],
+  ['11:30', 42700, 43500, 42500, 43700],
+  ['12:00', 43500, 43100, 42800, 43800],
+  ['12:30', 43100, 43800, 42900, 44000],
+  ['13:00', 43800, 44500, 43600, 44700],
+  ['13:30', 44500, 44100, 43800, 44600],
+  ['14:00', 44100, 44900, 43900, 45100],
+  ['14:30', 44900, 44400, 44100, 45000],
+  ['15:00', 44400, 45200, 44200, 45400],
+  ['15:30', 45200, 44800, 44600, 45500],
+  ['16:00', 44800, 45600, 44500, 45800],
+  ['16:30', 45600, 46200, 45300, 46400],
 ];
+
+const times   = rawCandles.map(d => d[0]);
+const candles = rawCandles.map(d => [d[1], d[2], d[3], d[4]]); // [open,close,low,high]
+const volumes = rawCandles.map((d, i) => ({
+  value: Math.abs(d[2] - d[1]) * 80 + 12000,
+  itemStyle: { color: d[2] >= d[1] ? '#39ff1466' : '#ff444466' },
+}));
+
 
 const assets = [
   { name: 'Bitcoin', symbol: 'BTC', price: '$46,200', change: '+4.2%', color: '#8eff71' },
@@ -66,11 +76,11 @@ const PortfolioSankeyChart = () => {
         data: [
           { name: 'Total Portfolio Value ($100k)', itemStyle: { color: '#39ff14' } },
           { name: 'Equities', itemStyle: { color: '#2ce60d' } },
-          { name: 'Fixed Income', itemStyle: { color: '#1db305' } },
+          { name: 'Fixed Income', itemStyle: { color: '#ef4444' } },
           { name: 'Alternatives', itemStyle: { color: '#138200' } },
           { name: 'US Tech', itemStyle: { color: '#8eff71' } },
           { name: 'Healthcare', itemStyle: { color: '#5eff40' } },
-          { name: 'Corp Bonds', itemStyle: { color: '#43c42d' } },
+          { name: 'Corp Bonds', itemStyle: { color: '#dc2626' } },
           { name: 'Real Estate', itemStyle: { color: '#0a4a00' } },
         ],
         links: [
@@ -172,52 +182,94 @@ export function CompanyDashboard() {
             </button>
           </div>
           
-          <div className="w-full" style={{ height: 280 }}>
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8eff71" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#8eff71" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                <XAxis 
-                  dataKey="name" 
-                  stroke="#ffffff20" 
-                  fontSize={10} 
-                  tickLine={false} 
-                  axisLine={false}
-                  tick={{ fill: '#ffffff40' }}
-                />
-                <YAxis 
-                  stroke="#ffffff20" 
-                  fontSize={10} 
-                  tickLine={false} 
-                  axisLine={false}
-                  tick={{ fill: '#ffffff40' }}
-                  tickFormatter={(v) => `$${v/1000}k`}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#0b0f0b', 
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    fontSize: '12px'
-                  }}
-                  itemStyle={{ color: '#8eff71' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#8eff71" 
-                  strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorValue)" 
-                  animationDuration={1500}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="w-full" style={{ height: 300 }}>
+            <ReactECharts
+              style={{ height: '100%', width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+              option={{
+                backgroundColor: 'transparent',
+                animation: true,
+                grid: [
+                  { left: 60, right: 12, top: 8, height: '62%' },
+                  { left: 60, right: 12, top: '74%', height: '18%' },
+                ],
+                xAxis: [
+                  {
+                    type: 'category', data: times, gridIndex: 0,
+                    axisLine: { lineStyle: { color: '#ffffff10' } },
+                    axisTick: { show: false },
+                    axisLabel: { color: '#ffffff40', fontSize: 9, fontFamily: 'monospace' },
+                    splitLine: { show: false },
+                  },
+                  {
+                    type: 'category', data: times, gridIndex: 1,
+                    axisLine: { lineStyle: { color: '#ffffff10' } },
+                    axisTick: { show: false },
+                    axisLabel: { show: false },
+                    splitLine: { show: false },
+                  },
+                ],
+                yAxis: [
+                  {
+                    scale: true, gridIndex: 0,
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    splitLine: { lineStyle: { color: '#ffffff06', type: 'dashed' } },
+                    axisLabel: { color: '#ffffff40', fontSize: 9, fontFamily: 'monospace',
+                      formatter: v => `$${(v/1000).toFixed(1)}k` },
+                  },
+                  {
+                    scale: true, gridIndex: 1,
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    splitLine: { show: false },
+                    axisLabel: { show: false },
+                  },
+                ],
+                tooltip: {
+                  trigger: 'axis',
+                  axisPointer: { type: 'cross', crossStyle: { color: '#ffffff20' },
+                    lineStyle: { color: '#ffffff20', type: 'dashed' } },
+                  backgroundColor: '#0b0f0b',
+                  borderColor: 'rgba(255,255,255,0.1)',
+                  textStyle: { color: '#fff', fontSize: 11, fontFamily: 'monospace' },
+                  formatter: params => {
+                    const c = params.find(p => p.seriesName === 'OHLC');
+                    const v = params.find(p => p.seriesName === 'Volume');
+                    if (!c) return '';
+                    const [o, cl, l, h] = c.value;
+                    const up = cl >= o;
+                    return [
+                      `<b style="color:#ffffff88">${c.name}</b>`,
+                      `O: <b style="color:${up?'#39ff14':'#ff4444'}">${o.toLocaleString()}</b>`,
+                      `H: <b style="color:#ffffff">${h.toLocaleString()}</b>`,
+                      `L: <b style="color:#ffffff">${l.toLocaleString()}</b>`,
+                      `C: <b style="color:${up?'#39ff14':'#ff4444'}">${cl.toLocaleString()}</b>`,
+                      v ? `Vol: <b style="color:#ffffff60">${(v.value/1000).toFixed(1)}k</b>` : '',
+                    ].join('&nbsp;&nbsp;');
+                  },
+                },
+                series: [
+                  {
+                    name: 'OHLC', type: 'candlestick',
+                    xAxisIndex: 0, yAxisIndex: 0,
+                    data: candles,
+                    itemStyle: {
+                      color: '#39ff14',        // bullish fill
+                      color0: '#ff4444',       // bearish fill
+                      borderColor: '#39ff14',
+                      borderColor0: '#ff4444',
+                    },
+                  },
+                  {
+                    name: 'Volume', type: 'bar',
+                    xAxisIndex: 1, yAxisIndex: 1,
+                    data: volumes,
+                    barMaxWidth: 14,
+                  },
+                ],
+              }}
+            />
           </div>
         </div>
 

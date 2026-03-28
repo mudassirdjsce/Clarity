@@ -6,6 +6,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import WrappedPage          from './pages/common/WrappedPage';
 
 // ── Auth (Common) ─────────────────────────────────────────────────────────────
 import Login       from './pages/common/Login';
@@ -20,6 +21,8 @@ import RetailNews                     from './pages/user/RetailNews';
 import { Assistant as UserAssistant } from './pages/user/Assistant';
 import UserProfile                    from './pages/user/Profile';
 import GamifiedLearningPath           from './pages/user/GamifiedLearningPath';
+import Stocks                         from './pages/user/Stocks';
+import MutualFunds                    from './pages/user/MutualFunds';
 
 // ── Company Pages ─────────────────────────────────────────────────────────────
 import { CompanyDashboard }              from './pages/company/Dashboard';
@@ -59,6 +62,9 @@ export default function App() {
               <Route path="news"      element={<RetailNews />} />
               <Route path="profile"   element={<UserProfile />} />
               <Route path="academy"   element={<GamifiedLearningPath />} />
+              <Route path="wrapped"   element={<WrappedPage />} />
+              <Route path="stocks"    element={<Stocks />} />
+              <Route path="mutualfunds" element={<MutualFunds />} />
             </Route>
 
             {/* Institution / Company */}
@@ -69,6 +75,9 @@ export default function App() {
               <Route path="assistant" element={<CompanyAssistant type="company" />} />
               <Route path="news"      element={<NewsInstitution />} />
               <Route path="profile"   element={<CompanyProfile />} />
+              <Route path="stocks"    element={<Stocks />} />
+              <Route path="mutualfunds" element={<MutualFunds />} />
+              <Route path="wrapped"   element={<WrappedPage />} />
             </Route>
 
           </Route>

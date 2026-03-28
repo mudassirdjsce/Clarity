@@ -1,32 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  MapPin, 
-  Mail, 
-  Phone, 
-  CheckCircle2, 
-  Eye, 
-  Plus, 
-  PlusCircle, 
-  Plane, 
-  Ticket, 
-  Hotel, 
-  ShieldCheck, 
-  Fingerprint, 
-  MessageSquare, 
-  LayoutDashboard, 
-  Wallet, 
+import {
+  MapPin,
+  Mail,
+  Phone,
+  CheckCircle2,
+  Eye,
+  Plus,
+  PlusCircle,
+  Plane,
+  Ticket,
+  Hotel,
+  ShieldCheck,
+  Fingerprint,
+  MessageSquare,
+  Wallet,
   Target,
   User,
   Trash2
 } from 'lucide-react';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
+import { WrappedTriggerButton } from '../common/WrappedPage';
 
 export default function UserProfile() {
   const [biometric, setBiometric] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
-  const [mode, setMode] = useState('retail');
 
   const storedUser = localStorage.getItem('clarity_user');
   const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera", email: "alex@synthetic.io", phone: "+1 234 567 8900" };
@@ -201,9 +200,9 @@ export default function UserProfile() {
         <div className="relative group">
           <div className="absolute -inset-1 bg-[#39ff14] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
           <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#39ff14] to-[#1A231C]">
-            <img 
-              src="https://picsum.photos/seed/alex/300/300" 
-              alt="Alex Rivera" 
+            <img
+              src="https://picsum.photos/seed/alex/300/300"
+              alt="Alex Rivera"
               className="w-32 h-32 rounded-full object-cover border-4 border-[#0B0F0C]"
               referrerPolicy="no-referrer"
             />
@@ -212,7 +211,7 @@ export default function UserProfile() {
             <CheckCircle2 size={16} className="text-[#0B0F0C]" />
           </div>
         </div>
-        
+
         <div className="text-center md:text-left space-y-2">
           <h1 className="text-5xl font-bold tracking-tight">{user.name}</h1>
           <div className="flex items-center gap-3 justify-center md:justify-start">
@@ -367,7 +366,7 @@ export default function UserProfile() {
                                   {new Date(tx.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                                 </p>
                               </div>
-                              <span className={`font-mono font-bold text-sm ${ tx.amount >= 0 ? 'text-[#39ff14]' : 'text-red-400' }`}>
+                              <span className={`font-mono font-bold text-sm ${tx.amount >= 0 ? 'text-[#39ff14]' : 'text-red-400'}`}>
                                 {tx.amount >= 0 ? '+' : ''}₹{Math.abs(tx.amount).toLocaleString('en-IN')}
                               </span>
                             </div>
@@ -410,14 +409,14 @@ export default function UserProfile() {
               <h2 className="text-2xl font-semibold">My Savings Goals</h2>
               <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Strategic Wealth Accumulation</p>
             </div>
-            <button 
+            <button
               onClick={() => setIsGoalModalOpen(true)}
               className="flex items-center gap-2 bg-[#39ff14]/10 text-[#39ff14] px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#39ff14]/20 border border-[#39ff14]/20 transition-all shadow-[0_0_10px_rgba(142,255,113,0.15)]"
             >
               <Plus size={14} /> New Goal
             </button>
           </div>
-          
+
           <div className="space-y-8">
             {goals.length === 0 ? (
               <div className="text-center py-8 text-[#9FB8A7] border border-white/5 bg-white/[0.02] rounded-2xl">
@@ -429,14 +428,14 @@ export default function UserProfile() {
                 const progress = Math.min(100, Math.round(((goal.currentAmount || 0) / goal.targetAmount) * 100));
                 const remaining = goal.targetAmount - (goal.currentAmount || 0);
                 const isCompleted = remaining <= 0;
-                
+
                 return (
                   <div key={i} className="space-y-3">
                     <div className="flex justify-between items-end">
                       <div>
                         <div className="flex items-center gap-3">
                           <h3 className="text-lg font-medium text-[#E8F5E9]">{goal.title}</h3>
-                          <button 
+                          <button
                             onClick={() => handleDeleteGoal(goal._id)}
                             className="text-[#9FB8A7] hover:text-red-400 transition-colors p-1"
                             title="Delete Goal"
@@ -454,7 +453,7 @@ export default function UserProfile() {
                         <div className="flex items-center gap-2">
                           <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${(goal.currentAmount || 0).toLocaleString()}</span>
                           {!isCompleted && (
-                            <button 
+                            <button
                               onClick={() => { setSelectedGoalId(goal._id); setIsAddFundsModalOpen(true); }}
                               className="w-6 h-6 rounded-full bg-[#39ff14]/10 text-[#39ff14] flex items-center justify-center hover:bg-[#39ff14]/20 border border-[#39ff14]/20 transition-all font-bold"
                             >
@@ -579,37 +578,50 @@ export default function UserProfile() {
             </div>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
-                <LayoutDashboard size={24} />
+          {/* Financial Wrapped + Get Pro — single card */}
+          <Card className="p-6 relative overflow-hidden flex flex-col gap-5">
+            <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#8EFF71]/8 rounded-full blur-[60px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#00d4ff]/5 rounded-full blur-[60px] pointer-events-none" />
+
+            {/* Financial Wrapped */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-[#39ff14]/10 p-2.5 rounded-full text-[#39ff14] border border-[#39ff14]/20">
+                  <span className="text-sm font-black leading-none">✦</span>
+                </div>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Financial Wrapped</h3>
               </div>
-              <div>
-                <h3 className="font-bold text-[#E8F5E9]">Interface Preference</h3>
-                <p className="text-xs text-[#9FB8A7]">Tailor your data view</p>
+              <WrappedTriggerButton />
+            </div>
+
+            <div className="border-t border-white/5" />
+
+            {/* Get Pro */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-gradient-to-br from-[#8EFF71]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#8EFF71]/20">
+                  <span className="text-sm">⚡</span>
+                </div>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Clarity Pro</h3>
               </div>
-            </div>
-            <div className="flex bg-[#0B0F0C] p-1 rounded-[2rem] border border-[#2A3B2E] shadow-inner">
-              <button 
-                onClick={() => setMode('retail')}
-                className={`flex-1 py-3 rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'retail' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
-                }`}
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)",
+                  boxShadow: "0 0 24px rgba(142,255,113,0.3)",
+                }}
               >
-                Retail
-              </button>
-              <button 
-                onClick={() => setMode('pro')}
-                className={`flex-1 py-3 rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'pro' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
-                }`}
-              >
-                Pro Engine
-              </button>
+                <motion.div
+                  className="absolute inset-0 bg-white/20"
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+                <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
+              </motion.button>
             </div>
-            <p className="mt-6 text-[10px] text-center text-[#9FB8A7] italic uppercase tracking-wider font-bold leading-relaxed">
-              "Pro Engine" enables real-time candle charts and gas fee optimization.
-            </p>
           </Card>
         </div>
       </section>
@@ -618,21 +630,21 @@ export default function UserProfile() {
       {isGoalModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0B0F0C]/80 backdrop-blur-sm" onClick={() => setIsGoalModalOpen(false)} />
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-md bg-[#1A231C] border border-[#2A3B2E] rounded-3xl p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
           >
             <h3 className="text-2xl font-bold text-[#E8F5E9] mb-1">Create Milestone</h3>
             <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mb-6">Target your wealth</p>
-            
+
             <form onSubmit={handleAddGoal} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Goal Title</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newGoal.title}
-                  onChange={e => setNewGoal({...newGoal, title: e.target.value})}
+                  onChange={e => setNewGoal({ ...newGoal, title: e.target.value })}
                   className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. Porsche 911"
                   required
@@ -640,25 +652,25 @@ export default function UserProfile() {
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Target Amount ($)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={newGoal.targetAmount}
-                  onChange={e => setNewGoal({...newGoal, targetAmount: e.target.value})}
+                  onChange={e => setNewGoal({ ...newGoal, targetAmount: e.target.value })}
                   className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. 150000"
                   required
                 />
               </div>
               <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsGoalModalOpen(false)}
                   className="flex-1 py-3 rounded-xl border border-[#2A3B2E] text-[#9FB8A7] text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isSavingGoal}
                   className="flex-1 py-3 rounded-xl bg-[#39ff14] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all font-bold"
                 >
@@ -673,19 +685,19 @@ export default function UserProfile() {
       {isAddFundsModalOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0B0F0C]/80 backdrop-blur-sm" onClick={() => setIsAddFundsModalOpen(false)} />
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className="relative w-full max-w-md bg-[#1A231C] border border-[#2A3B2E] rounded-3xl p-6 shadow-[0_0_40px_rgba(0,0,0,0.5)]"
           >
             <h3 className="text-2xl font-bold text-[#E8F5E9] mb-1">Add Funds</h3>
             <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mb-6">Boost your milestone progress</p>
-            
+
             <form onSubmit={handleAddFunds} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Amount to Add ($)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={fundsAmount}
                   onChange={e => setFundsAmount(e.target.value)}
                   className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
@@ -694,15 +706,15 @@ export default function UserProfile() {
                 />
               </div>
               <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setIsAddFundsModalOpen(false)}
                   className="flex-1 py-3 rounded-xl border border-[#2A3B2E] text-[#9FB8A7] text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-colors"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={isAddingFunds}
                   className="flex-1 py-3 rounded-xl bg-[#39ff14] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all font-bold"
                 >
