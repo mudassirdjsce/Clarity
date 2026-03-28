@@ -3,6 +3,7 @@ const Goal = require("../models/Goal");
 const Festival = require("../models/Festival");
 const BankAccount = require("../models/BankAccount");
 const Holding = require("../models/Holding");
+const InstitutionalHolding = require("../models/InstitutionalHolding");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
@@ -335,4 +336,55 @@ const deleteHolding = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction, getHoldings, addHolding, deleteHolding };
+// ── GET /api/auth/institutional-holdings ─────────────────────────────────────────────────
+const getInstitutionalHoldings = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const holdings = await InstitutionalHolding.find({ companyEmail: email }).sort({ createdAt: -1 }).lean();
+    res.status(200).json({ holdings });
+  } catch (error) {
+    console.error("Get institutional holdings error:", error);
+    res.status(500).json({ error: "Server error fetching institutional holdings" });
+  }
+};
+
+// ── POST /api/auth/institutional-holdings ────────────────────────────────────────────────
+const addInstitutionalHolding = async (req, res) => {
+  try {
+    const { email, name, symbol, icon, amount, buyPrice, currentPrice, color, risk } = req.body;
+    if (!email || !name || !symbol || !amount || !buyPrice || !currentPrice) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const holding = await InstitutionalHolding.create({
+      companyEmail: email,
+      name,
+      symbol: symbol.toUpperCase(),
+      icon: icon || symbol[0].toUpperCase(),
+      amount: parseFloat(amount),
+      buyPrice: parseFloat(buyPrice),
+      currentPrice: parseFloat(currentPrice),
+      color: color || "#8eff71",
+      risk: risk || "Medium"
+    });
+    res.status(201).json({ message: "Institutional Holding added", holding });
+  } catch (error) {
+    console.error("Add institutional holding error:", error);
+    res.status(500).json({ error: "Server error adding institutional holding" });
+  }
+};
+
+// ── DELETE /api/auth/institutional-holdings/:id ────────────────────────────────────────────
+const deleteInstitutionalHolding = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await InstitutionalHolding.findByIdAndDelete(id);
+    res.status(200).json({ message: "Institutional Holding deleted" });
+  } catch (error) {
+    console.error("Delete institutional holding error:", error);
+    res.status(500).json({ error: "Server error deleting institutional holding" });
+  }
+};
+
+module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction, getHoldings, addHolding, deleteHolding, getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding };
+
