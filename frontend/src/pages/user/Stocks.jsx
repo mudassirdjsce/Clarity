@@ -12,6 +12,10 @@ const indices = [
 ];
 
 const topStocks = [
+  { name: 'Bitcoin',       ticker: 'BTC',      price: '$46,200',   change: '+4.2%',  isPositive: true  },
+  { name: 'Ethereum',      ticker: 'ETH',      price: '$2,450',    change: '-1.8%',  isPositive: false },
+  { name: 'Solana',        ticker: 'SOL',      price: '$104',      change: '+12.5%', isPositive: true  },
+  { name: 'Apple',         ticker: 'AAPL',     price: '$189',      change: '+0.5%',  isPositive: true  },
   { name: 'Reliance Ind.', ticker: 'RELIANCE', price: '₹2,950.40', change: '+1.2%',  isPositive: true  },
   { name: 'TCS',           ticker: 'TCS',      price: '₹3,840.10', change: '+0.8%',  isPositive: true  },
   { name: 'HDFC Bank',     ticker: 'HDFCBANK', price: '₹1,440.50', change: '-0.5%',  isPositive: false },

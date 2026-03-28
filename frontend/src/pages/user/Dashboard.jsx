@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   Zap,
@@ -17,17 +18,10 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { cn } from '../../lib/utils';
+import { fetchBankAccounts } from '../../services/api';
 import { WrappedTriggerButton } from '../common/WrappedPage';
 
-const data = [
-  { name: '00:00', value: 42000 },
-  { name: '04:00', value: 43500 },
-  { name: '08:00', value: 41800 },
-  { name: '12:00', value: 44200 },
-  { name: '16:00', value: 45100 },
-  { name: '20:00', value: 44800 },
-  { name: '23:59', value: 46200 },
-];
+
 
 const assets = [
   { name: 'Bitcoin', symbol: 'BTC', price: '$46,200', change: '+4.2%', color: '#8eff71' },
@@ -37,15 +31,103 @@ const assets = [
 ];
 
 export function UserDashboard() {
+  const navigate = useNavigate();
+  const storedUser = localStorage.getItem('clarity_user');
+  const user = storedUser ? JSON.parse(storedUser) : { name: "User", email: "" };
+  
+  const [allData, setAllData] = useState([]);
+  const [timeFilter, setTimeFilter] = useState('1M');
+  const [totalBalance, setTotalBalance] = useState(0);
+  const [dayPnL, setDayPnL] = useState({ value: 0, percentage: 0 });
+
+  useEffect(() => {
+    async function loadData() {
+      if (!user?.email) return;
+      try {
+        const res = await fetchBankAccounts(user.email);
+        const accounts = res.accounts || [];
+        
+        // Sum all current balances
+        let sumBal = accounts.reduce((sum, acc) => sum + (acc.balance || 0), 0);
+        setTotalBalance(sumBal);
+        
+        // Collect all transactions
+        const allTxs = [];
+        accounts.forEach(acc => {
+          if (acc.transactions) {
+            allTxs.push(...acc.transactions);
+          }
+        });
+        
+        // Group by date (YYYY-MM-DD)
+        const txsByDate = {};
+        allTxs.forEach(tx => {
+          const d = new Date(tx.date).toISOString().split('T')[0];
+          txsByDate[d] = (txsByDate[d] || 0) + tx.amount;
+        });
+        
+        // Reconstruct balance backward for 365 days
+        const days = 365;
+        const fullData = [];
+        let runningBal = sumBal;
+        
+        const todayDateStr = new Date().toISOString().split('T')[0];
+        const todayNet = txsByDate[todayDateStr] || 0;
+        
+        for (let i = 0; i <= days; i++) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          
+          const name = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          
+          fullData.unshift({
+            name,
+            value: runningBal,
+            fullDate: dateStr
+          });
+          
+          const dailyNet = txsByDate[dateStr] || 0;
+          runningBal -= dailyNet;
+        }
+        
+        setAllData(fullData);
+
+        // Day PnL calculates based on today's net tx
+        const prevBal = sumBal - todayNet;
+        const pct = prevBal > 0 ? (todayNet / prevBal) * 100 : 0;
+        setDayPnL({ value: todayNet, percentage: pct });
+
+      } catch (err) {
+        console.error("Error loading bank data:", err);
+      }
+    }
+    loadData();
+  }, [user?.email]);
+
+  const chartData = React.useMemo(() => {
+    if (!allData || allData.length === 0) return [];
+    
+    let daysToTake = 30; // default 1M
+    if (timeFilter === '1D') daysToTake = 2; // Yesterday + Today
+    else if (timeFilter === '1W') daysToTake = 7;
+    else if (timeFilter === '1M') daysToTake = 30;
+    else if (timeFilter === '1Y') daysToTake = 365;
+    else if (timeFilter === 'ALL') daysToTake = allData.length;
+    
+    return allData.slice(-daysToTake);
+  }, [allData, timeFilter]);
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">
-            Good Morning, Alex
+            Good Morning, {user.name.split(' ')[0]}
           </h1>
           <p className="text-white/40 font-medium">
-            Your portfolio is up 4.2% today. Bitcoin is leading the rally.
+            Your portfolio {dayPnL.value >= 0 ? "is up" : "is down"} {Math.abs(dayPnL.percentage).toFixed(1)}% today.
+
           </p>
         </div>
         
@@ -62,8 +144,8 @@ export function UserDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Balance', value: '$124,502.42', change: '+12.5%', icon: TrendingUp, color: 'text-neon-green' },
-          { label: 'Day P&L', value: '+$4,204.12', change: '+4.2%', icon: Zap, color: 'text-neon-green' },
+          { label: 'Total Balance', value: `₹${totalBalance.toLocaleString()}`, change: 'Dynamic', icon: TrendingUp, color: 'text-neon-green' },
+          { label: 'Day P&L', value: `${dayPnL.value >= 0 ? '+' : '-'}₹${Math.abs(dayPnL.value).toLocaleString()}`, change: `${dayPnL.percentage >= 0 ? '+' : ''}${dayPnL.percentage.toFixed(1)}%`, icon: Zap, color: 'text-neon-green' },
           { label: 'Active Positions', value: '12', change: 'Stable', icon: Activity, color: 'text-white/60' },
           { label: 'Risk Score', value: 'Low', change: 'Institutional', icon: BarChart3, color: 'text-emerald-400' },
         ].map((stat, i) => (
@@ -106,10 +188,16 @@ export function UserDashboard() {
               <h3 className="text-xl font-display font-bold">Portfolio Performance</h3>
               <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
                 {['1D', '1W', '1M', '1Y', 'ALL'].map(t => (
-                  <button key={t} className={cn(
-                    "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
-                    t === '1D' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
-                  )}>{t}</button>
+                  <button 
+                    key={t} 
+                    onClick={() => setTimeFilter(t)}
+                    className={cn(
+                      "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
+                      t === timeFilter ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                    )}
+                  >
+                    {t}
+                  </button>
                 ))}
               </div>
             </div>
@@ -120,7 +208,7 @@ export function UserDashboard() {
           
           <div className="w-full" style={{ height: 280 }}>
             <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={data}>
+              <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#8eff71" stopOpacity={0.3}/>
@@ -142,7 +230,7 @@ export function UserDashboard() {
                   tickLine={false} 
                   axisLine={false}
                   tick={{ fill: '#ffffff40' }}
-                  tickFormatter={(v) => `$${v/1000}k`}
+                  formatter={(value) => [`₹${value.toLocaleString()}`, 'Balance']}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -170,11 +258,11 @@ export function UserDashboard() {
         <div className="bento-card">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-display font-bold">Watchlist</h3>
-            <button className="text-xs font-bold text-neon-green hover:underline">View All</button>
+            <button onClick={() => navigate('/user/stocks')} className="text-xs font-bold text-neon-green hover:underline">View All</button>
           </div>
           <div className="space-y-4">
             {assets.map((asset, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+              <div key={i} onClick={() => navigate('/user/stocks')} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-neon-green/30 transition-colors">
                     <span className="font-mono font-bold text-xs" style={{ color: asset.color }}>{asset.symbol[0]}</span>
