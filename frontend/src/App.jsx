@@ -42,7 +42,7 @@ export default function App() {
             <Route path="dashboard" element={<CompanyDashboard />} />
             <Route path="portfolio" element={<CompanyPortfolio />} />
             <Route path="markets" element={<CompanyMarkets />} />
-            <Route path="assistant" element={<CompanyAssistant />} />
+            <Route path="assistant" element={<CompanyAssistant type="company" />} />
             <Route path="news" element={<NewsInstitution />} />
           </Route>
 
