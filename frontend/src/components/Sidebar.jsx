@@ -8,7 +8,10 @@ import {
   HelpCircle,
   Wallet,
   Globe,
-  GraduationCap
+  GraduationCap,
+  TrendingUp,
+  Newspaper,
+  PieChart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -18,11 +21,14 @@ export function Sidebar() {
   const basePath = isCompany ? '/company' : '/user';
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: `${basePath}/dashboard` },
-    { icon: Wallet, label: 'Portfolio', path: `${basePath}/portfolio` },
-    { icon: LineChart, label: 'Markets', path: `${basePath}/markets` },
-    { icon: GraduationCap, label: 'Academy', path: `${basePath}/academy` },
-    { icon: MessageSquare, label: 'Clarity AI', path: `${basePath}/assistant` },
+    { icon: LayoutDashboard, label: 'Dashboard',  path: `${basePath}/dashboard` },
+    { icon: Wallet,          label: 'Portfolio',  path: `${basePath}/portfolio` },
+    { icon: LineChart,       label: 'Markets',    path: `${basePath}/markets`   },
+    { icon: TrendingUp,      label: 'Stocks',       path: `${basePath}/stocks`    },
+    { icon: PieChart,        label: 'Mutual Funds', path: `${basePath}/mutualfunds`},
+    { icon: Newspaper,       label: 'News',         path: `${basePath}/news`      },
+    { icon: GraduationCap,   label: 'Academy',    path: `${basePath}/academy`   },
+    { icon: MessageSquare,   label: 'Clarity AI', path: `${basePath}/assistant` },
   ];
 
   const secondaryItems = [

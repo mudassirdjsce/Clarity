@@ -20,6 +20,8 @@ import { Markets   as UserMarkets }   from './pages/user/Markets';
 import RetailNews                     from './pages/user/RetailNews';
 import { Assistant as UserAssistant } from './pages/user/Assistant';
 import UserProfile                    from './pages/user/Profile';
+import Stocks                         from './pages/user/Stocks';
+import MutualFunds                    from './pages/user/MutualFunds';
 
 // ── Company Pages ─────────────────────────────────────────────────────────────
 import { CompanyDashboard }              from './pages/company/Dashboard';
@@ -59,6 +61,8 @@ export default function App() {
               <Route path="news"      element={<RetailNews />} />
               <Route path="profile"   element={<UserProfile />} />
               <Route path="academy"   element={<GamifiedLearningPath />} />
+              <Route path="stocks"    element={<Stocks />} />
+              <Route path="mutualfunds" element={<MutualFunds />} />
             </Route>
 
             {/* Institution / Company */}
@@ -70,6 +74,8 @@ export default function App() {
               <Route path="news"      element={<NewsInstitution />} />
               <Route path="profile"   element={<CompanyProfile />} />
               <Route path="academy"   element={<GamifiedLearningPath />} />
+              <Route path="stocks"    element={<Stocks />} />
+              <Route path="mutualfunds" element={<MutualFunds />} />
             </Route>
 
           </Route>
