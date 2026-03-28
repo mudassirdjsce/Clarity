@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   PieChart,
   Pie,
@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { fetchInstitutionNews } from "../../services/api";
 
 // ─────────────────────────────────────────────
 // THEME CONSTANTS
@@ -27,145 +28,13 @@ const TEXT_SECONDARY = "#a0a0a0";
 const TEXT_MUTED = "#555555";
 
 // ─────────────────────────────────────────────
-// MOCK DATA
+// HELPERS
 // ─────────────────────────────────────────────
-const MOCK_NEWS = [
-  {
-    id: 1,
-    title: "RBI Signals Pivot: Rate Cut Expected in Q3 as Inflation Cools",
-    summary:
-      "The Reserve Bank of India has hinted at a possible rate reduction as CPI dips below 4.5%, boosting bond markets and rate-sensitive sectors like banking and real estate.",
-    sentiment: "bullish",
-    impact: "high",
-    credibilityScore: 92,
-    source: "Bloomberg India",
-    publishedAt: "2025-07-14T08:30:00Z",
-    tags: ["RBI", "Monetary Policy", "Banking", "Bonds"],
-    fullAnalysis:
-      "The RBI's dovish tone in its latest policy minutes suggests a window for rate cuts in Q3 2025. Analysts at Goldman Sachs and ICICI Securities believe a 25–50 bps reduction is likely if inflation remains anchored. This is expected to trigger significant re-rating in PSU banks, NBFCs, and housing finance companies. Bond yields may compress by 15–20 bps in the near term.",
-    relatedAssets: ["SBIN", "HDFC", "LICHF", "IRFC", "10Y GSEC"],
-  },
-  {
-    id: 2,
-    title: "Adani Group Under SEC Scrutiny Over US-Listed Bond Disclosures",
-    summary:
-      "US regulators have opened a preliminary inquiry into disclosure practices for Adani Group's dollar-denominated bonds, sending group stocks down 4–7% intraday.",
-    sentiment: "bearish",
-    impact: "high",
-    credibilityScore: 88,
-    source: "Reuters",
-    publishedAt: "2025-07-14T07:15:00Z",
-    tags: ["Adani", "SEC", "Regulatory", "Bonds"],
-    fullAnalysis:
-      "The SEC inquiry is preliminary and not a formal investigation, but sentiment around Adani stocks is expected to remain fragile for at least 2–3 weeks. Credit default swap spreads on Adani Green Energy bonds widened by 45 bps. Institutional investors are likely to trim exposure until clarity emerges.",
-    relatedAssets: ["ADANIENT", "ADANIGREEN", "ADANIPORTS", "ADANITRANS"],
-  },
-  {
-    id: 3,
-    title: "Infosys Raises FY26 Revenue Guidance to 4.5–6.5% in CC Terms",
-    summary:
-      "Infosys beat Q1FY26 earnings estimates and raised its annual guidance, citing deal wins in AI-led transformation projects across BFSI and manufacturing verticals.",
-    sentiment: "bullish",
-    impact: "high",
-    credibilityScore: 95,
-    source: "Infosys IR",
-    publishedAt: "2025-07-14T06:00:00Z",
-    tags: ["Infosys", "IT Sector", "Earnings", "AI"],
-    fullAnalysis:
-      "Infosys reported $4.7B revenue (up 3.6% QoQ CC), with operating margins expanding 80 bps to 21.3%. The deal TCV of $4.1B is a record, with 60% being large deals. Management specifically cited generative AI and cloud modernization as growth drivers. Consensus target prices are being revised upward by 8–12%.",
-    relatedAssets: ["INFY", "TCS", "WIPRO", "HCLTECH", "NIFTYIT"],
-  },
-  {
-    id: 4,
-    title: "Crude Oil Jumps 3.2% on OPEC+ Supply Cut Extension Through 2026",
-    summary:
-      "OPEC+ members agreed to extend voluntary production cuts of 2.2 million bpd through end of 2026, pushing Brent above $89 per barrel for the first time this year.",
-    sentiment: "bearish",
-    impact: "high",
-    credibilityScore: 90,
-    source: "S&P Global Commodity",
-    publishedAt: "2025-07-13T21:00:00Z",
-    tags: ["Crude Oil", "OPEC+", "Commodities", "Inflation"],
-    fullAnalysis:
-      "Higher crude is a net negative for India's macro — every $10 rise in Brent adds ~0.4% to CAD and pressures the INR. Sectors most impacted: aviation (IndiGo, Air India), paints (Asian Paints), and OMCs. The INR could depreciate to 84.5–85 range if crude sustains above $90.",
-    relatedAssets: ["BPCL", "IOC", "ONGC", "INDIGO", "ASIANPAINT"],
-  },
-  {
-    id: 5,
-    title: "SEBI Tightens F&O Margin Norms; Weekly Expiry Contracts Under Review",
-    summary:
-      "SEBI proposed stricter margin requirements for F&O positions and is considering restricting weekly expiries to index contracts only, aimed at curbing retail speculation.",
-    sentiment: "neutral",
-    impact: "medium",
-    credibilityScore: 85,
-    source: "SEBI Official",
-    publishedAt: "2025-07-13T14:00:00Z",
-    tags: ["SEBI", "F&O", "Regulation", "Derivatives"],
-    fullAnalysis:
-      "These proposals, if enacted, would significantly reduce F&O volumes on NSE and BSE. Brokers with high F&O revenue (Zerodha, Angel One, Groww) could see 15–25% revenue impact. However, the changes aim to improve market stability. The consultation paper is open for 30 days.",
-    relatedAssets: ["ANGELONE", "5PAISA", "BSELTD", "MCX"],
-  },
-  {
-    id: 6,
-    title: "Reliance Jio Files for IPO; Valuation Expected at $112 Billion",
-    summary:
-      "Reliance Industries confirmed Jio Platforms has filed DRHP with SEBI for a primary listing, targeting a $112B valuation — India's largest-ever IPO.",
-    sentiment: "bullish",
-    impact: "high",
-    credibilityScore: 78,
-    source: "Economic Times",
-    publishedAt: "2025-07-13T10:45:00Z",
-    tags: ["Jio", "IPO", "Telecom", "Reliance"],
-    fullAnalysis:
-      "Jio's IPO would unlock massive value for Reliance Industries shareholders. At $112B, Jio would be valued at ~22x EV/EBITDA — a premium to global telecom comps. The IPO is expected to attract anchor investors including sovereign wealth funds from Middle East and Singapore.",
-    relatedAssets: ["RELIANCE", "RJIO", "BHARTIARTL", "VODAIDEA"],
-  },
-  {
-    id: 7,
-    title: "Gold Retreats 1.8% as Dollar Strengthens on US Jobs Data Beat",
-    summary:
-      "Stronger-than-expected US non-farm payrolls reduced Fed rate cut expectations, boosting the dollar index to 104.6 and pulling MCX gold below ₹71,500 per 10g.",
-    sentiment: "bearish",
-    impact: "medium",
-    credibilityScore: 91,
-    source: "MCX India",
-    publishedAt: "2025-07-12T20:00:00Z",
-    tags: ["Gold", "USD", "Fed", "Commodities"],
-    fullAnalysis:
-      "The US economy added 235K jobs vs 185K expected, reducing near-term Fed cut probability to 62% from 78%. This is negative for gold in the short term but does not change the long-term bullish thesis. Domestic SGB and gold ETF holders may see mark-to-market dip. Support at ₹70,200.",
-    relatedAssets: ["GOLDBEES", "SGBSEP25", "MOFSL_GOLD_ETF"],
-  },
-  {
-    id: 8,
-    title: "Nifty Smallcap 100 Hits All-Time High; Retail Inflows Sustain Rally",
-    summary:
-      "Nifty Smallcap 100 crossed 18,500 for the first time on the back of sustained SIP inflows and institutional interest in high-growth micro-cap stocks.",
-    sentiment: "bullish",
-    impact: "medium",
-    credibilityScore: 82,
-    source: "NSE India",
-    publishedAt: "2025-07-12T15:30:00Z",
-    tags: ["Smallcap", "Nifty", "SIP", "Retail"],
-    fullAnalysis:
-      "SIP inflows have exceeded ₹20,000 crore/month for 6 consecutive months, driving demand in the smallcap and midcap universe. However, valuations are stretched — Nifty Smallcap 100 P/E is at 32x vs historical average of 22x. Investors should be selective.",
-    relatedAssets: ["NIFTYSC100", "MIRAE_SC_ETF", "NIPPON_SC_FUND"],
-  },
-  {
-    id: 9,
-    title: "India-EU FTA Talks Accelerate; Pharma and IT Services in Focus",
-    summary:
-      "India and EU negotiators have entered the final rounds of free trade agreement talks, with key breakthroughs in pharma market access and IT services visas.",
-    sentiment: "bullish",
-    impact: "medium",
-    credibilityScore: 74,
-    source: "Ministry of Commerce",
-    publishedAt: "2025-07-12T11:00:00Z",
-    tags: ["FTA", "EU", "Pharma", "IT", "Trade"],
-    fullAnalysis:
-      "An India-EU FTA would be transformational — EU is India's largest trading partner bloc. The deal could add $40–60B in trade over 5 years. Pharma companies like Sun Pharma, Cipla, and Aurobindo with EU exposure would benefit from preferential market access.",
-    relatedAssets: ["SUNPHARMA", "CIPLA", "AUROPHARMA", "TCS", "INFY"],
-  },
-];
+function formatTime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
+}
 
 // ─────────────────────────────────────────────
 // SUB-COMPONENTS
@@ -570,26 +439,43 @@ const EmptyState = () => (
 const NewsInstitution = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({ sentiment: "all", impact: "all", credibility: "all" });
-  const [loading] = useState(false);
-  const [activeTab, setActiveTab] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newsData, setNewsData] = useState([]);
 
-  const filteredNews = useMemo(() => {
-    return MOCK_NEWS.filter(n => {
-      const matchesSearch =
-        !searchQuery ||
-        n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        n.source.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesSentiment = filters.sentiment === "all" || n.sentiment === filters.sentiment;
-      const matchesImpact = filters.impact === "all" || n.impact === filters.impact;
-      const matchesCredibility =
-        filters.credibility === "all" ||
-        (filters.credibility === "high" && n.credibilityScore >= 85) ||
-        (filters.credibility === "medium" && n.credibilityScore >= 65 && n.credibilityScore < 85) ||
-        (filters.credibility === "low" && n.credibilityScore < 65);
-      return matchesSearch && matchesSentiment && matchesImpact && matchesCredibility;
-    });
+  // Fetch from backend with debounce
+  useEffect(() => {
+    const loadNews = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const apiParams = {
+          sentiment: filters.sentiment !== "all" ? filters.sentiment : undefined,
+          impact: filters.impact !== "all" ? filters.impact : undefined,
+          search: searchQuery || undefined,
+        };
+        const data = await fetchInstitutionNews(apiParams);
+        // Credibility is a range filter — apply client-side
+        const credFiltered = data.filter(n => {
+          if (filters.credibility === "high") return n.credibilityScore >= 85;
+          if (filters.credibility === "medium") return n.credibilityScore >= 65 && n.credibilityScore < 85;
+          if (filters.credibility === "low") return n.credibilityScore < 65;
+          return true;
+        });
+        setNewsData(credFiltered);
+      } catch (err) {
+        setError("Failed to load institutional news. Please try again.");
+        setNewsData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const t = setTimeout(loadNews, 400);
+    return () => clearTimeout(t);
   }, [searchQuery, filters]);
+
+  // filteredNews is now the live data (backend already handles sentiment/impact/search)
+  const filteredNews = newsData;
 
   return (
     <div style={{ color: TEXT_PRIMARY, fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
@@ -630,7 +516,7 @@ const NewsInstitution = () => {
         </div>
 
         {/* ── Analytics Panel ── */}
-        <AnalyticsPanel news={MOCK_NEWS} />
+        <AnalyticsPanel news={newsData.length ? newsData : []} />
 
         {/* ── Filter Bar ── */}
         <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: "16px 18px", marginBottom: 22 }}>
@@ -679,7 +565,7 @@ const NewsInstitution = () => {
 
           {/* ── Side Panel ── */}
           <div style={{ width: 290, flexShrink: 0 }}>
-            <SidePanel news={filteredNews.length ? filteredNews : MOCK_NEWS} />
+            <SidePanel news={filteredNews.length ? filteredNews : []} />
           </div>
         </div>
       </main>
