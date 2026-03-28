@@ -21,7 +21,7 @@ export function TopAppBar() {
   }, [fontSize]);
 
   useEffect(() => {
-    document.body.classList.remove('high-contrast', 'protanopia', 'deuteranopia');
+    document.body.classList.remove('high-contrast', 'protanopia', 'deuteranopia', 'tunnel-vision');
     if (contrastMode !== 'standard') {
       document.body.classList.add(contrastMode);
     }
@@ -88,7 +88,7 @@ export function TopAppBar() {
           </button>
 
           {showA11yMenu && (
-            <div className="absolute top-full right-0 mt-4 w-72 glass bento-card border border-white/10 shadow-2xl z-50 p-5 transform origin-top-right transition-all">
+            <div className="absolute top-full right-0 mt-4 w-72 bg-obsidian/95 backdrop-blur-2xl rounded-2xl border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] z-50 p-5 transform origin-top-right transition-all">
               <div className="mb-5">
                 <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                   <Type className="w-4 h-4 text-neon-green" />
@@ -158,6 +158,17 @@ export function TopAppBar() {
                     )}
                   >
                     Deuteranopia (Green-blind)
+                  </button>
+                  <button 
+                    onClick={() => setContrastMode('tunnel-vision')}
+                    className={cn(
+                      "text-xs py-2 px-3 rounded-lg text-left transition-colors border",
+                      contrastMode === 'tunnel-vision' 
+                        ? "bg-neon-green/10 border-neon-green/30 text-neon-green" 
+                        : "bg-white/5 border-transparent hover:bg-white/10 text-white/70"
+                    )}
+                  >
+                    Tunnel Vision
                   </button>
                 </div>
               </div>
