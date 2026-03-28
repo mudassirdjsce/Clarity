@@ -16,6 +16,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.14.0",
     "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
     "dotenv": "^17.2.3",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.6",
