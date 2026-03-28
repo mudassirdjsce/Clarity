@@ -6,6 +6,8 @@ const Holding = require("../models/Holding");
 const InstitutionalHolding = require("../models/InstitutionalHolding");
 const TreasuryAccount = require("../models/TreasuryAccount");
 const TeamMember = require("../models/TeamMember");
+const FamilyMember = require("../models/FamilyMember");
+const FamilyGoal = require("../models/FamilyGoal");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
@@ -480,6 +482,132 @@ const deleteTeamMember = async (req, res) => {
   }
 };
 
+// ── FAMILY MEMBERS ────────────────────────────────────────────────────────────
+const getFamilyMembers = async (req, res) => {
+  try {
+    const email = req.query.email;
+    if (!email) return res.status(400).json({ error: "Email required" });
+    const members = await FamilyMember.find({ userEmail: email }).sort({ createdAt: 1 });
+    res.status(200).json({ members });
+  } catch (error) {
+    console.error("Get family members error:", error);
+    res.status(500).json({ error: "Server error fetching family members" });
+  }
+};
+
+const addFamilyMember = async (req, res) => {
+  try {
+    const { email, name, role, income, savings, isPrimary } = req.body;
+    if (!email || !name || !role) {
+      return res.status(400).json({ error: "Email, name, and role are required" });
+    }
+    const member = await FamilyMember.create({
+      userEmail: email,
+      name,
+      role,
+      income: Number(income) || 0,
+      savings: Number(savings) || 0,
+      isPrimary: isPrimary === true
+    });
+    res.status(201).json({ message: "Family member added", member });
+  } catch (error) {
+    console.error("Add family member error:", error);
+    res.status(500).json({ error: "Server error adding family member" });
+  }
+};
+
+const updateFamilyMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, role, income, savings } = req.body;
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (role !== undefined) updateData.role = role;
+    if (income !== undefined) updateData.income = Number(income);
+    if (savings !== undefined) updateData.savings = Number(savings);
+
+    const member = await FamilyMember.findByIdAndUpdate(id, updateData, { new: true });
+    res.status(200).json({ message: "Family member updated", member });
+  } catch (error) {
+    console.error("Update family member error:", error);
+    res.status(500).json({ error: "Server error updating family member" });
+  }
+};
+
+const deleteFamilyMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await FamilyMember.findByIdAndDelete(id);
+    res.status(200).json({ message: "Family member deleted" });
+  } catch (error) {
+    console.error("Delete family member error:", error);
+    res.status(500).json({ error: "Server error deleting family member" });
+  }
+};
+
+// ── FAMILY GOALS ────────────────────────────────────────────────────────────
+const getFamilyGoals = async (req, res) => {
+  try {
+    const email = req.query.email;
+    if (!email) return res.status(400).json({ error: "Email required" });
+    const goals = await FamilyGoal.find({ userEmail: email }).sort({ createdAt: 1 });
+    res.status(200).json({ goals });
+  } catch (error) {
+    console.error("Get family goals error:", error);
+    res.status(500).json({ error: "Server error fetching family goals" });
+  }
+};
+
+const addFamilyGoal = async (req, res) => {
+  try {
+    const { email, title, targetAmount, currentAmount, deadline } = req.body;
+    if (!email || !title || !targetAmount) {
+      return res.status(400).json({ error: "Email, title, and targetAmount required" });
+    }
+    const goal = await FamilyGoal.create({
+      userEmail: email,
+      title,
+      targetAmount: Number(targetAmount) || 0,
+      currentAmount: Number(currentAmount) || 0,
+      deadline
+    });
+    res.status(201).json({ message: "Family goal added", goal });
+  } catch (error) {
+    console.error("Add family goal error:", error);
+    res.status(500).json({ error: "Server error adding family goal" });
+  }
+};
+
+const updateFamilyGoal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, targetAmount, currentAmount, deadline } = req.body;
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (targetAmount !== undefined) updateData.targetAmount = Number(targetAmount);
+    if (currentAmount !== undefined) updateData.currentAmount = Number(currentAmount);
+    if (deadline !== undefined) updateData.deadline = deadline;
+
+    const goal = await FamilyGoal.findByIdAndUpdate(id, updateData, { new: true });
+    res.status(200).json({ message: "Family goal updated", goal });
+  } catch (error) {
+    console.error("Update family goal error:", error);
+    res.status(500).json({ error: "Server error updating family goal" });
+  }
+};
+
+const deleteFamilyGoal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await FamilyGoal.findByIdAndDelete(id);
+    res.status(200).json({ message: "Family goal deleted" });
+  } catch (error) {
+    console.error("Delete family goal error:", error);
+    res.status(500).json({ error: "Server error deleting family goal" });
+  }
+};
+
+
 module.exports = { 
   signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, 
   getFestivals, addFestival, addFestivalExpense, deleteFestival, 
@@ -487,5 +615,7 @@ module.exports = {
   getHoldings, addHolding, deleteHolding, 
   getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding,
   getTreasuryAccounts, addTreasuryAccount, deleteTreasuryAccount,
-  getTeamMembers, addTeamMember, deleteTeamMember
+  getTeamMembers, addTeamMember, deleteTeamMember,
+  getFamilyMembers, addFamilyMember, updateFamilyMember, deleteFamilyMember,
+  getFamilyGoals, addFamilyGoal, updateFamilyGoal, deleteFamilyGoal
 };

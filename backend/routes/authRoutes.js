@@ -8,6 +8,8 @@ const {
   getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding,
   getTreasuryAccounts, addTreasuryAccount, deleteTreasuryAccount,
   getTeamMembers, addTeamMember, deleteTeamMember,
+  getFamilyMembers, addFamilyMember, updateFamilyMember, deleteFamilyMember,
+  getFamilyGoals, addFamilyGoal, updateFamilyGoal, deleteFamilyGoal,
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -44,5 +46,16 @@ router.delete("/treasury-accounts/:id", deleteTreasuryAccount);
 router.get("/team-members", getTeamMembers);
 router.post("/team-members", addTeamMember);
 router.delete("/team-members/:id", deleteTeamMember);
+
+// ── Family Dashboard ──
+router.get("/family/members", getFamilyMembers);
+router.post("/family/members", addFamilyMember);
+router.put("/family/members/:id", updateFamilyMember);
+router.delete("/family/members/:id", deleteFamilyMember);
+
+router.get("/family/goals", getFamilyGoals);
+router.post("/family/goals", addFamilyGoal);
+router.put("/family/goals/:id", updateFamilyGoal);
+router.delete("/family/goals/:id", deleteFamilyGoal);
 
 module.exports = router;
