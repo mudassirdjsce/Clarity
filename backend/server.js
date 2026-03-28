@@ -1,5 +1,15 @@
-const startNewsCron = require("./cron/newsCron");
-const startInsightsCron = require("./cron/insightsCron");
+require("dotenv").config();
+const app = require("./app");
+const connectDB = require("./config/db");
 
-startNewsCron();
-startInsightsCron();
+const PORT = process.env.PORT || 5000;
+
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+  });
+};
+
+startServer();
