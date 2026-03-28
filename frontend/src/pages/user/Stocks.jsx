@@ -193,7 +193,7 @@ export function Stocks() {
         <div className="col-span-12 lg:col-span-8 space-y-8">
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-display font-bold">Most Bought on Clarity</h2>
+              <h2 className="text-xl font-display font-bold">Most Searched on Clarity</h2>
               <button className="text-xs font-bold text-neon-green hover:underline">View All</button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -221,9 +221,14 @@ export function Stocks() {
               <p className="text-xs text-white/40 mb-6 max-w-[180px] leading-relaxed">
                 Start your investment journey to build wealth for tomorrow.
               </p>
-              <button className="w-full bg-neon-green text-obsidian font-bold py-2.5 px-6 rounded-xl shadow-[0_0_20px_rgba(57,255,20,0.2)] hover:scale-105 transition-transform text-sm">
+              <a
+                href="https://groww.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full block text-center bg-neon-green text-obsidian font-bold py-2.5 px-6 rounded-xl shadow-[0_0_20px_rgba(57,255,20,0.2)] hover:scale-105 transition-transform text-sm"
+              >
                 Start Investing
-              </button>
+              </a>
             </div>
           </div>
 

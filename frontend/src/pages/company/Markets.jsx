@@ -374,7 +374,7 @@ const AnalyticsPanel = ({ news }) => {
     <div style={{ marginBottom: 24 }}>
 
       {/* ── Top Row: Pie + Bar ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="markets-analytics-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
 
         {/* Market Sentiment — large centered donut */}
         <div style={{
@@ -458,7 +458,7 @@ const AnalyticsPanel = ({ news }) => {
       </div>
 
       {/* ── Bottom Row: 4 big stat boxes ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+      <div className="markets-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
         {stats.map(m => (
           <div key={m.label} style={{
             background: m.bg, border: `1px solid ${BORDER}`,
@@ -551,11 +551,24 @@ const NewsInstitution = () => {
         input::placeholder { color: #555555; }
         @keyframes glow-pulse { 0%,100%{box-shadow:0 0 6px ${NEON}88} 50%{box-shadow:0 0 14px ${NEON}} }
         @keyframes fadeSlideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        
+        @media (max-width: 1024px) {
+          .markets-main-layout { flex-direction: column !important; }
+          .markets-side-panel { width: 100% !important; }
+        }
+        @media (max-width: 768px) {
+          .markets-analytics-grid { grid-template-columns: 1fr !important; }
+          .markets-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .markets-header { flex-direction: column !important; gap: 16px !important; }
+        }
+        @media (max-width: 480px) {
+          .markets-stats-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       <main style={{ maxWidth: 1360, margin: "0 auto", padding: "0 12px" }}>
         {/* ── Page Title ── */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+        <div className="markets-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
               <h1 style={{ fontSize: 26, fontWeight: 900, color: TEXT_PRIMARY, letterSpacing: -0.5, margin: 0 }}>
@@ -591,7 +604,7 @@ const NewsInstitution = () => {
         </div>
 
         {/* ── Main Layout ── */}
-        <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+        <div className="markets-main-layout" style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
           {/* ── News Grid ── */}
           <div style={{ flex: 1, minWidth: 0 }}>
             {/* Tab Bar */}
@@ -631,7 +644,7 @@ const NewsInstitution = () => {
           </div>
 
           {/* ── Side Panel ── */}
-          <div style={{ width: 290, flexShrink: 0 }}>
+          <div className="markets-side-panel" style={{ width: 290, flexShrink: 0 }}>
             <SidePanel news={filteredNews.length ? filteredNews : []} />
           </div>
         </div>

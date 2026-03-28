@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Clock
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AreaChart,
   Area,
@@ -118,12 +119,13 @@ export function UserDashboard() {
     return allData.slice(-daysToTake);
   }, [allData, timeFilter]);
 
+  const { t } = useTranslation();
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">
-            Good Morning, {user.name.split(' ')[0]}
+          <h1 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight mb-2">
+            {t('good_morning')}, {user.name.split(' ')[0]}
           </h1>
           <p className="text-white/40 font-medium">
             Your portfolio {dayPnL.value >= 0 ? "is up" : "is down"} {Math.abs(dayPnL.percentage).toFixed(1)}% today.
@@ -131,27 +133,27 @@ export function UserDashboard() {
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
-            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">Markets Live</span>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center justify-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
+            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">{t('markets_live')}</span>
           </div>
-          <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform">
-            Deposit Funds
+          <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform w-full sm:w-auto">
+            {t('deposit_funds')}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Balance', value: `₹${totalBalance.toLocaleString()}`, change: 'Dynamic', icon: TrendingUp, color: 'text-neon-green' },
-          { label: 'Day P&L', value: `${dayPnL.value >= 0 ? '+' : '-'}₹${Math.abs(dayPnL.value).toLocaleString()}`, change: `${dayPnL.percentage >= 0 ? '+' : ''}${dayPnL.percentage.toFixed(1)}%`, icon: Zap, color: 'text-neon-green' },
-          { label: 'Active Positions', value: '12', change: 'Stable', icon: Activity, color: 'text-white/60' },
-          { label: 'Risk Score', value: 'Low', change: 'Institutional', icon: BarChart3, color: 'text-emerald-400' },
+          { labelKey: 'total_balance',    value: `₹${totalBalance.toLocaleString()}`, change: 'Dynamic',       icon: TrendingUp, color: 'text-neon-green'  },
+          { labelKey: 'day_pnl',          value: `${dayPnL.value >= 0 ? '+' : '-'}₹${Math.abs(dayPnL.value).toLocaleString()}`,  change: `${dayPnL.percentage >= 0 ? '+' : ''}${dayPnL.percentage.toFixed(1)}%`,        icon: Zap,        color: 'text-neon-green'  },
+          { labelKey: 'active_positions', value: '12',          change: 'Stable',       icon: Activity,   color: 'text-white/60'   },
+          { labelKey: 'risk_score',       value: 'Low',         change: 'Institutional',icon: BarChart3,  color: 'text-emerald-400'},
         ].map((stat, i) => (
           <div key={i} className="bento-card group">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-mono text-white/40 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-xs font-mono text-white/40 uppercase tracking-widest">{t(stat.labelKey)}</p>
               <stat.icon className={cn("w-4 h-4", stat.color)} />
             </div>
             <div className="flex items-end justify-between">
@@ -173,37 +175,39 @@ export function UserDashboard() {
       >
         {/* Glow blob */}
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-neon-green/5 blur-[80px] pointer-events-none" />
-        <div>
-          <p className="text-xs font-mono tracking-[4px] text-neon-green/60 uppercase mb-1">New · Annual Review</p>
-          <h3 className="text-xl font-black text-white mb-1">Your Financial Wrapped 2026 is here ✦</h3>
-          <p className="text-sm text-white/40">See your top sectors, risk profile, and AI-powered insights.</p>
+        <div className="text-center sm:text-left">
+          <p className="text-[10px] sm:text-xs font-mono tracking-[2px] sm:tracking-[4px] text-neon-green/60 uppercase mb-1">{t('annual_review')}</p>
+          <h3 className="text-lg sm:text-xl font-black text-white mb-1">{t('wrapped_title')}</h3>
+          <p className="text-xs sm:text-sm text-white/40">{t('wrapped_desc')}</p>
         </div>
-        <WrappedTriggerButton />
+        <div className="mt-2 sm:mt-0">
+          <WrappedTriggerButton />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bento-card flex flex-col min-h-[400px]">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <h3 className="text-xl font-display font-bold">Portfolio Performance</h3>
-              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
-                {['1D', '1W', '1M', '1Y', 'ALL'].map(t => (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <h3 className="text-lg sm:text-xl font-display font-bold">{t('portfolio_performance')}</h3>
+            <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10 w-full sm:w-auto overflow-x-auto justify-between sm:justify-start">
+                {['1D', '1W', '1M', '1Y', 'ALL'].map(period => (
                   <button 
-                    key={t} 
+                    key={period} 
                     onClick={() => setTimeFilter(t)}
                     className={cn(
-                      "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
-                      t === timeFilter ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                      "px-3 py-1 rounded-md text-[10px] font-bold transition-all whitespace-nowrap",
+                      period === timeFilter ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
                     )}
                   >
-                    {t}
+                    {period}
                   </button>
                 ))}
               </div>
+              <button className="text-white/40 hover:text-neon-green transition-colors hidden sm:block">
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
-            <button className="text-white/40 hover:text-neon-green transition-colors">
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
           
           <div className="w-full" style={{ height: 280 }}>
@@ -257,8 +261,8 @@ export function UserDashboard() {
 
         <div className="bento-card">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-display font-bold">Watchlist</h3>
-            <button onClick={() => navigate('/user/stocks')} className="text-xs font-bold text-neon-green hover:underline">View All</button>
+            <h3 className="text-xl font-display font-bold">{t('watchlist')}</h3>
+            <button onClick={() => navigate('/user/stocks')} className="text-xs font-bold text-neon-green hover:underline">{t('view_all')}</button>
           </div>
           <div className="space-y-4">
             {assets.map((asset, i) => (
@@ -286,7 +290,7 @@ export function UserDashboard() {
           <div className="mt-8 p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-white/40" />
-              <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Recent Activity</span>
+              <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">{t('recent_activity')}</span>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-[10px]">

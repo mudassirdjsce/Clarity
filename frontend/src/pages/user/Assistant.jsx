@@ -4,6 +4,10 @@ import { Send, Bot, User, Sparkles, AlertCircle, TrendingUp, Newspaper,
          Clock, Trash2, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
+import { VoiceInputButton } from '../../components/chat/VoiceInputButton';
+import { FileUploadButton } from '../../components/chat/FileUploadButton';
+import { SpeakButton } from '../../components/chat/SpeakButton';
+import { useTranslation } from 'react-i18next';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const INTENT_LABELS = {
@@ -12,13 +16,6 @@ const INTENT_LABELS = {
   portfolio:      '💼 Portfolio Strategy',
   general:        '💬 General',
 };
-
-const QUICK_ACTIONS = [
-  { label: 'Analyze Stock',   icon: TrendingUp,  prompt: 'Analyze RELIANCE stock'         },
-  { label: 'Market News',     icon: Newspaper,   prompt: 'Show latest market news'         },
-  { label: 'Build Portfolio', icon: Briefcase,   prompt: 'Suggest a low risk portfolio'    },
-  { label: 'Risk Analysis',   icon: ShieldAlert, prompt: 'What are current market risks?'  },
-];
 
 const RISK_COLOR = {
   Low:    'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
@@ -88,7 +85,6 @@ function CompanyResponse({ data }) {
   const sentimentKey = ['Bullish','Bearish','Neutral'].find(s => data.sentiment?.market_sentiment?.includes(s)) || 'Neutral';
   const recoKey = data.recommendation;
 
-  // Safely parse a field that could be a string or an object
   const safeObj = (val) => {
     if (!val) return null;
     if (typeof val === 'object') return val;
@@ -104,7 +100,6 @@ function CompanyResponse({ data }) {
     <div className="space-y-3 text-sm">
       {data.summary && <p className="text-white/85 leading-relaxed font-medium">{data.summary}</p>}
 
-      {/* Financials Grid */}
       {financials && typeof financials === 'object' && (
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(financials).map(([k, v]) => (
@@ -116,7 +111,6 @@ function CompanyResponse({ data }) {
         </div>
       )}
 
-      {/* Risk & Sentiment Row */}
       <div className="grid grid-cols-2 gap-2">
         {riskAnalysis && (
           <div className={cn('p-3 rounded-xl border', RISK_COLOR[riskKey])}>
@@ -147,7 +141,6 @@ function CompanyResponse({ data }) {
         )}
       </div>
 
-      {/* Outlook */}
       {outlook && typeof outlook === 'object' && (
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(outlook).map(([k,v]) => (
@@ -159,7 +152,6 @@ function CompanyResponse({ data }) {
         </div>
       )}
 
-      {/* Recommendation */}
       {recoKey && (
         <div className={cn('inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-bold', RECO_COLOR[recoKey] || RECO_COLOR.Hold)}>
           <span className="text-[9px] uppercase tracking-widest opacity-70">Recommendation</span>
@@ -167,7 +159,6 @@ function CompanyResponse({ data }) {
         </div>
       )}
 
-      {/* Explanation */}
       {data.explanation && (
         <p className="text-xs text-white/40 leading-relaxed border-t border-white/5 pt-3">{data.explanation}</p>
       )}
@@ -176,10 +167,8 @@ function CompanyResponse({ data }) {
 }
 
 function StructuredResponse({ data }) {
-  // Handle null/undefined
   if (data == null) return <p className="text-sm text-white/40 italic">No response data.</p>;
 
-  // If data is a string, attempt re-parse (Groq sometimes wraps JSON in a string)
   if (typeof data === 'string') {
     const trimmed = data.trim();
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
@@ -190,7 +179,6 @@ function StructuredResponse({ data }) {
 
   if (typeof data !== 'object') return <p className="text-sm text-white/70">{String(data)}</p>;
 
-  // Error state
   if (data.error) return (
     <div className="flex items-start gap-2 text-red-400 text-sm">
       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5"/>
@@ -198,7 +186,6 @@ function StructuredResponse({ data }) {
     </div>
   );
 
-  // Safety net: if insight is itself a JSON string, re-parse and re-render
   if (data.insight && typeof data.insight === 'string') {
     const trimmed = data.insight.trim();
     if (trimmed.startsWith('{')) {
@@ -215,10 +202,11 @@ function StructuredResponse({ data }) {
 }
 
 function Sources({ sources = [] }) {
+  const { t } = useTranslation();
   if (!sources?.length) return null;
   return (
     <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-white/5">
-      <span className="text-[9px] uppercase tracking-widest text-white/20 font-bold">Sources</span>
+      <span className="text-[9px] uppercase tracking-widest text-white/20 font-bold">{t('sources')}</span>
       {sources.map((s, i) =>
         typeof s === 'string' && s.startsWith('http') ? (
           <a key={i} href={s} target="_blank" rel="noreferrer"
@@ -234,12 +222,19 @@ function Sources({ sources = [] }) {
 // ─── MessageBubble ───────────────────────────────────────────────────────────
 function MessageBubble({ msg }) {
   const isUser = msg.role === 'user';
+
+  const ttsText = isUser
+    ? msg.content
+    : (typeof msg.structured === 'string'
+        ? msg.structured
+        : msg.structured?.insight || msg.structured?.summary || msg.content || '');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
-      className={cn('flex gap-3 max-w-3xl', isUser ? 'ml-auto flex-row-reverse' : '')}
+      className={cn('flex gap-3 max-w-3xl group', isUser ? 'ml-auto flex-row-reverse' : '')}
     >
       <div className={cn(
         'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border',
@@ -262,9 +257,10 @@ function MessageBubble({ msg }) {
             : <><StructuredResponse data={msg.structured}/><Sources sources={msg.structured?.sources}/></>
           }
         </div>
-        <span className={cn('text-[9px] font-mono text-white/20 block', isUser ? 'text-right' : '')}>
-          {msg.timestamp}
-        </span>
+        <div className={cn('flex items-center gap-1.5', isUser ? 'justify-end' : 'justify-start')}>
+          <span className="text-[9px] font-mono text-white/20">{msg.timestamp}</span>
+          <SpeakButton text={ttsText} compact />
+        </div>
       </div>
     </motion.div>
   );
@@ -272,6 +268,7 @@ function MessageBubble({ msg }) {
 
 // ─── Typing Indicator ────────────────────────────────────────────────────────
 function TypingIndicator() {
+  const { t } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -287,20 +284,22 @@ function TypingIndicator() {
           <motion.div key={d} className="w-1.5 h-1.5 bg-neon-green rounded-full"
             animate={{ y: [0,-5,0] }} transition={{ duration: 0.8, repeat: Infinity, delay: d/1000 }}/>
         ))}
-        <span className="text-xs text-white/25 ml-2">Analyzing…</span>
+        <span className="text-xs text-white/25 ml-2">{t('analyzing')}</span>
       </div>
     </motion.div>
   );
 }
 
-// ─── Sidebar ─────────────────────────────────────────────────────────────────
+// ─── Chat Sidebar ─────────────────────────────────────────────────────────────
 function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
+  const { t } = useTranslation();
+
   const formatTime = (ts) => {
     const d = new Date(ts);
     const now = new Date();
     const diffMs = now - d;
     const diffH = diffMs / 3600000;
-    if (diffH < 1) return 'Just now';
+    if (diffH < 1) return t('just_now');
     if (diffH < 24) return `${Math.floor(diffH)}h ago`;
     return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
@@ -316,8 +315,8 @@ function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
             <Sparkles className="w-3.5 h-3.5 text-neon-green"/>
           </div>
           <div>
-            <span className="text-sm font-bold text-white tracking-tight">Clarity AI</span>
-            <span className="text-[9px] font-mono text-neon-green/60 block leading-none">Financial Intelligence</span>
+            <span className="text-sm font-bold text-white tracking-tight">{t('clarity_ai')}</span>
+            <span className="text-[9px] font-mono text-neon-green/60 block leading-none">{t('financial_intelligence')}</span>
           </div>
         </div>
       </div>
@@ -332,7 +331,7 @@ function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
                      hover:text-neon-green transition-all duration-200 text-sm font-medium"
         >
           <Plus className="w-4 h-4"/>
-          New Chat
+          {t('new_chat')}
         </motion.button>
       </div>
 
@@ -340,7 +339,7 @@ function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
       <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
         {sessions.length === 0 && (
           <div className="text-center py-8 text-white/20 text-xs">
-            No previous chats
+            {t('no_previous_chats')}
           </div>
         )}
         {[...sessions].reverse().map(session => (
@@ -371,7 +370,6 @@ function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
                 <span className="text-[9px] text-white/25">{formatTime(session.createdAt)}</span>
               </div>
             </div>
-            {/* Delete button */}
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(session.id); }}
               className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:text-red-400 text-white/30"
@@ -385,7 +383,7 @@ function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
       {/* Footer */}
       <div className="p-3 border-t border-white/8">
         <p className="text-[9px] text-white/15 text-center font-mono">
-          Powered by Groq · Finnhub · NewsAPI
+          {t('powered_by')}
         </p>
       </div>
     </div>
@@ -393,14 +391,28 @@ function ChatSidebar({ sessions, activeId, onSelect, onNew, onDelete }) {
 }
 
 // ─── InputBar ────────────────────────────────────────────────────────────────
-function InputBar({ input, setInput, onSend, isLoading, disabled }) {
+function InputBar({ input, setInput, onSend, onFileUpload, isLoading, disabled }) {
+  const { t } = useTranslation();
+
+  // Quick actions built inside component so t() is in scope
+  const QUICK_ACTIONS = [
+    { labelKey: 'quick_action_analyze_stock',   icon: TrendingUp,  prompt: 'Analyze RELIANCE stock'         },
+    { labelKey: 'quick_action_market_news',     icon: Newspaper,   prompt: 'Show latest market news'         },
+    { labelKey: 'quick_action_build_portfolio', icon: Briefcase,   prompt: 'Suggest a low risk portfolio'    },
+    { labelKey: 'quick_action_risk_analysis',   icon: ShieldAlert, prompt: 'What are current market risks?'  },
+  ];
+
+  const handleVoiceInput = (text) => {
+    setInput(prev => prev ? `${prev} ${text}` : text);
+  };
+
   return (
     <div className="space-y-2.5">
       {/* Quick chips */}
       <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
-        {QUICK_ACTIONS.map(({ label, icon: Icon, prompt }) => (
+        {QUICK_ACTIONS.map(({ labelKey, icon: Icon, prompt }) => (
           <motion.button
-            key={label}
+            key={labelKey}
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.02 }}
             onClick={() => setInput(prompt)}
@@ -410,33 +422,40 @@ function InputBar({ input, setInput, onSend, isLoading, disabled }) {
                        transition-all duration-200 shrink-0"
           >
             <Icon className="w-3 h-3 shrink-0"/>
-            {label}
+            {t(labelKey)}
           </motion.button>
         ))}
       </div>
 
       {/* Input row */}
       <div className={cn(
-        'flex items-center gap-3 bg-white/5 border rounded-2xl px-4 py-2.5 transition-all duration-200',
+        'flex items-center gap-2 bg-white/5 border rounded-2xl px-3 py-2 transition-all duration-200',
         'focus-within:border-neon-green/40 focus-within:shadow-[0_0_24px_rgba(57,255,20,0.07)]',
         'border-white/10'
       )}>
-        <Sparkles className="w-4 h-4 text-white/15 shrink-0"/>
+        <FileUploadButton
+          disabled={isLoading || disabled}
+          onFileParsed={onFileUpload}
+        />
         <input
           type="text"
           value={input}
           disabled={isLoading || disabled}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onSend()}
-          placeholder="Ask about stocks, portfolios, news, or market risk…"
-          className="flex-1 bg-transparent border-none outline-none text-sm py-1.5 placeholder:text-white/20 text-white"
+          placeholder={t('chat_placeholder')}
+          className="flex-1 bg-transparent border-none outline-none text-sm py-1.5 px-1 placeholder:text-white/20 text-white"
+        />
+        <VoiceInputButton
+          disabled={isLoading || disabled}
+          onTranscript={handleVoiceInput}
         />
         <motion.button
           whileTap={{ scale: 0.88 }}
-          onClick={onSend}
+          onClick={() => onSend()}
           disabled={!input.trim() || isLoading}
           className={cn(
-            'p-2 rounded-xl transition-all duration-200',
+            'p-2 rounded-xl transition-all duration-200 shrink-0 ml-1',
             input.trim() && !isLoading
               ? 'bg-neon-green text-obsidian hover:brightness-110 shadow-lg shadow-neon-green/20'
               : 'bg-white/5 text-white/20 cursor-not-allowed'
@@ -451,6 +470,15 @@ function InputBar({ input, setInput, onSend, isLoading, disabled }) {
 
 // ─── Empty State ─────────────────────────────────────────────────────────────
 function EmptyState({ onPrompt }) {
+  const { t } = useTranslation();
+
+  const QUICK_ACTIONS = [
+    { labelKey: 'quick_action_analyze_stock',   icon: TrendingUp,  prompt: 'Analyze RELIANCE stock'         },
+    { labelKey: 'quick_action_market_news',     icon: Newspaper,   prompt: 'Show latest market news'         },
+    { labelKey: 'quick_action_build_portfolio', icon: Briefcase,   prompt: 'Suggest a low risk portfolio'    },
+    { labelKey: 'quick_action_risk_analysis',   icon: ShieldAlert, prompt: 'What are current market risks?'  },
+  ];
+
   return (
     <div className="flex flex-col items-center justify-center h-full gap-8 px-8 text-center">
       <div>
@@ -468,7 +496,7 @@ function EmptyState({ onPrompt }) {
           transition={{ delay: 0.1 }}
           className="text-2xl font-bold text-white mb-2"
         >
-          How can I help you today?
+          {t('empty_state_heading')}
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 8 }}
@@ -476,7 +504,7 @@ function EmptyState({ onPrompt }) {
           transition={{ delay: 0.15 }}
           className="text-white/40 text-sm max-w-sm"
         >
-          Ask about stocks, build portfolios, get market news, or analyze financial risk.
+          {t('empty_state_subtext')}
         </motion.p>
       </div>
 
@@ -487,9 +515,9 @@ function EmptyState({ onPrompt }) {
         transition={{ delay: 0.2 }}
         className="grid grid-cols-2 gap-3 w-full max-w-lg"
       >
-        {QUICK_ACTIONS.map(({ label, icon: Icon, prompt }) => (
+        {QUICK_ACTIONS.map(({ labelKey, icon: Icon, prompt }) => (
           <button
-            key={label}
+            key={labelKey}
             onClick={() => onPrompt(prompt)}
             className="flex items-start gap-3 p-4 rounded-2xl bg-white/5 border border-white/10
                        hover:bg-neon-green/5 hover:border-neon-green/20 text-left
@@ -500,7 +528,7 @@ function EmptyState({ onPrompt }) {
               <Icon className="w-4 h-4 text-white/40 group-hover:text-neon-green transition-colors"/>
             </div>
             <div>
-              <p className="text-xs font-semibold text-white/70 group-hover:text-white transition-colors">{label}</p>
+              <p className="text-xs font-semibold text-white/70 group-hover:text-white transition-colors">{t(labelKey)}</p>
               <p className="text-[10px] text-white/30 mt-0.5 leading-snug">{prompt}</p>
             </div>
           </button>
@@ -512,6 +540,7 @@ function EmptyState({ onPrompt }) {
 
 // ─── Main Assistant Component ─────────────────────────────────────────────────
 export function Assistant({ type = 'user' }) {
+  const { t } = useTranslation();
   const userMode = type === 'company' ? 'company' : 'user';
 
   const [sessions, setSessions]   = React.useState(() => loadSessions());
@@ -522,7 +551,6 @@ export function Assistant({ type = 'user' }) {
   const [input, setInput]         = React.useState('');
   const scrollRef                 = React.useRef(null);
 
-  // Sync to localStorage
   React.useEffect(() => { saveSessions(sessions); }, [sessions]);
 
   const scrollToBottom = () => {
@@ -531,7 +559,6 @@ export function Assistant({ type = 'user' }) {
     }, 60);
   };
 
-  // --- Session management ---
   const startNewChat = React.useCallback(() => {
     const id = crypto.randomUUID();
     const session = makeSession(id);
@@ -567,11 +594,9 @@ export function Assistant({ type = 'user' }) {
     }));
   };
 
-  // --- Send message ---
   const sendMessage = async (text) => {
     if (!text?.trim()) return;
 
-    // Ensure there's an active session
     let sessionId = activeId;
     if (!sessionId) {
       sessionId = crypto.randomUUID();
@@ -616,11 +641,57 @@ export function Assistant({ type = 'user' }) {
     }
   };
 
-  const handleSend = () => {
-    if (!input.trim() || isLoading) return;
-    sendMessage(input);
-    setInput('');
+  const handleSend = (directInput) => {
+    const textToSend = typeof directInput === 'string' ? directInput : input;
+    if (!textToSend.trim() || isLoading) return;
+    sendMessage(textToSend);
+    if (!directInput) setInput('');
   };
+
+  const sendFileMessage = React.useCallback(({ displayText, backendContent }) => {
+    if (!backendContent?.trim()) return;
+
+    let sessionId = activeId;
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      const session = makeSession(sessionId);
+      setSessions(prev => [...prev, session]);
+      setActiveId(sessionId);
+    }
+
+    const ts = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const userMsg = { role: 'user', content: displayText, timestamp: ts };
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
+    updateSession(sessionId, nextMessages);
+    setIsLoading(true);
+    setError(null);
+    scrollToBottom();
+
+    fetch('http://localhost:8000/api/chat/', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: backendContent, userMode, sessionId }),
+    })
+      .then(res => res.ok ? res.json() : res.json().then(d => Promise.reject(d)))
+      .then(data => {
+        const botMsg = {
+          role:       'assistant',
+          content:    data.response?.insight || data.response?.summary || '',
+          structured: data.response,
+          intent:     data.intent,
+          timestamp:  new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        const finalMessages = [...nextMessages, botMsg];
+        setMessages(finalMessages);
+        updateSession(sessionId, finalMessages);
+        scrollToBottom();
+      })
+      .catch(err => {
+        setError(err?.detail || err?.message || 'Failed to analyze file.');
+      })
+      .finally(() => setIsLoading(false));
+  }, [activeId, messages, userMode, sessions]);
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
@@ -646,12 +717,12 @@ export function Assistant({ type = 'user' }) {
             <h1 className="text-sm font-semibold text-white/80">
               {activeId
                 ? sessions.find(s => s.id === activeId)?.title || 'Chat'
-                : 'Clarity AI'
+                : t('clarity_ai')
               }
             </h1>
             {activeId && (
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-neon-green/10 border border-neon-green/20 text-neon-green font-bold uppercase tracking-widest">
-                Active
+                {t('active')}
               </span>
             )}
           </div>
@@ -698,10 +769,11 @@ export function Assistant({ type = 'user' }) {
               input={input}
               setInput={setInput}
               onSend={handleSend}
+              onFileUpload={sendFileMessage}
               isLoading={isLoading}
             />
             <p className="text-[9px] text-white/15 text-center mt-3 font-mono">
-              Clarity AI can make mistakes. Always verify financial information independently.
+              {t('ai_disclaimer')}
             </p>
           </div>
         </div>

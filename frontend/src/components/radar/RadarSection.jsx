@@ -53,7 +53,7 @@ export default function RadarSection() {
       <div className="flex flex-col lg:flex-row gap-6 items-stretch">
         {/* LEFT — Chart (70%) */}
         <div
-          className="flex-1 lg:w-[70%] min-h-[380px] rounded-xl border border-white/5 p-4"
+          className="flex-1 w-full min-w-0 overflow-hidden lg:w-[70%] min-h-[380px] rounded-xl border border-white/5 p-2 sm:p-4"
           style={{ background: "rgba(255,255,255,0.015)" }}
         >
           <RadarChartDisplay activeCharts={activeCharts} />

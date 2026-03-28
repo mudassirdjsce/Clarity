@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { signup } from "../../services/api";
 import clarityLogo from "../../assets/CLARITY1.svg";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
 const NEON = "#39FF14";
@@ -34,6 +36,66 @@ const labelStyle = {
   letterSpacing: 0.5, marginBottom: 6, display: "block",
 };
 
+const AnimatedGlobe = () => (
+  <div style={{
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    width: '700px',
+    height: '700px',
+    marginLeft: '-350px',
+    marginTop: '-350px',
+    perspective: '1000px',
+    pointerEvents: 'none',
+    zIndex: 0,
+    opacity: 0.15,
+  }}>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      transformStyle: 'preserve-3d',
+      animation: 'spinGlobe 40s linear infinite',
+    }}>
+      {/* Longitude rings */}
+      {[0, 20, 40, 60, 80, 100, 120, 140, 160].map(deg => (
+        <div key={`long-${deg}`} style={{
+          position: 'absolute',
+          inset: 0,
+          border: `1px solid ${NEON}`,
+          borderRadius: '50%',
+          transform: `rotateY(${deg}deg)`
+        }} />
+      ))}
+      {/* Latitude rings */}
+      {[
+        { t: -300, s: 0.514 },
+        { t: -230, s: 0.753 },
+        { t: -150, s: 0.903 },
+        { t: -75, s: 0.976 },
+        { t: 0, s: 1 },
+        { t: 75, s: 0.976 },
+        { t: 150, s: 0.903 },
+        { t: 230, s: 0.753 },
+        { t: 300, s: 0.514 },
+      ].map((lat, i) => (
+        <div key={`lat-${i}`} style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '700px',
+          height: '700px',
+          marginLeft: '-350px',
+          marginTop: '-350px',
+          border: `1px solid ${NEON}`,
+          borderRadius: '50%',
+          transform: `translateY(${lat.t}px) scale(${lat.s}) rotateX(90deg)`
+        }} />
+      ))}
+    </div>
+  </div>
+);
+
 // ── Password strength ─────────────────────────────────────────────────────────
 const getStrength = (pw) => {
   if (!pw) return { score: 0, label: "", color: MUTED };
@@ -43,15 +105,16 @@ const getStrength = (pw) => {
   if (/[0-9]/.test(pw)) score++;
   if (/[^a-zA-Z0-9]/.test(pw)) score++;
   const levels = [
-    { score: 1, label: "Weak", color: "#ff4444" },
-    { score: 2, label: "Fair", color: "#f5c518" },
-    { score: 3, label: "Good", color: "#88c8ff" },
-    { score: 4, label: "Strong", color: NEON },
+    { score: 1, labelKey: "pw_weak",   color: "#ff4444" },
+    { score: 2, labelKey: "pw_fair",   color: "#f5c518" },
+    { score: 3, labelKey: "pw_good",   color: "#88c8ff" },
+    { score: 4, labelKey: "pw_strong", color: NEON },
   ];
-  return levels[score - 1] || { score: 0, label: "", color: MUTED };
+  return levels[score - 1] || { score: 0, labelKey: "", color: MUTED };
 };
 
 export default function Signup() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [role, setRole] = useState("user");
@@ -68,15 +131,15 @@ export default function Signup() {
     e.preventDefault();
     setError("");
     if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(t('pw_too_short'));
       return;
     }
     setLoading(true);
     try {
       await signup({ ...form, role });
-      navigate("/login", { state: { message: "Account created successfully! Please sign in." } });
+      navigate("/login", { state: { message: t('signup_success') } });
     } catch (err) {
-      setError(err.message || "Signup failed. Please try again.");
+      setError(t('signup_failed'));
     } finally {
       setLoading(false);
     }
@@ -95,13 +158,20 @@ export default function Signup() {
         input::placeholder { color: #404040; }
         @keyframes glow-pulse { 0%,100%{box-shadow:0 0 8px ${NEON}66} 50%{box-shadow:0 0 20px ${NEON}99} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes spinGlobe { 0% { transform: rotateX(15deg) rotateY(0deg); } 100% { transform: rotateX(15deg) rotateY(360deg); } }
       `}</style>
+
+      {/* Fixed language switcher — top right */}
+      <div style={{ position: 'fixed', top: 20, right: 24, zIndex: 100 }}>
+        <LanguageSwitcher />
+      </div>
 
       {/* Background grid */}
       <div style={{ position: "fixed", inset: 0, backgroundImage: `radial-gradient(circle at 1px 1px, #1a1a1a 1px, transparent 0)`, backgroundSize: "32px 32px", opacity: 0.4, pointerEvents: "none" }} />
 
-      {/* Ambient glow */}
+      {/* Ambient glow and Globe */}
       <div style={{ position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)", width: 500, height: 500, background: `radial-gradient(circle, ${NEON}06 0%, transparent 70%)`, pointerEvents: "none" }} />
+      <AnimatedGlobe />
 
       <div style={{ width: "100%", maxWidth: 460, animation: "fadeUp 0.4s ease both", position: "relative" }}>
 
@@ -122,17 +192,17 @@ export default function Signup() {
           {/* subtle accent top border highlight */}
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #39ff14, transparent)", opacity: 0.3 }} />
           <h1 style={{ fontSize: 24, fontWeight: 900, color: TEXT, letterSpacing: -0.5, marginBottom: 6 }}>
-            Create your account
+            {t('signup_heading')}
           </h1>
           <p style={{ fontSize: 13, color: MUTED, marginBottom: 28 }}>
-            Join Clarity and get AI-powered market intelligence
+            {t('signup_subtext')}
           </p>
 
           {/* Role Switcher */}
           <div style={{ display: "flex", background: "#080808", border: `1px solid ${BORDER}`, borderRadius: 10, padding: 4, marginBottom: 24, gap: 4 }}>
             {[
-              { value: "user", label: " Retail Investor", sub: "Individual" },
-              { value: "company", label: " Institution", sub: "Professional" },
+              { value: "user",    label: t('retail_investor'), sub: t('individual') },
+              { value: "company", label: t('institution'),     sub: t('professional') },
             ].map((r) => (
               <button
                 key={r.value}
@@ -168,7 +238,7 @@ export default function Signup() {
 
               {/* Name */}
               <div>
-                <label style={labelStyle}>Full Name</label>
+                <label style={labelStyle}>{t('full_name')}</label>
                 <input
                   name="name" type="text" required
                   value={form.name} onChange={handleChange}
@@ -181,7 +251,7 @@ export default function Signup() {
 
               {/* Email */}
               <div>
-                <label style={labelStyle}>Email Address</label>
+                <label style={labelStyle}>{t('email_address')}</label>
                 <input
                   name="email" type="email" required
                   value={form.email} onChange={handleChange}
@@ -194,11 +264,11 @@ export default function Signup() {
 
               {/* Phone */}
               <div>
-                <label style={labelStyle}>Phone Number</label>
+                <label style={labelStyle}>{t('phone_number')}</label>
                 <input
                   name="phone" type="tel" required
                   value={form.phone} onChange={handleChange}
-                  placeholder="+91 98765 43210"
+                  placeholder={t('pw_min')}
                   style={inputStyle(focused.phone)}
                   onFocus={() => setFocused(f => ({ ...f, phone: true }))}
                   onBlur={() => setFocused(f => ({ ...f, phone: false }))}
@@ -207,7 +277,7 @@ export default function Signup() {
 
               {/* Password */}
               <div>
-                <label style={labelStyle}>Password</label>
+                <label style={labelStyle}>{t('password')}</label>
                 <input
                   name="password" type="password" required
                   value={form.password} onChange={handleChange}
@@ -230,7 +300,7 @@ export default function Signup() {
                       ))}
                     </div>
                     <span style={{ fontSize: 11, color: strength.color, fontWeight: 700, marginTop: 5, display: "block" }}>
-                      {strength.label}
+                      {strength.labelKey ? t(strength.labelKey) : ''}
                     </span>
                   </div>
                 )}
@@ -242,13 +312,13 @@ export default function Signup() {
                 borderRadius: 10, padding: "12px 14px",
                 display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
-                <span style={{ fontSize: 12, color: MUTED }}>Account type</span>
+                <span style={{ fontSize: 12, color: MUTED }}>{t('account_type')}</span>
                 <span style={{
                   fontSize: 11, fontWeight: 800, color: NEON,
                   background: NEON_DIM, border: `1px solid ${NEON_BORDER}`,
                   padding: "3px 10px", borderRadius: 20, letterSpacing: 0.5,
                 }}>
-                  {role === "company" ? "INSTITUTION" : "RETAIL INVESTOR"}
+                  {role === "company" ? t('institution_badge') : t('retail_badge')}
                 </span>
               </div>
 
@@ -267,7 +337,7 @@ export default function Signup() {
                   marginTop: 4,
                 }}
               >
-                {loading ? "Creating account…" : "Create Account →"}
+                {loading ? t('creating_account') : t('create_account_btn')}
               </button>
             </div>
           </form>
@@ -275,7 +345,7 @@ export default function Signup() {
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "24px 0" }}>
             <div style={{ flex: 1, height: 1, background: BORDER }} />
-            <span style={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>ALREADY HAVE AN ACCOUNT?</span>
+            <span style={{ fontSize: 11, color: MUTED, fontWeight: 600 }}>{t('already_have_account')}</span>
             <div style={{ flex: 1, height: 1, background: BORDER }} />
           </div>
 
@@ -290,14 +360,14 @@ export default function Signup() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = NEON_BORDER; e.currentTarget.style.color = NEON; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER2; e.currentTarget.style.color = SUB; }}
             >
-              Sign In Instead
+              {t('sign_in_instead')}
             </button>
           </Link>
         </div>
 
         {/* Footer */}
         <p style={{ textAlign: "center", fontSize: 11, color: MUTED, marginTop: 20 }}>
-          Market Intelligence · AI-Powered · Real-time Data
+          {t('market_footer')}
         </p>
       </div>
     </div>
