@@ -21,7 +21,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
-import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival } from '../../services/api';
+import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount } from '../../services/api';
 
 export default function UserProfile() {
   const [biometric, setBiometric] = useState(true);
@@ -52,6 +52,11 @@ export default function UserProfile() {
   const [newExpense, setNewExpense] = useState({ category: '', amount: '' });
   const [isAddingExpense, setIsAddingExpense] = useState(false);
 
+  // Bank Accounts State
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [expandedAccount, setExpandedAccount] = useState(null);
+
   useEffect(() => {
     if (user.email) {
       fetchUserGoals(user.email)
@@ -60,6 +65,9 @@ export default function UserProfile() {
       fetchUserFestivals(user.email)
         .then(data => setFestivals(data.festivals || []))
         .catch(err => console.error("Error fetching festivals:", err));
+      fetchBankAccounts(user.email)
+        .then(data => setBankAccounts(data.accounts || []))
+        .catch(err => console.error("Error fetching bank accounts:", err));
     }
   }, [user.email]);
 
@@ -104,6 +112,21 @@ export default function UserProfile() {
       } catch (err) {
         console.error("Failed to delete goal", err);
       }
+    }
+  };
+
+  const handleConnectBank = async () => {
+    setIsConnecting(true);
+    // Simulate a 2.5s "bank handshake" delay for UX drama
+    await new Promise(r => setTimeout(r, 2500));
+    try {
+      const res = await connectBankAccount({ email: user.email });
+      setBankAccounts(prev => [...prev, res.account]);
+      setExpandedAccount(res.account._id);
+    } catch (err) {
+      console.error("Failed to connect bank account", err);
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -237,38 +260,82 @@ export default function UserProfile() {
               <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Connected Institutions</p>
             </div>
           </div>
+
           <div className="space-y-4 pt-2">
-            <div className="bg-white/[0.03] border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#8EFF71]/0 via-[#8EFF71]/5 to-[#8EFF71]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-              <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#1A231C] border border-[#2A3B2E] flex items-center justify-center font-bold text-[#8EFF71]">CH</div>
-                  <div>
-                    <p className="font-bold text-[#E8F5E9]">Chase Priority</p>
-                    <p className="text-xs text-[#9FB8A7]">Active Connection</p>
+            {/* Existing connected accounts */}
+            {bankAccounts.map((acc) => (
+              <div key={acc._id} className="bg-white/3 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
+                <div className="absolute inset-0 bg-linear-to-r from-[#8EFF71]/0 via-[#8EFF71]/5 to-[#8EFF71]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="flex justify-between items-start mb-4 relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#1A231C] border border-[#2A3B2E] flex items-center justify-center font-bold text-[#8EFF71] text-sm">
+                      {acc.bankName.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#E8F5E9]">{acc.bankName}</p>
+                      <p className="text-xs text-[#9FB8A7]">Active Connection</p>
+                    </div>
+                  </div>
+                  <CheckCircle2 className="text-[#8EFF71]" size={18} />
+                </div>
+                <div className="space-y-3 relative z-10">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[#9FB8A7]">Account Number</span>
+                    <span className="font-mono text-[#E8F5E9]">{acc.accountNumber}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-[#9FB8A7]">Balance</span>
+                    <span className="font-mono text-[#8EFF71] font-bold drop-shadow-[0_0_6px_rgba(142,255,113,0.4)]">
+                      ₹{acc.balance.toLocaleString('en-IN')}
+                    </span>
                   </div>
                 </div>
-                <CheckCircle2 className="text-[#8EFF71]" size={18} />
+
+                {/* Transactions toggle */}
+                <button
+                  onClick={() => setExpandedAccount(expandedAccount === acc._id ? null : acc._id)}
+                  className="mt-4 w-full text-[10px] uppercase tracking-[0.2em] font-bold text-[#9FB8A7] hover:text-[#8EFF71] transition-colors relative z-10 flex items-center justify-center gap-1"
+                >
+                  {expandedAccount === acc._id ? '▲ Hide' : '▼ Transactions'}
+                </button>
+
+                {expandedAccount === acc._id && (
+                  <div className="mt-3 space-y-2 relative z-10">
+                    {acc.transactions.map((tx, j) => (
+                      <div key={j} className="flex justify-between items-center py-2 border-t border-white/5 text-sm">
+                        <div>
+                          <p className="text-[#E8F5E9] font-medium text-xs">{tx.description}</p>
+                          <p className="text-[10px] text-[#9FB8A7]">
+                            {new Date(tx.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </p>
+                        </div>
+                        <span className={`font-mono font-bold text-sm ${ tx.amount >= 0 ? 'text-[#8EFF71]' : 'text-red-400' }`}>
+                          {tx.amount >= 0 ? '+' : ''}₹{Math.abs(tx.amount).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="space-y-3 relative z-10">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-[#9FB8A7]">Account Number</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[#E8F5E9]">**** 8829</span>
-                    <Eye size={14} className="text-[#9FB8A7] cursor-pointer hover:text-[#8EFF71] transition-colors" />
-                  </div>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-[#9FB8A7]">Routing Number</span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[#E8F5E9]">**** 0210</span>
-                    <Eye size={14} className="text-[#9FB8A7] cursor-pointer hover:text-[#8EFF71] transition-colors" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button className="w-full border border-[#8EFF71]/30 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-4 rounded-2xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] hover:shadow-[0_0_20px_rgba(142,255,113,0.2)]">
-              <Plus size={16} /> Connect Bank Account
+            ))}
+
+            {/* Connect button */}
+            <button
+              onClick={handleConnectBank}
+              disabled={isConnecting}
+              className="w-full border border-[#8EFF71]/30 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-4 rounded-2xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] hover:shadow-[0_0_20px_rgba(142,255,113,0.2)] disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isConnecting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-[#8EFF71]" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Connecting to bank...
+                </>
+              ) : (
+                <><Plus size={16} /> Connect Bank Account</>
+              )}
             </button>
           </div>
         </Card>
