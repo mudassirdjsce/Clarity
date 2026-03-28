@@ -45,7 +45,6 @@ export function Sidebar({ isOpen, onClose }) {
   }
 
   const secondaryItems = [
-    { icon: HelpCircle, labelKey: 'support', path: '/support' },
     { 
       icon: LogOut, 
       labelKey: 'logout', 

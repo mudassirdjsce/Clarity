@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import RadarSection from '../../components/radar/RadarSection';
 import {
   TrendingUp,
@@ -120,6 +121,8 @@ const PortfolioSankeyChart = () => {
 };
 
 export function CompanyDashboard() {
+  const navigate = useNavigate();
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -276,11 +279,11 @@ export function CompanyDashboard() {
         <div className="bento-card">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-display font-bold">Watchlist</h3>
-            <button className="text-xs font-bold text-neon-green hover:underline">View All</button>
+            <button onClick={() => navigate('/company/stocks')} className="text-xs font-bold text-neon-green hover:underline">View All</button>
           </div>
           <div className="space-y-4">
             {assets.map((asset, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+              <div onClick={() => navigate('/company/stocks')} key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-neon-green/30 transition-colors">
                     <span className="font-mono font-bold text-xs" style={{ color: asset.color }}>{asset.symbol[0]}</span>
