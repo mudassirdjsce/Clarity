@@ -45,8 +45,14 @@ export function Sidebar({ isOpen, onClose }) {
   }
 
   const secondaryItems = [
-    { icon: Settings, labelKey: 'settings', path: '/settings' },
     { icon: HelpCircle, labelKey: 'support', path: '/support' },
+    { 
+      icon: LogOut, 
+      labelKey: 'logout', 
+      path: '/login', 
+      className: 'text-red-500 hover:text-red-400 hover:bg-red-500/10',
+      onClick: () => localStorage.removeItem('clarity_user')
+    },
   ];
 
   return (
@@ -97,11 +103,12 @@ export function Sidebar({ isOpen, onClose }) {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={item.onClick}
               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
-                isActive
+                item.className || (isActive
                   ? "bg-white/10 text-white"
-                  : "text-white/40 hover:text-white hover:bg-white/5"
+                  : "text-white/40 hover:text-white hover:bg-white/5")
               )}
             >
               <item.icon className="w-5 h-5" />
