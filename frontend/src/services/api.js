@@ -36,6 +36,18 @@ export const fetchInstitutionNews = (filters = {}) =>
  */
 export const fetchInsights = () => apiFetch("/insights");
 
+// ── User Goals ───────────────────────────────────────────────────────────────
+export const fetchUserGoals = (email) => apiFetch("/auth/goals", { email });
+export const addUserGoal = (payload) => apiPost("/auth/goals", payload);
+export const addGoalFunds = (payload) => apiPost("/auth/goals/add-funds", payload);
+export const deleteUserGoal = (id) => apiDelete(`/auth/goals/${id}`);
+
+// ── Events & Festivals ───────────────────────────────────────────────────────
+export const fetchUserFestivals = (email) => apiFetch("/auth/festivals", { email });
+export const addUserFestival = (payload) => apiPost("/auth/festivals", payload);
+export const addFestivalExpense = (id, payload) => apiPost(`/auth/festivals/${id}/expenses`, payload);
+export const deleteUserFestival = (id) => apiDelete(`/auth/festivals/${id}`);
+
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");
 
@@ -45,6 +57,16 @@ const apiPost = async (path, body) => {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+};
+
+const apiDelete = async (path) => {
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Request failed");

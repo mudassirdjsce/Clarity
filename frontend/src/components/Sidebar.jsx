@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  LineChart, 
-  Settings, 
+import {
+  LayoutDashboard,
+  LineChart,
+  MessageSquare,
+  Settings,
   HelpCircle,
   Wallet,
   Globe
@@ -38,8 +39,8 @@ export function Sidebar() {
                 to={item.path}
                 className={({ isActive }) => cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
-                  isActive 
-                    ? "bg-neon-green/10 text-neon-green border border-neon-green/20" 
+                  isActive
+                    ? "bg-neon-green/10 text-neon-green border border-neon-green/20"
                     : "text-white/50 hover:text-white hover:bg-white/5"
                 )}
               >
@@ -74,8 +75,8 @@ export function Sidebar() {
             to={item.path}
             className={({ isActive }) => cn(
               "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
-              isActive 
-                ? "bg-white/10 text-white" 
+              isActive
+                ? "bg-white/10 text-white"
                 : "text-white/40 hover:text-white hover:bg-white/5"
             )}
           >
@@ -89,7 +90,7 @@ export function Sidebar() {
         <div className="mt-6 p-4 rounded-2xl bg-neon-green/5 border border-neon-green/20">
           <div className="flex items-center gap-2 mb-2">
             <Globe className="w-4 h-4 text-neon-green" />
-            <span className="text-[10px] font-bold text-neon-green uppercase tracking-wider">Pro Node Active</span>
+            <span className="text-[10px] font-bold text-neon-green uppercase tracking-wider">Pro Mode Active</span>
           </div>
           <p className="text-[10px] text-white/40 leading-relaxed">
             Connected to Institutional Liquidity Pool #482. Latency: 4ms.

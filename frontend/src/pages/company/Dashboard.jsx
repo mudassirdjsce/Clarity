@@ -17,6 +17,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import { cn } from '../../lib/utils';
+import ReactECharts from 'echarts-for-react';
 
 const data = [
   { name: '00:00', value: 42000 },
@@ -34,6 +35,77 @@ const assets = [
   { name: 'Solana', symbol: 'SOL', price: '$104', change: '+12.5%', color: '#14f195' },
   { name: 'Apple', symbol: 'AAPL', price: '$189', change: '+0.5%', color: '#ffffff' },
 ];
+
+const PortfolioSankeyChart = () => {
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      triggerOn: 'mousemove',
+      backgroundColor: '#0b0f0b',
+      borderColor: 'rgba(255,255,255,0.1)',
+      textStyle: { color: '#ffffff' },
+      formatter: function (params) {
+        if (params.data.source) {
+          return `${params.data.source} → ${params.data.target}<br/><b>$${params.data.value.toLocaleString()}</b>`;
+        }
+        return `${params.name}<br/><b>$${params.value ? params.value.toLocaleString() : 0}</b>`;
+      },
+    },
+    series: [
+      {
+        type: 'sankey',
+        left: 0,
+        right: 0,
+        top: 10,
+        bottom: 10,
+        nodeAlign: 'justify',
+        draggable: true,
+        data: [
+          { name: 'Total Portfolio Value ($100k)', itemStyle: { color: '#39ff14' } },
+          { name: 'Equities', itemStyle: { color: '#2ce60d' } },
+          { name: 'Fixed Income', itemStyle: { color: '#1db305' } },
+          { name: 'Alternatives', itemStyle: { color: '#138200' } },
+          { name: 'US Tech', itemStyle: { color: '#8eff71' } },
+          { name: 'Healthcare', itemStyle: { color: '#5eff40' } },
+          { name: 'Corp Bonds', itemStyle: { color: '#43c42d' } },
+          { name: 'Real Estate', itemStyle: { color: '#0a4a00' } },
+        ],
+        links: [
+          { source: 'Total Portfolio Value ($100k)', target: 'Equities', value: 60000 },
+          { source: 'Total Portfolio Value ($100k)', target: 'Fixed Income', value: 30000 },
+          { source: 'Total Portfolio Value ($100k)', target: 'Alternatives', value: 10000 },
+          { source: 'Equities', target: 'US Tech', value: 40000 },
+          { source: 'Equities', target: 'Healthcare', value: 20000 },
+          { source: 'Fixed Income', target: 'Corp Bonds', value: 30000 },
+          { source: 'Alternatives', target: 'Real Estate', value: 10000 },
+        ],
+        lineStyle: {
+          color: 'source',
+          curveness: 0.5,
+          opacity: 0.3,
+        },
+        label: {
+          color: '#ffffff',
+          fontFamily: 'monospace',
+          fontSize: 10,
+        },
+        itemStyle: {
+          borderWidth: 1,
+          borderColor: '#ffffff20',
+        },
+      },
+    ],
+  };
+
+  return (
+    <ReactECharts
+      option={option}
+      style={{ height: '350px', width: '100%' }}
+      opts={{ renderer: 'canvas' }}
+    />
+  );
+};
 
 export function CompanyDashboard() {
   return (
@@ -179,35 +251,14 @@ export function CompanyDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3 bento-card overflow-hidden">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-2">
             <h3 className="text-xl font-display font-bold flex items-center gap-2">
               <Activity className="w-5 h-5 text-neon-green" />
-              Order Book Depth
+              Portfolio Flow Summary
             </h3>
-            <div className="flex items-center gap-4 text-[10px] font-mono">
-              <span className="text-neon-green">BID: 46,201.50</span>
-              <span className="text-red-500">ASK: 46,202.10</span>
-            </div>
           </div>
-          <div className="grid grid-cols-2 gap-8">
-            <div className="space-y-1">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="flex items-center justify-between text-[10px] font-mono py-1 px-2 hover:bg-neon-green/5 transition-colors">
-                  <span className="text-neon-green">46,201.{(8-i)*10}</span>
-                  <span className="text-white/40">{(Math.random() * 2).toFixed(3)} BTC</span>
-                  <div className="absolute right-0 h-full bg-neon-green/10" style={{ width: `${Math.random() * 60}%` }}></div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-1">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="flex items-center justify-between text-[10px] font-mono py-1 px-2 hover:bg-red-500/5 transition-colors">
-                  <span className="text-red-500">46,202.{i*10}</span>
-                  <span className="text-white/40">{(Math.random() * 2).toFixed(3)} BTC</span>
-                  <div className="absolute left-0 h-full bg-red-500/10" style={{ width: `${Math.random() * 60}%` }}></div>
-                </div>
-              ))}
-            </div>
+          <div className="w-full">
+            <PortfolioSankeyChart />
           </div>
         </div>
         
