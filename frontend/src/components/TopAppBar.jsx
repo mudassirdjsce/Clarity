@@ -15,26 +15,7 @@ export function TopAppBar() {
           <img src={logo} alt="Clarity Logo" className="h-10 w-auto object-contain" />
         </NavLink>
 
-        <nav className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
-          <NavLink
-            to="/user/dashboard"
-            className={({ isActive }) => cn(
-              "px-4 py-1.5 rounded-lg text-sm font-medium transition-all",
-              !isCompany ? "bg-neon-green text-obsidian shadow-lg" : "text-white/60 hover:text-white"
-            )}
-          >
-            Retail
-          </NavLink>
-          <NavLink
-            to="/company/dashboard"
-            className={({ isActive }) => cn(
-              "px-4 py-1.5 rounded-lg text-sm font-medium transition-all",
-              isCompany ? "bg-neon-green text-obsidian shadow-lg" : "text-white/60 hover:text-white"
-            )}
-          >
-            Pro Terminal
-          </NavLink>
-        </nav>
+
       </div>
 
       <div className="flex items-center gap-4">

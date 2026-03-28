@@ -17,7 +17,7 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#0b0f0b]/80 backdrop-blur-xl border-b border-[#454943]/15 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
       <div className="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
-        <div className="text-2xl font-bold tracking-tighter text-primary drop-shadow-[0_0_8px_#8eff71] font-headline cursor-pointer" onClick={() => navigate("/")}>
+        <div className="text-2xl font-bold tracking-tighter text-primary drop-shadow-[0_0_8px_#39ff14] font-headline cursor-pointer" onClick={() => navigate("/")}>
           CLARITY
         </div>
         <div className="hidden md:flex items-center gap-8">
@@ -42,7 +42,7 @@ const Navbar = () => {
           </button>
           <button
             onClick={() => navigate("/signup")}
-            className="bg-primary text-on-primary font-headline uppercase tracking-[0.05rem] text-sm font-bold px-6 py-2.5 rounded-full hover:bg-primary-dim transition-all active:scale-95 duration-200 ease-out shadow-[0_0_15px_rgba(142,255,113,0.3)]"
+            className="bg-primary text-on-primary font-headline uppercase tracking-[0.05rem] text-sm font-bold px-6 py-2.5 rounded-full hover:bg-primary-dim transition-all active:scale-95 duration-200 ease-out shadow-[0_0_15px_rgba(57,255,20,0.3)]"
           >
             Get Started
           </button>
@@ -65,9 +65,9 @@ const Hero = () => {
   <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden hero-gradient">
     <motion.div 
       initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 0.2, scale: 1 }}
+      animate={{ opacity: 0.5, scale: 1 }}
       transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] synthetic-orb rounded-full pointer-events-none"
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#39ff14] blur-[150px] rounded-full pointer-events-none mix-blend-screen"
     />
     
     <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
@@ -103,7 +103,7 @@ const Hero = () => {
       >
         <button
           onClick={() => navigate("/signup")}
-          className="group relative px-10 py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-lg tracking-wide hover:bg-primary-dim transition-all active:scale-95 shadow-[0_0_30px_rgba(142,255,113,0.4)] overflow-hidden"
+          className="group relative px-10 py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-lg tracking-wide hover:bg-primary-dim transition-all active:scale-95 shadow-[0_0_30px_rgba(57,255,20,0.4)] overflow-hidden"
         >
           <span className="relative z-10 uppercase">GET STARTED</span>
           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
@@ -139,7 +139,7 @@ const Hero = () => {
                 whileInView={{ width: stat.progress }}
                 viewport={{ once: false }}
                 transition={{ duration: 1, delay: 0.8 + i * 0.1 }}
-                className="h-full bg-primary shadow-[0_0_8px_#8eff71]"
+                className="h-full bg-primary shadow-[0_0_8px_#39ff14]"
               />
             </div>
           </motion.div>
@@ -173,7 +173,7 @@ const VelocitySection = () => (
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: false, margin: "-50px" }}
           transition={{ duration: 0.6 }}
-          whileHover={{ borderColor: "rgba(142, 255, 113, 0.2)" }}
+          whileHover={{ borderColor: "rgba(57, 255, 20, 0.2)" }}
           className="md:col-span-6 group relative overflow-hidden rounded-xl bg-surface-container-low border border-outline-variant/5 h-[600px] flex flex-col justify-end p-12 transition-all duration-500"
           onClick={() => navigate("/signup")}
         >
@@ -225,7 +225,7 @@ const VelocitySection = () => (
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: false, margin: "-50px" }}
           transition={{ duration: 0.6 }}
-          whileHover={{ borderColor: "rgba(142, 255, 113, 0.2)" }}
+          whileHover={{ borderColor: "rgba(57, 255, 20, 0.2)" }}
           className="md:col-span-6 group relative overflow-hidden rounded-xl bg-surface-container-high border border-outline-variant/10 h-[600px] flex flex-col justify-end p-12 transition-all duration-500"
         >
           <div className="absolute inset-0 z-0 opacity-30 group-hover:scale-105 transition-transform duration-700 mix-blend-overlay">
@@ -250,7 +250,7 @@ const VelocitySection = () => (
             </p>
             <button
               onClick={() => navigate("/signup")}
-              className="w-full px-8 py-4 bg-primary text-on-primary font-bold rounded-full hover:bg-primary-dim transition-all shadow-[0_0_20px_rgba(142,255,113,0.2)]"
+              className="w-full px-8 py-4 bg-primary text-on-primary font-bold rounded-full hover:bg-primary-dim transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)]"
             >
               ACCESS TERMINAL
             </button>
@@ -269,7 +269,7 @@ const PulseSection = () => (
           <motion.div 
             animate={{ opacity: [0.2, 0.4, 0.2] }}
             transition={{ duration: 4, repeat: Infinity }}
-            className="absolute inset-0 synthetic-orb opacity-40"
+            className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#39ff14_0%,_transparent_70%)] blur-[80px] opacity-40 mix-blend-screen"
           />
           <motion.div 
             animate={{ rotate: 360 }}
@@ -306,7 +306,7 @@ const PulseSection = () => (
               className="text-center"
             >
               <Zap className="w-16 h-16 text-primary mx-auto" fill="currentColor" />
-              <div className="mt-4 font-headline text-2xl font-bold tracking-widest text-[#fafdf5] uppercase">SYNTHETIC PULSE</div>
+              <div className="mt-4 font-headline text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-[#39ff14] to-[rgba(57,255,20,0.3)] uppercase">SYNTHETIC PULSE</div>
             </motion.div>
           </div>
         </div>
@@ -316,7 +316,7 @@ const PulseSection = () => (
           {...animateScroll}
           className="font-headline text-4xl md:text-6xl font-bold text-[#fafdf5] tracking-tight mb-8"
         >
-          POWERED BY THE <br/><span className="text-primary">SYNTHETIC PULSE</span>
+          POWERED BY THE <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[rgba(57,255,20,0.4)]">SYNTHETIC PULSE</span>
         </motion.h2>
         <div className="space-y-12">
           {[
@@ -390,7 +390,7 @@ const CTASection = () => (
       >
         <button
           onClick={() => navigate("/signup")}
-          className="px-12 py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-xl shadow-[0_0_40px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform active:scale-95"
+          className="px-12 py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-xl shadow-[0_0_40px_rgba(57,255,20,0.3)] hover:scale-105 transition-transform active:scale-95"
         >
           GET STARTED NOW
         </button>
