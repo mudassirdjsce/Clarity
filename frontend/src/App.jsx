@@ -6,7 +6,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import GamifiedLearningPath from './pages/common/GamifiedLearningPath';
 
 // ── Auth (Common) ─────────────────────────────────────────────────────────────
 import Login       from './pages/common/Login';
@@ -20,6 +19,7 @@ import { Markets   as UserMarkets }   from './pages/user/Markets';
 import RetailNews                     from './pages/user/RetailNews';
 import { Assistant as UserAssistant } from './pages/user/Assistant';
 import UserProfile                    from './pages/user/Profile';
+import GamifiedLearningPath           from './pages/user/GamifiedLearningPath';
 
 // ── Company Pages ─────────────────────────────────────────────────────────────
 import { CompanyDashboard }              from './pages/company/Dashboard';
@@ -69,7 +69,6 @@ export default function App() {
               <Route path="assistant" element={<CompanyAssistant type="company" />} />
               <Route path="news"      element={<NewsInstitution />} />
               <Route path="profile"   element={<CompanyProfile />} />
-              <Route path="academy"   element={<GamifiedLearningPath />} />
             </Route>
 
           </Route>

@@ -6,7 +6,8 @@ const levelsData = [
   {
     id: 1,
     title: "Beginner: ETF Basics",
-    videoUrl: "https://www.youtube.com/embed/aLiiUs2fEaE",
+    videoUrl: "https://www.youtube.com/embed/OwpFBi-jZVg",
+    thumbnail: "https://i.ytimg.com/vi/OwpFBi-jZVg/hq720.jpg",
     questions: [
       { q: "What does ETF stand for?", options: ["Exchange Traded Fund", "Equity Trade Fund", "Exchange Trade Finance"], correct: 0 },
       { q: "What is a primary benefit of ETFs?", options: ["High Risk", "Diversification", "Guaranteed Returns"], correct: 1 },
@@ -16,7 +17,8 @@ const levelsData = [
   {
     id: 2,
     title: "Intermediate: Candlesticks",
-    videoUrl: "https://www.youtube.com/embed/TdQSeLpJmfY",
+    videoUrl: "https://www.youtube.com/embed/ul34Jfh-LOk",
+    thumbnail: "https://i.ytimg.com/vi/ul34Jfh-LOk/hq720.jpg",
     questions: [
       { q: "What does a green candlestick usually indicate?", options: ["Price went down", "Price went up", "No change"], correct: 1 },
       { q: "What are the 'wicks' on a candlestick called?", options: ["Shadows", "Bodies", "Tails"], correct: 0 },
@@ -26,7 +28,8 @@ const levelsData = [
   {
     id: 3,
     title: "Advanced: Stocks vs Bonds",
-    videoUrl: "https://www.youtube.com/embed/Z4FwHPYYaUI",
+    videoUrl: "https://www.youtube.com/embed/rs1md3e4aYU",
+    thumbnail: "https://i.ytimg.com/vi/rs1md3e4aYU/hq720.jpg",
     questions: [
       { q: "Buying a stock makes you a partial what?", options: ["Creditor", "Owner", "Manager"], correct: 1 },
       { q: "Bonds are generally considered lower risk than stocks.", options: ["True", "False"], correct: 0 },
@@ -36,7 +39,8 @@ const levelsData = [
   {
     id: 4,
     title: "Pro: Support & Resistance",
-    videoUrl: "https://www.youtube.com/embed/I5OzDNPFvaE",
+    videoUrl: "https://www.youtube.com/embed/8-x2S8owxYQ",
+    thumbnail: "https://i.ytimg.com/vi/8-x2S8owxYQ/hq720.jpg",
     questions: [
       { q: "Support level acts like a what for the price?", options: ["Ceiling", "Floor", "Wall"], correct: 1 },
       { q: "Resistance prevents the price from going what?", options: ["Down", "Up", "Sideways"], correct: 1 },
@@ -46,7 +50,8 @@ const levelsData = [
   {
     id: 5,
     title: "Expert: Diversification",
-    videoUrl: "https://www.youtube.com/embed/jKWU99bHVFs",
+    videoUrl: "https://www.youtube.com/embed/jg_MflByI3Y",
+    thumbnail: "https://i.ytimg.com/vi/jg_MflByI3Y/hq720.jpg",
     questions: [
       { q: "Diversification is often called the only what in finance?", options: ["Free Lunch", "Sure Bet", "Risk"], correct: 0 },
       { q: "Why do we diversify?", options: ["To increase returns", "To reduce risk", "To avoid taxes"], correct: 1 },
@@ -146,6 +151,7 @@ export default function GamifiedLearningPath() {
   const [userPoints, setUserPoints] = useState(0);
   const [activeQuiz, setActiveQuiz] = useState(null);
   const [showBonus, setShowBonus] = useState(false);
+  const [playingVideoId, setPlayingVideoId] = useState(null);
 
   const handlePass = (passedId) => {
     setActiveQuiz(null);
@@ -266,14 +272,28 @@ export default function GamifiedLearningPath() {
                     {!isLocked && (
                       <div className="h-0 opacity-0 group-hover:h-auto group-hover:opacity-100 group-hover:mt-6 transition-all duration-500 overflow-hidden flex flex-col gap-4">
                         <div className="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black/50 relative">
-                          <iframe 
-                            className="absolute inset-0 w-full h-full"
-                            src={level.videoUrl} 
-                            title={level.title} 
-                            frameBorder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen 
-                          />
+                          {playingVideoId === level.id ? (
+                            <iframe 
+                              className="absolute inset-0 w-full h-full"
+                              src={`${level.videoUrl}?autoplay=1`} 
+                              title={level.title} 
+                              frameBorder="0" 
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                              allowFullScreen 
+                            />
+                          ) : (
+                            <div 
+                              className="absolute inset-0 w-full h-full cursor-pointer bg-cover bg-center group/vid"
+                              style={{ backgroundImage: `url(${level.thumbnail})` }}
+                              onClick={() => setPlayingVideoId(level.id)}
+                            >
+                              <div className="absolute inset-0 bg-black/40 group-hover/vid:bg-black/20 transition-colors flex items-center justify-center">
+                                <div className="w-16 h-16 bg-neon-green text-obsidian rounded-full flex items-center justify-center pl-1 shadow-[0_0_20px_rgba(57,255,20,0.5)] group-hover/vid:scale-110 transition-transform">
+                                  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                         <button 
                           onClick={() => setActiveQuiz(level)}
