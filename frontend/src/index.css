@@ -31,6 +31,22 @@
   .mono {
     @apply font-mono;
   }
+
+  body.high-contrast {
+    --color-obsidian: #000000;
+    --color-primary: #ffff00;
+    --color-neon-green: #ffff00;
+    background-color: #000000 !important;
+    color: #ffffff !important;
+  }
+
+  body.protanopia {
+    filter: url('#protanopia-filter');
+  }
+
+  body.deuteranopia {
+    filter: url('#deuteranopia-filter');
+  }
 }
 
 @utility glass {
