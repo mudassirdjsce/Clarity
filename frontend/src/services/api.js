@@ -48,6 +48,21 @@ export const addUserFestival = (payload) => apiPost("/auth/festivals", payload);
 export const addFestivalExpense = (id, payload) => apiPost(`/auth/festivals/${id}/expenses`, payload);
 export const deleteUserFestival = (id) => apiDelete(`/auth/festivals/${id}`);
 
+// ── Bank Accounts ─────────────────────────────────────────────────────────────
+export const fetchBankAccounts = (email) => apiFetch("/auth/bank-accounts", { email });
+export const connectBankAccount = (payload) => apiPost("/auth/bank-accounts/connect", payload);
+export const addBankTransaction = (id) => apiPost(`/auth/bank-accounts/${id}/transactions`, {});
+
+// ── Holdings ──────────────────────────────────────────────────────────────────
+export const fetchHoldings = (email) => apiFetch("/auth/holdings", { email });
+export const addHolding = (payload) => apiPost("/auth/holdings", payload);
+export const deleteHolding = (id) => apiDelete(`/auth/holdings/${id}`);
+
+// ── Institutional Holdings ───────────────────────────────────────────────────
+export const fetchInstitutionalHoldings = (email) => apiFetch("/auth/institutional-holdings", { email });
+export const addInstitutionalHolding = (payload) => apiPost("/auth/institutional-holdings", payload);
+export const deleteInstitutionalHolding = (id) => apiDelete(`/auth/institutional-holdings/${id}`);
+
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");
 

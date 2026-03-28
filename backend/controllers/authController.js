@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const Goal = require("../models/Goal");
 const Festival = require("../models/Festival");
+const BankAccount = require("../models/BankAccount");
+const Holding = require("../models/Holding");
+const InstitutionalHolding = require("../models/InstitutionalHolding");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
@@ -182,5 +185,206 @@ const deleteFestival = async (req, res) => {
     res.status(500).json({ error: "Server error deleting festival" });
   }
 };
+// ── GET /api/auth/bank-accounts ─────────────────────────────────────────────
+const getBankAccounts = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const accounts = await BankAccount.find({ userEmail: email }).lean();
+    res.status(200).json({ accounts });
+  } catch (error) {
+    console.error("Get bank accounts error:", error);
+    res.status(500).json({ error: "Server error fetching bank accounts" });
+  }
+};
 
-module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival };
+// ── POST /api/auth/bank-accounts/connect ─────────────────────────────────────
+// Generates mock bank data and saves it (idempotent per user — skips if already connected)
+const connectBank = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    // Allow multiple accounts — just create a fresh one each time
+    const BANKS = ["HDFC Bank", "ICICI Bank", "SBI", "Axis Bank", "Kotak Mahindra", "Yes Bank"];
+    const DESCS = [
+      { d: "Grocery Store",   c: "food",     range: [-3000, -200] },
+      { d: "UPI Payment",     c: "transfer", range: [-5000, -100] },
+      { d: "Salary Credit",   c: "salary",   range: [40000, 120000] },
+      { d: "Online Shopping", c: "shopping", range: [-8000, -300] },
+      { d: "Electricity Bill",c: "bills",    range: [-2500, -500] },
+      { d: "Restaurant",      c: "food",     range: [-1500, -100] },
+      { d: "ATM Withdrawal",  c: "other",    range: [-10000, -500] },
+      { d: "Mutual Fund SIP", c: "other",    range: [-5000, -500] },
+      { d: "Freelance Income",c: "salary",   range: [5000, 30000] },
+      { d: "Rent Payment",    c: "bills",    range: [-25000, -5000] },
+    ];
+
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const bankName = BANKS[rand(0, BANKS.length - 1)];
+    const lastFour = String(rand(1000, 9999));
+    const accountNumber = `**** ${lastFour}`;
+    const balance = rand(10000, 200000);
+
+    const txCount = rand(6, 10);
+    const transactions = Array.from({ length: txCount }, (_, k) => {
+      const item = DESCS[rand(0, DESCS.length - 1)];
+      const amount = rand(item.range[0], item.range[1]);
+      const daysAgo = rand(0, 30);
+      const date = new Date(Date.now() - daysAgo * 86400000);
+      return { date, description: item.d, amount, category: item.c };
+    }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const account = await BankAccount.create({
+      userEmail: email,
+      bankName,
+      accountNumber,
+      balance,
+      transactions,
+    });
+
+    res.status(201).json({ message: "Bank account connected", account });
+  } catch (error) {
+    console.error("Connect bank error:", error);
+    res.status(500).json({ error: "Server error connecting bank account" });
+  }
+};
+
+// ── POST /api/auth/bank-accounts/:id/transactions ────────────────────────────
+const addTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const account = await BankAccount.findById(id);
+    if (!account) return res.status(404).json({ error: "Account not found" });
+
+    const DESCS = [
+      { d: "Grocery Store",    c: "food",     range: [-3000, -200] },
+      { d: "UPI Payment",      c: "transfer", range: [-5000, -100] },
+      { d: "Online Shopping",  c: "shopping", range: [-8000, -300] },
+      { d: "Electricity Bill", c: "bills",    range: [-2500, -500] },
+      { d: "Restaurant",       c: "food",     range: [-1500, -100] },
+      { d: "ATM Withdrawal",   c: "other",    range: [-10000, -500] },
+      { d: "Mutual Fund SIP",  c: "other",    range: [-5000, -500] },
+      { d: "Freelance Income", c: "salary",   range: [5000, 30000] },
+      { d: "Rent Payment",     c: "bills",    range: [-25000, -5000] },
+      { d: "Salary Credit",    c: "salary",   range: [40000, 120000] },
+    ];
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const item = DESCS[rand(0, DESCS.length - 1)];
+    const amount = rand(item.range[0], item.range[1]);
+    const tx = { date: new Date(), description: item.d, amount, category: item.c };
+
+    account.transactions.unshift(tx); // newest first
+    account.balance = Math.max(0, account.balance + amount);
+    await account.save();
+
+    res.status(200).json({ message: "Transaction added", account });
+  } catch (error) {
+    console.error("Add transaction error:", error);
+    res.status(500).json({ error: "Server error adding transaction" });
+  }
+};
+
+module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction };
+
+// ── GET /api/auth/holdings ─────────────────────────────────────────────────
+const getHoldings = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const holdings = await Holding.find({ userEmail: email }).sort({ createdAt: -1 }).lean();
+    res.status(200).json({ holdings });
+  } catch (error) {
+    console.error("Get holdings error:", error);
+    res.status(500).json({ error: "Server error fetching holdings" });
+  }
+};
+
+// ── POST /api/auth/holdings ────────────────────────────────────────────────
+const addHolding = async (req, res) => {
+  try {
+    const { email, name, symbol, icon, amount, buyPrice, currentPrice, color } = req.body;
+    if (!email || !name || !symbol || !amount || !buyPrice || !currentPrice) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const holding = await Holding.create({
+      userEmail: email,
+      name,
+      symbol: symbol.toUpperCase(),
+      icon: icon || symbol[0].toUpperCase(),
+      amount: parseFloat(amount),
+      buyPrice: parseFloat(buyPrice),
+      currentPrice: parseFloat(currentPrice),
+      color: color || "#8eff71",
+    });
+    res.status(201).json({ message: "Holding added", holding });
+  } catch (error) {
+    console.error("Add holding error:", error);
+    res.status(500).json({ error: "Server error adding holding" });
+  }
+};
+
+// ── DELETE /api/auth/holdings/:id ────────────────────────────────────────────
+const deleteHolding = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Holding.findByIdAndDelete(id);
+    res.status(200).json({ message: "Holding deleted" });
+  } catch (error) {
+    console.error("Delete holding error:", error);
+    res.status(500).json({ error: "Server error deleting holding" });
+  }
+};
+
+// ── GET /api/auth/institutional-holdings ─────────────────────────────────────────────────
+const getInstitutionalHoldings = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const holdings = await InstitutionalHolding.find({ companyEmail: email }).sort({ createdAt: -1 }).lean();
+    res.status(200).json({ holdings });
+  } catch (error) {
+    console.error("Get institutional holdings error:", error);
+    res.status(500).json({ error: "Server error fetching institutional holdings" });
+  }
+};
+
+// ── POST /api/auth/institutional-holdings ────────────────────────────────────────────────
+const addInstitutionalHolding = async (req, res) => {
+  try {
+    const { email, name, symbol, icon, amount, buyPrice, currentPrice, color, risk } = req.body;
+    if (!email || !name || !symbol || !amount || !buyPrice || !currentPrice) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const holding = await InstitutionalHolding.create({
+      companyEmail: email,
+      name,
+      symbol: symbol.toUpperCase(),
+      icon: icon || symbol[0].toUpperCase(),
+      amount: parseFloat(amount),
+      buyPrice: parseFloat(buyPrice),
+      currentPrice: parseFloat(currentPrice),
+      color: color || "#8eff71",
+      risk: risk || "Medium"
+    });
+    res.status(201).json({ message: "Institutional Holding added", holding });
+  } catch (error) {
+    console.error("Add institutional holding error:", error);
+    res.status(500).json({ error: "Server error adding institutional holding" });
+  }
+};
+
+// ── DELETE /api/auth/institutional-holdings/:id ────────────────────────────────────────────
+const deleteInstitutionalHolding = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await InstitutionalHolding.findByIdAndDelete(id);
+    res.status(200).json({ message: "Institutional Holding deleted" });
+  } catch (error) {
+    console.error("Delete institutional holding error:", error);
+    res.status(500).json({ error: "Server error deleting institutional holding" });
+  }
+};
+
+module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction, getHoldings, addHolding, deleteHolding, getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding };
+

@@ -6,6 +6,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import GamifiedLearningPath from './pages/common/GamifiedLearningPath';
 
 // ── Auth (Common) ─────────────────────────────────────────────────────────────
 import Login       from './pages/common/Login';
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="assistant" element={<UserAssistant />} />
               <Route path="news"      element={<RetailNews />} />
               <Route path="profile"   element={<UserProfile />} />
+              <Route path="academy"   element={<GamifiedLearningPath />} />
             </Route>
 
             {/* Institution / Company */}
@@ -67,6 +69,7 @@ export default function App() {
               <Route path="assistant" element={<CompanyAssistant type="company" />} />
               <Route path="news"      element={<NewsInstitution />} />
               <Route path="profile"   element={<CompanyProfile />} />
+              <Route path="academy"   element={<GamifiedLearningPath />} />
             </Route>
 
           </Route>

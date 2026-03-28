@@ -1,4 +1,5 @@
 import React from 'react';
+import RadarSection from '../../components/radar/RadarSection';
 import { 
   TrendingUp, 
   Zap, 
@@ -18,6 +19,7 @@ import {
 } from 'recharts';
 import { cn } from '../../lib/utils';
 import ReactECharts from 'echarts-for-react';
+import RiskExposureMetrics from './RiskExposureMetrics';
 
 const data = [
   { name: '00:00', value: 42000 },
@@ -262,16 +264,13 @@ export function CompanyDashboard() {
           </div>
         </div>
         
-        <div className="bento-card bg-neon-green/5 border-neon-green/20">
-          <h3 className="text-lg font-display font-bold mb-4">AI Insight</h3>
-          <p className="text-sm text-white/70 leading-relaxed mb-6">
-            Whale accumulation detected in the $45.8k - $46.1k range. Liquidity clusters suggest a potential breakout towards $48.5k within 24-48 hours.
-          </p>
-          <button className="w-full py-3 rounded-xl bg-neon-green text-obsidian font-bold text-xs uppercase tracking-widest hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] transition-all">
-            Execute Strategy
-          </button>
+        <div className="h-full">
+          <RiskExposureMetrics />
         </div>
       </div>
+
+      {/* ── Multi-Radar Comparison ── */}
+      <RadarSection />
     </div>
   );
 }
