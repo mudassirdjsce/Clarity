@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  MapPin, Mail, Phone, CheckCircle2, Eye, Plus, PlusCircle, Building2, Globe, Users, ShieldCheck, 
+import {
+  MapPin, Mail, Phone, CheckCircle2, Eye, Plus, PlusCircle, Building2, Globe, Users, ShieldCheck,
   Fingerprint, LayoutDashboard, Wallet, Target, TrendingUp, BarChart3, Briefcase, Trash2, X
 } from 'lucide-react';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
-import { 
+import {
   fetchTreasuryAccounts, addTreasuryAccount, deleteTreasuryAccount,
   fetchTeamMembers, addTeamMember, deleteTeamMember
 } from '../../services/api';
@@ -45,7 +45,7 @@ function AddTreasuryModal({ onClose, onSave }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Icon Text</label>
-              <input value={form.bankIconText} onChange={e => set('bankIconText', e.target.value.slice(0,3).toUpperCase())} placeholder="GS"
+              <input value={form.bankIconText} onChange={e => set('bankIconText', e.target.value.slice(0, 3).toUpperCase())} placeholder="GS"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-[#8eff71]/50 text-center text-[#E8F5E9]" />
             </div>
             <div>
@@ -130,7 +130,7 @@ function AddTeamModal({ onClose, onSave }) {
 export default function CompanyProfile() {
   const [biometric, setBiometric] = useState(true);
   const [mode, setMode] = useState('pro');
-  
+
   const [treasuryAccounts, setTreasuryAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -144,12 +144,12 @@ export default function CompanyProfile() {
 
   useEffect(() => {
     if (!user.email) return;
-    
+
     fetchTreasuryAccounts(user.email)
       .then(d => setTreasuryAccounts(d.accounts || []))
       .catch(console.error)
       .finally(() => setLoading(false));
-      
+
     fetchTeamMembers(user.email)
       .then(d => setTeamMembers(d.members || []))
       .catch(console.error)
@@ -186,23 +186,23 @@ export default function CompanyProfile() {
       {showTeamModal && <AddTeamModal onClose={() => setShowTeamModal(false)} onSave={handleAddTeam} />}
       <GlobalProfileTheme />
       {/* Ambient backgrounds */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#8EFF71]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#39ff14]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#1a3821]/30 rounded-full blur-[150px] -z-10 pointer-events-none" />
 
       {/* Profile Section */}
       <section className="flex flex-col md:flex-row items-center md:items-end gap-8 mb-16 relative z-10">
         <div className="relative group">
-          <div className="absolute -inset-1 bg-[#8EFF71] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
-          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#8EFF71] to-[#1A231C]">
+          <div className="absolute -inset-1 bg-[#39ff14] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
+          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#39ff14] to-[#1A231C]">
             <div className="w-32 h-32 rounded-full bg-[#0B0F0C] flex items-center justify-center border-4 border-[#0B0F0C] overflow-hidden">
-               <Building2 size={64} className="text-[#8EFF71]" />
+              <Building2 size={64} className="text-[#39ff14]" />
             </div>
           </div>
-          <div className="absolute bottom-1 right-1 bg-[#8EFF71] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
+          <div className="absolute bottom-1 right-1 bg-[#39ff14] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
             <ShieldCheck size={16} className="text-[#0B0F0C]" />
           </div>
         </div>
-        
+
         <div className="text-center md:text-left space-y-2">
           <h1 className="text-5xl font-bold tracking-tight">{user.name}</h1>
           <div className="flex items-center gap-3 justify-center md:justify-start">
@@ -217,7 +217,7 @@ export default function CompanyProfile() {
           <button className="bg-[#1A231C] border border-[#2A3B2E] text-[#E8F5E9] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
             Corporate Settings
           </button>
-          <button className="bg-[#8EFF71] text-[#0B0F0C] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(142,255,113,0.4)] hover:shadow-[0_0_30px_rgba(142,255,113,0.6)] active:scale-95 transition-all">
+          <button className="bg-[#39ff14] text-[#0B0F0C] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(142,255,113,0.4)] hover:shadow-[0_0_30px_rgba(142,255,113,0.6)] active:scale-95 transition-all">
             Export Audit
           </button>
         </div>
@@ -227,7 +227,7 @@ export default function CompanyProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
         <Card className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
               <Briefcase size={24} />
             </div>
             <div>
@@ -255,7 +255,7 @@ export default function CompanyProfile() {
 
         <Card className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
               <Wallet size={24} />
             </div>
             <div>
@@ -319,11 +319,11 @@ export default function CompanyProfile() {
               <h2 className="text-2xl font-semibold">Growth Milestones</h2>
               <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Quarterly Performance Targets</p>
             </div>
-            <div className="bg-[#8EFF71]/10 p-2 rounded-lg text-[#8EFF71] border border-[#8EFF71]/20 shadow-[0_0_10px_rgba(142,255,113,0.15)]">
+            <div className="bg-[#39ff14]/10 p-2 rounded-lg text-[#39ff14] border border-[#39ff14]/20 shadow-[0_0_10px_rgba(142,255,113,0.15)]">
               <TrendingUp size={20} />
             </div>
           </div>
-          
+
           <div className="space-y-8">
             <div className="space-y-3">
               <div className="flex justify-between items-end">
@@ -332,7 +332,7 @@ export default function CompanyProfile() {
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Target: $50M</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$35M</span>
+                  <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$35M</span>
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">70% Committed</p>
                 </div>
               </div>
@@ -346,7 +346,7 @@ export default function CompanyProfile() {
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Target: 12 Regions</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">8 Regions</span>
+                  <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">8 Regions</span>
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">66% Complete</p>
                 </div>
               </div>
@@ -358,11 +358,11 @@ export default function CompanyProfile() {
         <div className="lg:col-span-5 space-y-6">
           <div className="flex justify-between items-center px-2">
             <h2 className="text-2xl font-semibold">Core Team</h2>
-            <button onClick={() => setShowTeamModal(true)} className="text-[#8EFF71] hover:text-[#E8F5E9] transition-colors drop-shadow-[0_0_8px_rgba(142,255,113,0.4)] group">
+            <button onClick={() => setShowTeamModal(true)} className="text-[#39ff14] hover:text-[#E8F5E9] transition-colors drop-shadow-[0_0_8px_rgba(142,255,113,0.4)] group">
               <PlusCircle size={24} className="group-hover:rotate-90 transition-transform duration-300" />
             </button>
           </div>
-          
+
           <div className="space-y-4">
             {teamLoading ? (
               <p className="text-center text-white/30 py-4 text-sm font-mono">Loading team...</p>
@@ -378,8 +378,8 @@ export default function CompanyProfile() {
               <>
                 {teamMembers.map((member) => (
                   <div key={member._id} className="group/team bg-white/3 border border-white/5 rounded-2xl p-4 flex items-center gap-4 hover:bg-white/5 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
-                    <img 
-                      src={`https://api.dicebear.com/7.x/notionists/svg?seed=${member.imageSeed}`} 
+                    <img
+                      src={`https://api.dicebear.com/7.x/notionists/svg?seed=${member.imageSeed}`}
                       className="w-12 h-12 rounded-full border-2 border-[#1A231C] bg-white/5"
                       alt={member.name}
                     />
@@ -407,7 +407,7 @@ export default function CompanyProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                 <ShieldCheck size={24} />
               </div>
               <div>
@@ -428,14 +428,14 @@ export default function CompanyProfile() {
                   <BarChart3 size={20} className="text-[#9FB8A7]" />
                   <span className="text-sm font-medium text-[#E8F5E9]">Real-time Audit Logs</span>
                 </div>
-                <Toggle active={true} onToggle={() => {}} />
+                <Toggle active={true} onToggle={() => { }} />
               </div>
             </div>
           </Card>
 
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                 <LayoutDashboard size={24} />
               </div>
               <div>
@@ -444,19 +444,17 @@ export default function CompanyProfile() {
               </div>
             </div>
             <div className="flex bg-[#0B0F0C] p-1 rounded-4xl border border-[#2A3B2E] shadow-inner">
-              <button 
+              <button
                 onClick={() => setMode('standard')}
-                className={`flex-1 py-3 rounded-4xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'standard' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
-                }`}
+                className={`flex-1 py-3 rounded-4xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${mode === 'standard' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
+                  }`}
               >
                 Standard
               </button>
-              <button 
+              <button
                 onClick={() => setMode('pro')}
-                className={`flex-1 py-3 rounded-4xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'pro' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
-                }`}
+                className={`flex-1 py-3 rounded-4xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${mode === 'pro' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
+                  }`}
               >
                 Pro Engine
               </button>
