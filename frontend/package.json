@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
     "axios": "^1.14.0",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
