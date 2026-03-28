@@ -47,6 +47,19 @@
   body.deuteranopia {
     filter: url('#deuteranopia-filter');
   }
+
+  body.tunnel-vision::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 40;
+    box-shadow: inset 0 0 150px 100px rgba(0,0,0,0.95);
+    background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.98) 100%);
+  }
 }
 
 @utility glass {
