@@ -1,4 +1,5 @@
 import React from 'react';
+import RadarSection from '../../components/radar/RadarSection';
 import { 
   TrendingUp, 
   Zap, 
@@ -272,6 +273,9 @@ export function CompanyDashboard() {
           </button>
         </div>
       </div>
+
+      {/* ── Multi-Radar Comparison ── */}
+      <RadarSection />
     </div>
   );
 }
