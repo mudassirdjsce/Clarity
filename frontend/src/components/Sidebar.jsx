@@ -10,7 +10,6 @@ import {
   Globe,
   GraduationCap,
   TrendingUp,
-  Newspaper,
   PieChart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -26,8 +25,6 @@ export function Sidebar() {
     { icon: LineChart,       label: 'Markets',    path: `${basePath}/markets`   },
     { icon: TrendingUp,      label: 'Stocks',       path: `${basePath}/stocks`    },
     { icon: PieChart,        label: 'Mutual Funds', path: `${basePath}/mutualfunds`},
-    { icon: Newspaper,       label: 'News',         path: `${basePath}/news`      },
-    ...(isCompany ? [] : [{ icon: GraduationCap,   label: 'Academy',    path: `${basePath}/academy`   }]),
     { icon: MessageSquare,   label: 'Clarity AI', path: `${basePath}/assistant` },
   ];
 
