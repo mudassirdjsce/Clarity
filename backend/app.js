@@ -7,8 +7,6 @@ const morgan = require("morgan");
 const authRoutes = require("./routes/authRoutes");
 const newsRoutes = require("./routes/newsRoutes");
 const insightsRoutes = require("./routes/insightsRoutes");
-const chatRoutes = require("./routes/chatRoutes");
-const historyRoutes = require("./routes/historyRoutes");
 
 const app = express();
 
@@ -26,7 +24,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    services: { llm: "Gemini 1.5 Flash", stocks: "Finnhub", news: "NewsAPI" },
+    services: { stocks: "Finnhub", news: "NewsAPI" },
   });
 });
 
@@ -34,8 +32,6 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/insights", insightsRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/history", historyRoutes);
 
 // ── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {

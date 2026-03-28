@@ -6,6 +6,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import GamifiedLearningPath from './pages/common/GamifiedLearningPath';
 
 // ── Auth (Common) ─────────────────────────────────────────────────────────────
 import Login       from './pages/common/Login';
@@ -16,7 +17,6 @@ import LandingPage from './pages/common/LandingPage';
 import { UserDashboard }              from './pages/user/Dashboard';
 import { Portfolio as UserPortfolio } from './pages/user/Portfolio';
 import { Markets   as UserMarkets }   from './pages/user/Markets';
-import { Assistant as UserAssistant } from './pages/user/Assistant';
 import RetailNews                     from './pages/user/RetailNews';
 import UserProfile                    from './pages/user/Profile';
 
@@ -24,7 +24,6 @@ import UserProfile                    from './pages/user/Profile';
 import { CompanyDashboard }              from './pages/company/Dashboard';
 import { Portfolio as CompanyPortfolio } from './pages/company/Portfolio';
 import { Markets   as CompanyMarkets }   from './pages/company/Markets';
-import { Assistant as CompanyAssistant } from './pages/company/Assistant';
 import NewsInstitution                   from './pages/company/NewsInstitution';
 import CompanyProfile                    from './pages/company/Profile';
 
@@ -54,9 +53,9 @@ export default function App() {
               <Route path="dashboard" element={<UserDashboard />} />
               <Route path="portfolio" element={<UserPortfolio />} />
               <Route path="markets"   element={<UserMarkets />} />
-              <Route path="assistant" element={<UserAssistant />} />
               <Route path="news"      element={<RetailNews />} />
               <Route path="profile"   element={<UserProfile />} />
+              <Route path="academy"   element={<GamifiedLearningPath />} />
             </Route>
 
             {/* Institution / Company */}
@@ -64,9 +63,9 @@ export default function App() {
               <Route path="dashboard" element={<CompanyDashboard />} />
               <Route path="portfolio" element={<CompanyPortfolio />} />
               <Route path="markets"   element={<CompanyMarkets />} />
-              <Route path="assistant" element={<CompanyAssistant type="company" />} />
               <Route path="news"      element={<NewsInstitution />} />
               <Route path="profile"   element={<CompanyProfile />} />
+              <Route path="academy"   element={<GamifiedLearningPath />} />
             </Route>
 
           </Route>
