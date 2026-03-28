@@ -5,6 +5,7 @@ const {
   getFestivals, addFestival, addFestivalExpense, deleteFestival,
   getBankAccounts, connectBank, addTransaction,
   getHoldings, addHolding, deleteHolding,
+  getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding,
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -29,5 +30,9 @@ router.post("/bank-accounts/:id/transactions", addTransaction);
 router.get("/holdings", getHoldings);
 router.post("/holdings", addHolding);
 router.delete("/holdings/:id", deleteHolding);
+
+router.get("/institutional-holdings", getInstitutionalHoldings);
+router.post("/institutional-holdings", addInstitutionalHolding);
+router.delete("/institutional-holdings/:id", deleteInstitutionalHolding);
 
 module.exports = router;

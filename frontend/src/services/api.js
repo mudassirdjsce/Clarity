@@ -58,6 +58,11 @@ export const fetchHoldings = (email) => apiFetch("/auth/holdings", { email });
 export const addHolding = (payload) => apiPost("/auth/holdings", payload);
 export const deleteHolding = (id) => apiDelete(`/auth/holdings/${id}`);
 
+// ── Institutional Holdings ───────────────────────────────────────────────────
+export const fetchInstitutionalHoldings = (email) => apiFetch("/auth/institutional-holdings", { email });
+export const addInstitutionalHolding = (payload) => apiPost("/auth/institutional-holdings", payload);
+export const deleteInstitutionalHolding = (id) => apiDelete(`/auth/institutional-holdings/${id}`);
+
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");
 
