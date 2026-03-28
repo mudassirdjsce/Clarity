@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { login, saveSession } from "../../services/api";
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
@@ -40,6 +40,8 @@ const labelStyle = {
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.message || "";
   const [form, setForm] = useState({ email: "", password: "" });
   const [role, setRole] = useState("user");
   const [focused, setFocused] = useState({});
@@ -139,6 +141,14 @@ export default function Login() {
               </button>
             ))}
           </div>
+
+          {/* Success banner from signup */}
+          {successMessage && (
+            <div style={{ background: "rgba(57,255,20,0.08)", border: "1px solid rgba(57,255,20,0.28)", borderRadius: 8, padding: "10px 14px", marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 14 }}>✓</span>
+              <span style={{ fontSize: 13, color: "#39FF14", fontWeight: 500 }}>{successMessage}</span>
+            </div>
+          )}
 
           {/* Error */}
           {error && (

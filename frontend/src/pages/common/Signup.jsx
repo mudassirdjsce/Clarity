@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { signup, saveSession } from "../../services/api";
+import { signup } from "../../services/api";
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
 const NEON = "#39FF14";
@@ -72,9 +72,8 @@ export default function Signup() {
     }
     setLoading(true);
     try {
-      const data = await signup({ ...form, role });
-      saveSession(data);
-      navigate(data.user.role === "company" ? "/company/dashboard" : "/user/dashboard");
+      await signup({ ...form, role });
+      navigate("/login", { state: { message: "Account created successfully! Please sign in." } });
     } catch (err) {
       setError(err.message || "Signup failed. Please try again.");
     } finally {
