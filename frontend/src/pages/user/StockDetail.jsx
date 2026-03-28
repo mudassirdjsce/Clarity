@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, TrendingDown, Activity, BarChart2, Clock, Star } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Activity, BarChart2, Star } from 'lucide-react';
 
 // ── Mock Stock Data ─────────────────────────────────────────────────────────
 const STOCK_DATA = {
@@ -360,118 +360,8 @@ function RecentTrades({ basePrice }) {
   );
 }
 
-// ── Trade Panel ──────────────────────────────────────────────────────────────
-const ORDER_TABS = ['Limit', 'Market', 'Stop Limit'];
-const BOTTOM_TABS = ['Open Orders', 'Order History', 'Holdings', 'P&L'];
+// ── Timeframe Selector (constants kept for chart toolbar) ────────────────────
 
-function TradePanel({ stock }) {
-  const [orderTab, setOrderTab] = useState('Limit');
-  const [buyPrice, setBuyPrice] = useState(stock.price.toFixed(2));
-  const [buyQty, setBuyQty] = useState('');
-  const [sellPrice, setSellPrice] = useState(stock.price.toFixed(2));
-  const [sellQty, setSellQty] = useState('');
-
-  return (
-    <div className="bento-card p-4 space-y-4">
-      {/* Tab strip */}
-      <div className="flex gap-1 bg-white/5 rounded-xl p-1 border border-white/10 w-fit">
-        {ORDER_TABS.map(t => (
-          <button
-            key={t}
-            onClick={() => setOrderTab(t)}
-            className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap ${orderTab === t ? 'bg-white/15 text-white' : 'text-white/30 hover:text-white'}`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {/* Buy side */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] text-white/30 uppercase tracking-widest font-bold">Buy {stock.ticker}</span>
-          </div>
-          <div className="relative">
-            <input
-              type="text"
-              value={buyPrice}
-              onChange={e => setBuyPrice(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-white/20 focus:outline-none focus:border-green-500/40 transition"
-              placeholder="Price"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-mono">₹</span>
-          </div>
-          <div className="relative">
-            <input
-              type="text"
-              value={buyQty}
-              onChange={e => setBuyQty(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-white/20 focus:outline-none focus:border-green-500/40 transition"
-              placeholder="Quantity"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-mono">QTY</span>
-          </div>
-          <div className="flex gap-1">
-            {['25%', '50%', '75%', '100%'].map(p => (
-              <button key={p} className="flex-1 text-[9px] font-bold py-1 rounded-lg bg-white/5 hover:bg-green-500/10 hover:text-green-400 text-white/40 border border-white/10 hover:border-green-500/20 transition">{p}</button>
-            ))}
-          </div>
-          <div className="space-y-1 text-[10px] font-mono">
-            <div className="flex justify-between text-white/30"><span>Available</span><span>₹1,24,500.00</span></div>
-            <div className="flex justify-between text-white/30"><span>Order Value</span><span>{buyQty ? `₹${(parseFloat(buyPrice || 0) * parseFloat(buyQty || 0)).toFixed(2)}` : '₹0.00'}</span></div>
-            <div className="flex justify-between text-white/30"><span>Brokerage</span><span>₹20.00</span></div>
-          </div>
-          <button className="w-full py-2.5 rounded-xl font-black text-sm tracking-wide bg-green-500 hover:bg-green-400 text-black transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_28px_rgba(34,197,94,0.5)] active:scale-95">
-            BUY
-          </button>
-        </div>
-
-        {/* Sell side */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] text-white/30 uppercase tracking-widest font-bold">Sell {stock.ticker}</span>
-          </div>
-          <div className="relative">
-            <input
-              type="text"
-              value={sellPrice}
-              onChange={e => setSellPrice(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-white/20 focus:outline-none focus:border-red-500/40 transition"
-              placeholder="Price"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-mono">₹</span>
-          </div>
-          <div className="relative">
-            <input
-              type="text"
-              value={sellQty}
-              onChange={e => setSellQty(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm font-mono text-white placeholder-white/20 focus:outline-none focus:border-red-500/40 transition"
-              placeholder="Quantity"
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30 font-mono">QTY</span>
-          </div>
-          <div className="flex gap-1">
-            {['25%', '50%', '75%', '100%'].map(p => (
-              <button key={p} className="flex-1 text-[9px] font-bold py-1 rounded-lg bg-white/5 hover:bg-red-500/10 hover:text-red-400 text-white/40 border border-white/10 hover:border-red-500/20 transition">{p}</button>
-            ))}
-          </div>
-          <div className="space-y-1 text-[10px] font-mono">
-            <div className="flex justify-between text-white/30"><span>Holdings</span><span>25 shares</span></div>
-            <div className="flex justify-between text-white/30"><span>Order Value</span><span>{sellQty ? `₹${(parseFloat(sellPrice || 0) * parseFloat(sellQty || 0)).toFixed(2)}` : '₹0.00'}</span></div>
-            <div className="flex justify-between text-white/30"><span>Brokerage</span><span>₹20.00</span></div>
-          </div>
-          <button className="w-full py-2.5 rounded-xl font-black text-sm tracking-wide bg-red-500 hover:bg-red-400 text-white transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_28px_rgba(239,68,68,0.5)] active:scale-95">
-            SELL
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Timeframe Selector ────────────────────────────────────────────────────────
 const TIMEFRAMES = ['1m', '5m', '15m', '30m', '1h', '1D', '1W'];
 
 // ── Main Page ────────────────────────────────────────────────────────────────
@@ -482,7 +372,6 @@ export function StockDetail() {
   const isPositive = stock.change >= 0;
   const accent = isPositive ? '#39ff14' : '#ef4444';
   const [activeTimeframe, setActiveTimeframe] = useState('1h');
-  const [bottomTab, setBottomTab] = useState('Open Orders');
   const [watchlisted, setWatchlisted] = useState(false);
 
   return (
@@ -553,13 +442,11 @@ export function StockDetail() {
         ))}
       </div>
 
-      {/* ── Main Grid ── */}
+      {/* ── Top Row: Chart + Stock Info ── */}
       <div className="grid grid-cols-12 gap-4">
 
-        {/* ── LEFT: Chart + Trade Panel ── */}
-        <div className="col-span-12 lg:col-span-8 space-y-4">
-
-          {/* Chart Card */}
+        {/* Chart */}
+        <div className="col-span-12 lg:col-span-8">
           <div className="bento-card !p-0 overflow-hidden">
             {/* Chart toolbar */}
             <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-white/5">
@@ -588,57 +475,16 @@ export function StockDetail() {
                 </button>
               </div>
             </div>
-
             {/* Candlestick chart */}
             <div className="px-2 pt-2 pb-1">
               <CandlestickChart basePrice={stock.price} isPositive={isPositive} />
             </div>
           </div>
-
-          {/* Trade Panel */}
-          <TradePanel stock={stock} />
-
-          {/* Bottom tabs: orders */}
-          <div className="bento-card !p-0 overflow-hidden">
-            <div className="flex items-center gap-0 border-b border-white/5">
-              {BOTTOM_TABS.map(t => (
-                <button
-                  key={t}
-                  onClick={() => setBottomTab(t)}
-                  className={`px-4 py-3 text-xs font-bold transition-colors border-b-2 ${bottomTab === t ? 'text-white border-current' : 'text-white/30 border-transparent hover:text-white/60'}`}
-                  style={bottomTab === t ? { borderColor: accent, color: accent } : {}}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-            <div className="p-4">
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-3">
-                  <Clock className="w-5 h-5 text-white/20" />
-                </div>
-                <p className="text-sm text-white/20 font-semibold">No {bottomTab.toLowerCase()} yet</p>
-                <p className="text-xs text-white/10 mt-1">Your {bottomTab.toLowerCase()} will appear here</p>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* ── RIGHT: Order Book + Recent Trades ── */}
-        <div className="col-span-12 lg:col-span-4 space-y-4">
-
-          {/* Order Book */}
-          <div className="bento-card !p-4">
-            <OrderBook basePrice={stock.price} isPositive={isPositive} />
-          </div>
-
-          {/* Recent Trades */}
-          <div className="bento-card !p-4">
-            <RecentTrades basePrice={stock.price} />
-          </div>
-
-          {/* Stock Info */}
-          <div className="bento-card !p-4 space-y-3">
+        {/* Stock Info — right of chart */}
+        <div className="col-span-12 lg:col-span-4">
+          <div className="bento-card !p-4 space-y-3 h-full">
             <span className="text-xs font-bold text-white/50 uppercase tracking-widest block">Stock Info</span>
             {[
               { label: 'Sector', value: stock.sector },
@@ -654,6 +500,21 @@ export function StockDetail() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* ── Bottom Row: Order Book + Recent Trades ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        {/* Order Book */}
+        <div className="bento-card !p-4">
+          <OrderBook basePrice={stock.price} isPositive={isPositive} />
+        </div>
+
+        {/* Recent Trades */}
+        <div className="bento-card !p-4">
+          <RecentTrades basePrice={stock.price} />
+        </div>
+
       </div>
     </div>
   );
