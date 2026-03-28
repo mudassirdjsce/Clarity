@@ -37,7 +37,8 @@ export function Sidebar({ isOpen, onClose }) {
   ];
 
   if (!isCompany) {
-    navItems.splice(5, 0, { icon: Users, label: 'Family', path: `${basePath}/family` });
+    navItems.splice(5, 0, { icon: GraduationCap, label: 'Academy', path: `${basePath}/academy` });
+    navItems.splice(6, 0, { icon: Users, label: 'Family', path: `${basePath}/family` });
   }
 
   const secondaryItems = [
