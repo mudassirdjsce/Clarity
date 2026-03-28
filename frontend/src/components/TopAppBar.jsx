@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Bell, User, LayoutGrid, Accessibility, Type, Eye } from 'lucide-react';
+import { Search, Bell, User, Accessibility, Type, Eye, Menu } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import logo from '../assets/CLARITY1.svg';
 
-export function TopAppBar() {
+export function TopAppBar({ onMenuClick }) {
   const location = useLocation();
   const isCompany = location.pathname.startsWith('/company');
 
@@ -51,13 +51,17 @@ export function TopAppBar() {
           </filter>
         </defs>
       </svg>
-      <header className="fixed top-0 left-0 right-0 h-16 glass border-b border-glass-border z-50 px-6 flex items-center justify-between">
-      <div className="flex items-center gap-8">
+      <header className="fixed top-0 left-0 right-0 h-16 glass border-b border-glass-border z-50 px-4 md:px-6 flex items-center justify-between">
+      <div className="flex items-center gap-2 md:gap-8">
+        <button 
+          onClick={onMenuClick} 
+          className="p-2 -ml-2 rounded-xl hover:bg-white/5 transition-colors lg:hidden active:scale-95"
+        >
+          <Menu className="w-5 h-5 text-white/80" />
+        </button>
         <NavLink to={isCompany ? "/company/dashboard" : "/user/dashboard"} className="flex items-center cursor-pointer z-10 transition-transform hover:scale-105">
-          <img src={logo} alt="Clarity Logo" className="h-10 w-auto object-contain" />
+          <img src={logo} alt="Clarity Logo" className="h-8 md:h-10 w-auto object-contain" />
         </NavLink>
-
-
       </div>
 
       <div className="flex items-center gap-4">
