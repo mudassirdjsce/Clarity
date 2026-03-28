@@ -19,6 +19,7 @@ import {
   User,
   Trash2
 } from 'lucide-react';
+import { cn } from '../../lib/utils';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
 import { WrappedTriggerButton } from '../common/WrappedPage';
@@ -55,6 +56,40 @@ export default function UserProfile() {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [expandedAccount, setExpandedAccount] = useState(null);
+
+  const [points, setPoints] = useState(() => {
+    return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
+  });
+  const [hasPro, setHasPro] = useState(() => {
+    return localStorage.getItem('clarityProStatus') === 'true';
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPoints(parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10));
+    };
+    window.addEventListener('pointsUpdate', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('pointsUpdate', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const handleGetPro = () => {
+    if (points >= 250) {
+      if (window.confirm('Are you sure you want to buy one month pro with 250 points?')) {
+        const newPoints = points - 250;
+        setPoints(newPoints);
+        localStorage.setItem('clarityAcademyPoints', newPoints);
+        setHasPro(true);
+        localStorage.setItem('clarityProStatus', 'true');
+        window.dispatchEvent(new Event('pointsUpdate'));
+      }
+    } else {
+      window.alert('You need at least 250 points to activate Pro.');
+    }
+  };
 
   useEffect(() => {
     if (user.email) {
@@ -602,24 +637,33 @@ export default function UserProfile() {
                 <div className="bg-gradient-to-br from-[#8EFF71]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#8EFF71]/20">
                   <span className="text-sm">⚡</span>
                 </div>
-                <h3 className="font-bold text-[#E8F5E9] text-sm">Clarity Pro</h3>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Clarity Pro {hasPro && "(Active)"}</h3>
               </div>
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
-                style={{
+                onClick={handleGetPro}
+                disabled={hasPro || points < 250}
+                whileHover={{ scale: hasPro || points < 250 ? 1 : 1.03 }}
+                whileTap={{ scale: hasPro || points < 250 ? 1 : 0.97 }}
+                className={cn(
+                  "relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden",
+                  hasPro || points < 250 ? "bg-[#1A231C] border border-white/5 text-[#9FB8A7] opacity-60 cursor-not-allowed" : "text-[#0B0F0C]"
+                )}
+                style={hasPro || points < 250 ? undefined : {
                   background: "linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)",
                   boxShadow: "0 0 24px rgba(142,255,113,0.3)",
                 }}
               >
-                <motion.div
-                  className="absolute inset-0 bg-white/20"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
-                <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
+                {!hasPro && points >= 250 && (
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "100%" }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  />
+                )}
+                <span className="relative z-10">
+                  {hasPro ? 'Pro Active ⚡' : points >= 250 ? 'Buy Pro — 250 PTS ⚡' : `Get Pro — Need 250 PTS (Have ${points})`}
+                </span>
               </motion.button>
             </div>
           </Card>
