@@ -7,7 +7,8 @@ import {
   Settings,
   HelpCircle,
   Wallet,
-  Globe
+  Globe,
+  GraduationCap
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -20,6 +21,7 @@ export function Sidebar() {
     { icon: LayoutDashboard, label: 'Dashboard', path: `${basePath}/dashboard` },
     { icon: Wallet, label: 'Portfolio', path: `${basePath}/portfolio` },
     { icon: LineChart, label: 'Markets', path: `${basePath}/markets` },
+    { icon: GraduationCap, label: 'Academy', path: `${basePath}/academy` },
   ];
 
   const secondaryItems = [
