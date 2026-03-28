@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { login, saveSession } from "../../services/api";
+import clarityLogo from "../../assets/CLARITY1.svg";
 
 // ── Theme ─────────────────────────────────────────────────────────────────────
 const NEON = "#39FF14";
@@ -90,24 +91,21 @@ export default function Login() {
       <div style={{ width: "100%", maxWidth: 440, animation: "fadeUp 0.4s ease both", position: "relative" }}>
 
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10, background: NEON,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18, fontWeight: 900, color: "#000",
-            boxShadow: `0 0 16px ${NEON}55, 0 0 40px ${NEON}22`,
-            animation: "glow-pulse 3s ease infinite",
-          }}>C</div>
-          <span style={{ fontSize: 20, fontWeight: 900, color: TEXT, letterSpacing: -0.5 }}>Clarity</span>
-          <span style={{ fontSize: 11, color: MUTED, marginLeft: 4, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>Finance</span>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 32 }}>
+          <img src={clarityLogo} alt="Clarity" style={{ height: 60, filter: "drop-shadow(0 0 12px rgba(57,255,20,0.5))" }} />
         </div>
 
         {/* Card */}
         <div style={{
-          background: CARD, border: `1px solid ${BORDER}`,
-          borderRadius: 18, padding: "32px 32px 28px",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+          background: "linear-gradient(145deg, #0a0a0a 0%, #050505 100%)",
+          border: `1px solid ${BORDER}`,
+          borderRadius: 24, padding: "40px 32px 36px",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 60px rgba(57,255,20,0.03)",
+          position: "relative",
+          overflow: "hidden"
         }}>
+          {/* subtle accent top border highlight */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #39ff14, transparent)", opacity: 0.3 }} />
           {/* Heading */}
           <h1 style={{ fontSize: 24, fontWeight: 900, color: TEXT, letterSpacing: -0.5, marginBottom: 6 }}>
             Welcome back
@@ -116,31 +114,7 @@ export default function Login() {
             Sign in to your account to continue
           </p>
 
-          {/* Role Switcher */}
-          <div style={{ display: "flex", background: "#080808", border: `1px solid ${BORDER}`, borderRadius: 10, padding: 4, marginBottom: 24, gap: 4 }}>
-            {[
-              { value: "user", label: "📰 Retail Investor", desc: "/user" },
-              { value: "company", label: "🏦 Institution", desc: "/company" },
-            ].map((r) => (
-              <button
-                key={r.value}
-                type="button"
-                onClick={() => setRole(r.value)}
-                style={{
-                  flex: 1, padding: "10px 8px", borderRadius: 7,
-                  border: role === r.value ? `1px solid ${NEON_BORDER}` : "1px solid transparent",
-                  background: role === r.value ? NEON_DIM : "transparent",
-                  color: role === r.value ? NEON : MUTED,
-                  fontSize: 12, fontWeight: 700, cursor: "pointer",
-                  transition: "all 0.2s", fontFamily: "inherit",
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-                }}
-              >
-                <span>{r.label}</span>
-                <span style={{ fontSize: 10, opacity: 0.7 }}>{r.desc}</span>
-              </button>
-            ))}
-          </div>
+
 
           {/* Success banner from signup */}
           {successMessage && (
