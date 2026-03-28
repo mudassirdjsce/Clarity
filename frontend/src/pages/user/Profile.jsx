@@ -141,11 +141,24 @@ export default function UserProfile() {
     }, 1500);
   };
 
-  const [points, setPoints] = useState(() => {
-    return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
-  });
+  const [points, setPoints] = useState(() =>
+    parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10)
+  );
+
   const [hasPro, setHasPro] = useState(() => {
-    return localStorage.getItem('clarityProStatus') === 'true';
+    const expiry = localStorage.getItem('clarityProExpiry');
+    if (!expiry) return false;
+    if (new Date() > new Date(expiry)) {
+      // Expired — clean up
+      localStorage.removeItem('clarityProStatus');
+      localStorage.removeItem('clarityProExpiry');
+      return false;
+    }
+    return true;
+  });
+
+  const [proExpiry, setProExpiry] = useState(() => {
+    return localStorage.getItem('clarityProExpiry') || null;
   });
 
   useEffect(() => {
@@ -162,16 +175,23 @@ export default function UserProfile() {
 
   const handleGetPro = () => {
     if (points >= 250) {
-      if (window.confirm('Are you sure you want to buy one month pro with 250 points?')) {
+      if (window.confirm('Buy Clarity Pro for 1 month using 250 Royalty Points?')) {
         const newPoints = points - 250;
+        // Expiry = exactly 1 month from now
+        const expiry = new Date();
+        expiry.setMonth(expiry.getMonth() + 1);
+        const expiryStr = expiry.toISOString();
         setPoints(newPoints);
-        localStorage.setItem('clarityAcademyPoints', newPoints);
         setHasPro(true);
+        setProExpiry(expiryStr);
+        localStorage.setItem('clarityAcademyPoints', newPoints);
         localStorage.setItem('clarityProStatus', 'true');
+        localStorage.setItem('clarityProExpiry', expiryStr);
         window.dispatchEvent(new Event('pointsUpdate'));
+        setProFlipped(false);
       }
     } else {
-      window.alert('You need at least 250 points to activate Pro.');
+      window.alert(`You need 250 pts to activate Pro. You have ${points} pts.`);
     }
   };
 
@@ -440,12 +460,23 @@ export default function UserProfile() {
 
         <div className="text-center md:text-left space-y-2">
           <h1 className="text-5xl font-bold tracking-tight">{user.name}</h1>
-          <div className="flex items-center gap-3 justify-center md:justify-start">
+          <div className="flex items-center gap-3 justify-center md:justify-start flex-wrap">
             <Badge>Verified Analyst</Badge>
+            {hasPro && (
+              <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-gradient-to-r from-[#39ff14]/20 to-[#00d4ff]/20 border border-[#39ff14]/30 text-[#39ff14]">
+                ⚡ Pro
+                {proExpiry && (
+                  <span className="text-[#9FB8A7] font-bold text-[8px] ml-0.5">
+                    · expires {new Date(proExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                )}
+              </span>
+            )}
             <span className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] flex items-center gap-1 font-bold">
               <MapPin size={12} /> NYC, USA
             </span>
           </div>
+
         </div>
 
         <div className="md:ml-auto flex gap-3">
@@ -485,6 +516,22 @@ export default function UserProfile() {
                 <p className="font-medium text-[#E8F5E9]">{user.phone}</p>
               </div>
             </div>
+            {hasPro && proExpiry && (
+              <div className="bg-gradient-to-r from-[#39ff14]/8 to-[#00d4ff]/5 border border-[#39ff14]/20 p-4 rounded-2xl flex items-center gap-4">
+                <div className="w-9 h-9 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/25 flex items-center justify-center flex-shrink-0">
+                  <span className="text-base leading-none">⚡</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#39ff14]">Clarity Pro — Active</p>
+                  <p className="font-medium text-[#E8F5E9] text-sm mt-0.5">
+                    Expires on {new Date(proExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/30 text-[#39ff14]">
+                  1 Mo
+                </span>
+              </div>
+            )}
           </div>
         </Card>
 
@@ -817,8 +864,113 @@ export default function UserProfile() {
             </motion.button>
             <p className="text-[9px] text-[#9FB8A7]/50 text-center font-mono uppercase tracking-widest">Powered by TensorFlow · COCO-SSD</p>
           </Card>
+
+          {/* Clarity Pro — flip card */}
+          <div className="relative" style={{ perspective: '1000px' }}>
+            <motion.div
+              animate={{ rotateY: proFlipped ? 180 : 0 }}
+              transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
+              style={{ transformStyle: 'preserve-3d', position: 'relative', height: '100%' }}
+            >
+              {/* FRONT */}
+              <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                <Card className="p-6 relative overflow-hidden flex flex-col h-full">
+                  <div className="absolute -top-12 -right-12 w-56 h-56 bg-[#39ff14]/10 rounded-full blur-[70px] pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#00d4ff]/8 rounded-full blur-[60px] pointer-events-none" />
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gradient-to-br from-[#39ff14]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#39ff14]/20">
+                        <span className="text-sm leading-none">⚡</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-[#E8F5E9] text-sm leading-tight">Clarity Pro</h3>
+                        <p className="text-[9px] text-[#9FB8A7] uppercase tracking-[0.15em] font-bold">Premium Plan</p>
+                      </div>
+                    </div>
+                    <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/30 text-[#39ff14] animate-pulse">
+                      Free · Hackathon
+                    </span>
+                  </div>
+                  <ul className="space-y-1.5 mb-5 relative z-10 flex-1">
+                    {[
+                      { label: 'AI-Powered Insights',  desc: 'Personalised financial nudges daily'   },
+                      { label: 'Advanced Charting',     desc: 'Multi-timeframe technical overlays'    },
+                      { label: 'Unlimited Portfolios',  desc: 'Track stocks, MFs, bonds & more'       },
+                      { label: 'Priority Alerts',       desc: 'Real-time price & event notifications' },
+                      { label: 'Early API Access',      desc: 'Be first to new Clarity features'      },
+                    ].map(({ label, desc }) => (
+                      <li key={label} className="flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-[#39ff14] flex-shrink-0" />
+                        <span className="text-[10px] font-bold text-[#E8F5E9]">{label}</span>
+                        <span className="text-[9px] text-[#9FB8A7]">— {desc}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="relative z-10">
+                    <motion.button
+                      onClick={() => setProFlipped(true)}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
+                      style={{ background: 'linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)', boxShadow: '0 0 24px rgba(57,255,20,0.3)' }}
+                    >
+                      <motion.div className="absolute inset-0 bg-white/20" initial={{ x: '-100%' }} animate={{ x: '100%' }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} />
+                      <span className="relative z-10">Get Pro</span>
+                    </motion.button>
+                    <p className="text-center text-[9px] text-[#9FB8A7] mt-1.5 font-mono uppercase tracking-widest">No credit card required</p>
+                  </div>
+                </Card>
+              </div>
+
+              {/* BACK */}
+              <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', position: 'absolute', inset: 0 }}>
+                <Card className="p-6 relative overflow-hidden flex flex-col h-full">
+                  <div className="absolute -top-12 -right-12 w-56 h-56 bg-[#00d4ff]/10 rounded-full blur-[70px] pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#39ff14]/8 rounded-full blur-[60px] pointer-events-none" />
+                  <div className="flex items-center justify-between mb-3 relative z-10">
+                    <div>
+                      <h3 className="font-bold text-[#E8F5E9] text-sm">Choose Your Plan</h3>
+                      <p className="text-[9px] text-[#9FB8A7] uppercase tracking-[0.12em] font-bold mt-0.5">Pick how to unlock Pro</p>
+                    </div>
+                    <button onClick={() => setProFlipped(false)} className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors text-xs font-bold">✕</button>
+                  </div>
+                  <div className="space-y-2 flex-1 relative z-10">
+                    <motion.button
+                      onClick={handleGetPro}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full p-3 rounded-2xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/10 hover:border-amber-400/70 transition-all text-left"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider">Royalty Points</span>
+                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-400 uppercase tracking-widest">Recommended</span>
+                      </div>
+                      <p className="text-lg font-black text-white font-mono leading-tight">250 <span className="text-xs text-amber-400">pts</span></p>
+                      <p className="text-[9px] text-[#9FB8A7] mt-0.5">You have <span className="text-amber-400 font-bold">{points} pts</span> · earned rewards</p>
+                    </motion.button>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-px bg-white/5" />
+                      <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest">or</span>
+                      <div className="flex-1 h-px bg-white/5" />
+                    </div>
+                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full p-3 rounded-2xl border-2 border-[#39ff14]/30 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 hover:border-[#39ff14]/60 transition-all text-left">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-black text-[#39ff14] uppercase tracking-wider">One-time Payment</span>
+                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/25 text-[#39ff14] uppercase tracking-widest">Instant</span>
+                      </div>
+                      <p className="text-lg font-black text-white font-mono leading-tight">₹499</p>
+                      <p className="text-[9px] text-[#9FB8A7] mt-0.5">Secure checkout · Annual access</p>
+                    </motion.button>
+                  </div>
+                  <p className="text-center text-[9px] text-[#9FB8A7] mt-2 font-mono uppercase tracking-widest relative z-10">Cancel anytime · No hidden fees</p>
+                </Card>
+              </div>
+            </motion.div>
+          </div>
+
         </div>
       </section>
+
 
       {/* Goal Form Modal */}
       {isGoalModalOpen && (
