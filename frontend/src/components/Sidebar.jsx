@@ -46,10 +46,10 @@ export function Sidebar({ isOpen, onClose }) {
 
   const secondaryItems = [
     { icon: HelpCircle, labelKey: 'support', path: '/support' },
-    { 
-      icon: LogOut, 
-      labelKey: 'logout', 
-      path: '/login', 
+    {
+      icon: LogOut,
+      labelKey: 'logout',
+      path: '/login',
       className: 'text-red-500 hover:text-red-400 hover:bg-red-500/10',
       onClick: () => localStorage.removeItem('clarity_user')
     },
@@ -114,23 +114,4 @@ export function Sidebar({ isOpen, onClose }) {
               <item.icon className="w-5 h-5" />
               <span className="font-medium">{t(item.labelKey)}</span>
             </NavLink>
-          ))}
-        </div>
 
-        {isCompany && (
-          <div className="mt-6 p-4 rounded-2xl bg-neon-green/5 border border-neon-green/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Globe className="w-4 h-4 text-neon-green" />
-              <span className="text-[10px] font-bold text-neon-green uppercase tracking-wider">
-                {t('pro_mode_active')}
-              </span>
-            </div>
-            <p className="text-[10px] text-white/40 leading-relaxed">
-              {t('pro_mode_desc')}
-            </p>
-          </div>
-        )}
-      </aside>
-    </>
-  );
-}
