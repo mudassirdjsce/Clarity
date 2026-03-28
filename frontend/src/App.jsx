@@ -24,6 +24,7 @@ import GamifiedLearningPath           from './pages/user/GamifiedLearningPath';
 import Stocks                         from './pages/user/Stocks';
 import MutualFunds                    from './pages/user/MutualFunds';
 import StockDetail                    from './pages/user/StockDetail';
+import MutualFundDetail               from './pages/user/MutualFundDetail';
 
 // ── Company Pages ─────────────────────────────────────────────────────────────
 import { CompanyDashboard }              from './pages/company/Dashboard';
@@ -66,7 +67,8 @@ export default function App() {
               <Route path="wrapped"   element={<WrappedPage />} />
               <Route path="stocks"    element={<Stocks />} />
               <Route path="mutualfunds" element={<MutualFunds />} />
-              <Route path="stock/:ticker" element={<StockDetail />} />
+              <Route path="stock/:ticker"     element={<StockDetail />} />
+              <Route path="mutualfund/:slug"  element={<MutualFundDetail />} />
             </Route>
 
             {/* Institution / Company */}
@@ -77,8 +79,9 @@ export default function App() {
               <Route path="assistant" element={<CompanyAssistant type="company" />} />
               <Route path="news"      element={<NewsInstitution />} />
               <Route path="profile"   element={<CompanyProfile />} />
-              <Route path="stocks"    element={<Stocks />} />
-              <Route path="mutualfunds" element={<MutualFunds />} />
+              <Route path="stocks"       element={<Stocks />} />
+              <Route path="mutualfunds"  element={<MutualFunds />} />
+              <Route path="mutualfund/:slug" element={<MutualFundDetail />} />
               <Route path="wrapped"   element={<WrappedPage />} />
             </Route>
 
