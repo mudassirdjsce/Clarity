@@ -38,7 +38,10 @@ export default function UserProfile() {
     if (location.state?.scrollTo) {
       const el = document.getElementById(location.state.scrollTo);
       if (el) {
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+        setTimeout(() => {
+          const top = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }, 300);
       }
     }
   }, [location.state]);
