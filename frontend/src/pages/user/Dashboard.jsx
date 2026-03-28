@@ -41,7 +41,7 @@ export function UserDashboard() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">
+          <h1 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight mb-2">
             Good Morning, Alex
           </h1>
           <p className="text-white/40 font-medium">
@@ -49,12 +49,12 @@ export function UserDashboard() {
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center justify-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
             <span className="text-xs font-mono text-white/60 uppercase tracking-wider">Markets Live</span>
           </div>
-          <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform">
+          <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform w-full sm:w-auto">
             Deposit Funds
           </button>
         </div>
@@ -91,31 +91,33 @@ export function UserDashboard() {
       >
         {/* Glow blob */}
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-neon-green/5 blur-[80px] pointer-events-none" />
-        <div>
-          <p className="text-xs font-mono tracking-[4px] text-neon-green/60 uppercase mb-1">New · Annual Review</p>
-          <h3 className="text-xl font-black text-white mb-1">Your Financial Wrapped 2026 is here ✦</h3>
-          <p className="text-sm text-white/40">See your top sectors, risk profile, and AI-powered insights.</p>
+        <div className="text-center sm:text-left">
+          <p className="text-[10px] sm:text-xs font-mono tracking-[2px] sm:tracking-[4px] text-neon-green/60 uppercase mb-1">New · Annual Review</p>
+          <h3 className="text-lg sm:text-xl font-black text-white mb-1">Your Financial Wrapped 2026 is here ✦</h3>
+          <p className="text-xs sm:text-sm text-white/40">See your top sectors, risk profile, and AI-powered insights.</p>
         </div>
-        <WrappedTriggerButton />
+        <div className="mt-2 sm:mt-0">
+          <WrappedTriggerButton />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bento-card flex flex-col min-h-[400px]">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
-              <h3 className="text-xl font-display font-bold">Portfolio Performance</h3>
-              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <h3 className="text-lg sm:text-xl font-display font-bold">Portfolio Performance</h3>
+            <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10 w-full sm:w-auto overflow-x-auto justify-between sm:justify-start">
                 {['1D', '1W', '1M', '1Y', 'ALL'].map(t => (
                   <button key={t} className={cn(
-                    "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
+                    "px-3 py-1 rounded-md text-[10px] font-bold transition-all whitespace-nowrap",
                     t === '1D' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
                   )}>{t}</button>
                 ))}
               </div>
+              <button className="text-white/40 hover:text-neon-green transition-colors hidden sm:block">
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
-            <button className="text-white/40 hover:text-neon-green transition-colors">
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
           
           <div className="w-full" style={{ height: 280 }}>

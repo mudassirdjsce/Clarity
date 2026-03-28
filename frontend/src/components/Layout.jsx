@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { TopAppBar } from './TopAppBar';
 import { Sidebar } from './Sidebar';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function Layout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-obsidian text-white selection:bg-neon-green selection:text-obsidian">
-      <TopAppBar />
-      <Sidebar />
+    <div className="min-h-screen bg-obsidian text-white selection:bg-neon-green selection:text-obsidian relative overflow-x-hidden">
+      <TopAppBar onMenuClick={() => setSidebarOpen(true)} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <main className="lg:pl-64 pt-16 min-h-screen">
-        <div className="p-6 max-w-[1600px] mx-auto">
+        <div className="p-4 md:p-6 max-w-[1600px] mx-auto w-full overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
               initial={{ opacity: 0, y: 10 }}

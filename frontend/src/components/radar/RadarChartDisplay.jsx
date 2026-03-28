@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { useState, useEffect } from "react";
 import { CHART_META, RADAR_DATA } from "./radarData";
 
 // ─── Custom Tooltip ──────────────────────────────────────────────────────────
@@ -89,6 +90,15 @@ const EmptyState = () => (
 
 // ─── Main Chart Display ───────────────────────────────────────────────────────
 export default function RadarChartDisplay({ activeCharts }) {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize(); // Init
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const colorMap = Object.fromEntries(CHART_META.map((m) => [m.name, m.color]));
 
   return (
@@ -100,8 +110,11 @@ export default function RadarChartDisplay({ activeCharts }) {
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart
+              cx="50%"
+              cy="50%"
+              outerRadius={isMobile ? "55%" : "70%"}
               data={RADAR_DATA}
-              margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
+              margin={{ top: 10, right: isMobile ? 10 : 30, bottom: 10, left: isMobile ? 10 : 30 }}
             >
               <PolarGrid
                 stroke="rgba(255,255,255,0.06)"

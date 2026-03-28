@@ -25,6 +25,7 @@ import Stocks                         from './pages/user/Stocks';
 import MutualFunds                    from './pages/user/MutualFunds';
 import StockDetail                    from './pages/user/StockDetail';
 import MutualFundDetail               from './pages/user/MutualFundDetail';
+import Family                         from './pages/user/Family';
 
 // ── Company Pages ─────────────────────────────────────────────────────────────
 import { CompanyDashboard }              from './pages/company/Dashboard';
@@ -69,6 +70,7 @@ export default function App() {
               <Route path="mutualfunds" element={<MutualFunds />} />
               <Route path="stock/:ticker"     element={<StockDetail />} />
               <Route path="mutualfund/:slug"  element={<MutualFundDetail />} />
+              <Route path="family"    element={<Family />} />
             </Route>
 
             {/* Institution / Company */}

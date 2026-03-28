@@ -112,7 +112,92 @@ export const getSession = () => {
   return { token: localStorage.getItem("clarity_token"), user: user ? JSON.parse(user) : null };
 };
 
+
 export const clearSession = () => {
   localStorage.removeItem("clarity_token");
   localStorage.removeItem("clarity_user");
+};
+
+// ── FAMILY MEMBERS ────────────────────────────────────────────────────────────
+export const fetchFamilyMembers = async (email) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/members?email=${encodeURIComponent(email)}`, {
+    headers: { Authorization: `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error("Failed to fetch family members");
+  return res.json();
+};
+
+export const addFamilyMember = async (data) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/members`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to add family member");
+  return res.json();
+};
+
+export const updateFamilyMember = async (id, data) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/members/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to update family member");
+  return res.json();
+};
+
+export const deleteFamilyMember = async (id) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/members/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error("Failed to delete family member");
+  return res.json();
+};
+
+// ── FAMILY GOALS ────────────────────────────────────────────────────────────
+export const fetchFamilyGoals = async (email) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/goals?email=${encodeURIComponent(email)}`, {
+    headers: { Authorization: `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error("Failed to fetch family goals");
+  return res.json();
+};
+
+export const addFamilyGoal = async (data) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/goals`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to add family goal");
+  return res.json();
+};
+
+export const updateFamilyGoal = async (id, data) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/goals/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${t}` },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error("Failed to update family goal");
+  return res.json();
+};
+
+export const deleteFamilyGoal = async (id) => {
+  const t = localStorage.getItem("clarity_token");
+  const res = await fetch(`${BASE_URL}/auth/family/goals/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${t}` }
+  });
+  if (!res.ok) throw new Error("Failed to delete family goal");
+  return res.json();
 };
