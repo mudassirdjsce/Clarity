@@ -6,6 +6,8 @@ const {
   getBankAccounts, connectBank, addTransaction,
   getHoldings, addHolding, deleteHolding,
   getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding,
+  getTreasuryAccounts, addTreasuryAccount, deleteTreasuryAccount,
+  getTeamMembers, addTeamMember, deleteTeamMember,
 } = require("../controllers/authController");
 
 const router = express.Router();
@@ -34,5 +36,13 @@ router.delete("/holdings/:id", deleteHolding);
 router.get("/institutional-holdings", getInstitutionalHoldings);
 router.post("/institutional-holdings", addInstitutionalHolding);
 router.delete("/institutional-holdings/:id", deleteInstitutionalHolding);
+
+router.get("/treasury-accounts", getTreasuryAccounts);
+router.post("/treasury-accounts", addTreasuryAccount);
+router.delete("/treasury-accounts/:id", deleteTreasuryAccount);
+
+router.get("/team-members", getTeamMembers);
+router.post("/team-members", addTeamMember);
+router.delete("/team-members/:id", deleteTeamMember);
 
 module.exports = router;
