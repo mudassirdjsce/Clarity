@@ -45,11 +45,10 @@ export function Sidebar({ isOpen, onClose }) {
   }
 
   const secondaryItems = [
-    { icon: HelpCircle, labelKey: 'support', path: '/support' },
-    { 
-      icon: LogOut, 
-      labelKey: 'logout', 
-      path: '/login', 
+    {
+      icon: LogOut,
+      labelKey: 'logout',
+      path: '/login',
       className: 'text-red-500 hover:text-red-400 hover:bg-red-500/10',
       onClick: () => localStorage.removeItem('clarity_user')
     },
