@@ -113,4 +113,10 @@ export function Sidebar({ isOpen, onClose }) {
               <item.icon className="w-5 h-5" />
               <span className="font-medium">{t(item.labelKey)}</span>
             </NavLink>
+          ))}
+        </div>
+      </aside>
+    </>
+  );
+}
 
