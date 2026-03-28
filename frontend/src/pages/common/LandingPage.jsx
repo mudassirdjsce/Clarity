@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
+import clarityLogo from "../../assets/CLARITY1.svg";
 import { 
   Activity, 
   CheckCircle2, 
@@ -17,8 +18,8 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#0b0f0b]/80 backdrop-blur-xl border-b border-[#454943]/15 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
       <div className="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
-        <div className="text-2xl font-bold tracking-tighter text-primary drop-shadow-[0_0_8px_#39ff14] font-headline cursor-pointer" onClick={() => navigate("/")}>
-          CLARITY
+        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => navigate("/")}>
+          <img src={clarityLogo} alt="Clarity" className="h-10 w-auto drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" />
         </div>
         <div className="hidden md:flex items-center gap-8">
           {["Platform", "Intelligence", "Security", "Pricing"].map((item, idx) => (
@@ -403,7 +404,7 @@ const Footer = () => (
   <footer className="w-full py-12 border-t border-[#454943]/15 bg-[#000000]">
     <div className="flex flex-col md:flex-row justify-between items-center px-12 gap-6 max-w-screen-2xl mx-auto">
       <div className="flex flex-col items-center md:items-start gap-2">
-        <div className="text-lg font-black text-primary font-headline">CLARITY</div>
+        <img src={clarityLogo} alt="Clarity" className="h-8 w-auto mb-1 drop-shadow-[0_0_8px_rgba(57,255,20,0.3)]" />
         <div className="font-label text-[10px] tracking-widest uppercase text-on-surface-variant">
           © 2024 CLARITY SYNTHETIC PULSE. ALL RIGHTS RESERVED.
         </div>
