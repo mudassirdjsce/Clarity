@@ -1,25 +1,41 @@
 const News = require("../models/News");
 
+// ── GET /api/news ─────────────────────────────────────────────────────────────
 const getNews = async (req, res) => {
   try {
     const { mode = "retail", sentiment, impact, search } = req.query;
 
-    let query = {};
-    if (sentiment) query.sentiment = sentiment;
-    if (impact) query.impact = impact;
-    if (search) query.title = { $regex: search, $options: "i" };
+    // Build MongoDB query
+    const query = {};
+
+    // Mode filter — return news for this mode OR news marked "both"
+    if (mode) {
+      query.mode = { $in: [mode, "both"] };
+    }
+
+    // Sentiment filter
+    if (sentiment && sentiment !== "all") {
+      query.sentiment = sentiment;
+    }
+
+    // Impact filter
+    if (impact && impact !== "all") {
+      query.impact = impact;
+    }
+
+    // Search across title, tags, and source
+    if (search) {
+      query.$or = [
+        { title:  { $regex: search, $options: "i" } },
+        { tags:   { $regex: search, $options: "i" } },
+        { source: { $regex: search, $options: "i" } },
+      ];
+    }
 
     const news = await News.find(query).sort({ publishedAt: -1 }).limit(50);
 
-    if (mode === "retail") {
-      return res.json(news.map(n => ({
-        title: n.title,
-        summary: n.summary,
-        sentiment: n.sentiment,
-        impact: n.impact
-      })));
-    }
-
+    // Retail mode: return full object (frontend picks its own fields)
+    // Institution mode: same — return full object
     res.json(news);
 
   } catch (err) {

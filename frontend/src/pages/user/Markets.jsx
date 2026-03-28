@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { fetchRetailNews, fetchInsights } from "../../services/api";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
@@ -14,99 +15,18 @@ const TEXT_PRIMARY = "#ffffff";
 const TEXT_SECONDARY = "#a0a0a0";
 const TEXT_MUTED = "#505050";
 
-// ─── MOCK DATA ────────────────────────────────────────────────────────────────
-const NEWS_DATA = [
-  {
-    id: 1,
-    title: "Fed Keeps Rates Same",
-    summary: "The people who control money decided not to change the interest rate. This usually means things will stay the same for a while.",
-    fullSummary: "The Federal Reserve voted unanimously to hold the federal funds rate steady. This decision signals that inflation is cooling and the economy remains stable, which is generally good news for long-term investors. Expect steady market conditions over the next few weeks.",
-    sentiment: "neutral",
-    impact: "high",
-    credibilityScore: 98,
-    source: "Reuters",
-    publishedAt: "2 min ago",
-    tags: ["GLOBAL MARKETS", "Economy"],
-    relatedAssets: ["NIFTY 50", "USD/INR", "Gold"],
-    featured: true,
-    sparkData: [4, 5, 4.8, 5.2, 4.9, 5.1, 5.0, 5.3, 5.1, 5.4],
-  },
-  {
-    id: 2,
-    title: "Chip Stocks Surge on AI Demand",
-    summary: "More companies are buying chips for AI, causing stock values in the hardware sector to rise quickly.",
-    fullSummary: "Global semiconductor stocks rallied strongly as demand from AI data centres hit record highs. Companies like NVIDIA and AMD saw fresh buying interest, and Indian IT hardware plays are likely to benefit from the ripple effect.",
-    sentiment: "bullish",
-    impact: "high",
-    credibilityScore: 91,
-    source: "Bloomberg",
-    publishedAt: "15 min ago",
-    tags: ["TECH SECTOR"],
-    relatedAssets: ["NVIDIA", "Infosys", "HCL Tech"],
-    featured: false,
-    sparkData: [3.2, 3.8, 4.1, 3.9, 4.5, 4.8, 5.2, 5.6, 5.9, 6.2],
-  },
-  {
-    id: 3,
-    title: "Gold Prices Reach Record Highs",
-    summary: "People are buying gold to stay safe because they are worried about the global economy.",
-    fullSummary: "Gold surpassed $2,400/oz as global uncertainty pushed investors toward safe-haven assets. For Indian investors, this means Sovereign Gold Bonds and Gold ETFs may continue to appreciate in the near term.",
-    sentiment: "neutral",
-    impact: "medium",
-    credibilityScore: 95,
-    source: "CNBC",
-    publishedAt: "2 min ago",
-    tags: ["INSIGHT", "Commodities"],
-    relatedAssets: ["Gold ETF", "Sovereign Gold Bond"],
-    featured: false,
-    sparkData: [5.1, 5.3, 5.5, 5.4, 5.7, 5.9, 6.1, 6.0, 6.3, 6.5],
-  },
-  {
-    id: 4,
-    title: "RBI Holds Repo Rate at 6.5%",
-    summary: "India's central bank kept borrowing costs the same, which is good for home loan holders and stock markets.",
-    fullSummary: "The Reserve Bank of India held the repo rate for the seventh consecutive time. This provides relief to borrowers and signals a stable monetary environment. Banking and real-estate stocks typically react positively to such decisions.",
-    sentiment: "bullish",
-    impact: "high",
-    credibilityScore: 99,
-    source: "RBI Official",
-    publishedAt: "1 hr ago",
-    tags: ["INDIA MACRO"],
-    relatedAssets: ["Bank Nifty", "HDFC Bank", "SBI"],
-    featured: false,
-    sparkData: [4.8, 4.9, 5.1, 5.0, 5.2, 5.4, 5.3, 5.5, 5.6, 5.8],
-  },
-  {
-    id: 5,
-    title: "Reliance Q3 Profit Jumps 11%",
-    summary: "Reliance Industries earned more money this quarter, mostly from its phone and shopping businesses.",
-    fullSummary: "RIL reported Q3 net profit of ₹21,930 crore, beating analyst estimates. Jio's subscriber additions and Reliance Retail's strong EBITDA margin expansion were key drivers. The stock is likely to see continued buying interest.",
-    sentiment: "bullish",
-    impact: "medium",
-    credibilityScore: 97,
-    source: "BSE Filing",
-    publishedAt: "3 hr ago",
-    tags: ["EARNINGS", "Large Cap"],
-    relatedAssets: ["RELIANCE", "Nifty 50"],
-    featured: false,
-    sparkData: [3.5, 3.7, 4.0, 3.9, 4.2, 4.4, 4.6, 4.5, 4.8, 5.0],
-  },
-  {
-    id: 6,
-    title: "SEBI Tightens F&O Rules for Retail",
-    summary: "The stock market regulator made some trading rules stricter to protect everyday investors from big losses.",
-    fullSummary: "SEBI's new F&O framework limits weekly expiry contracts and increases margin requirements. While this may reduce short-term trading volumes, it is designed to protect retail investors from excessive speculation and high-risk trades.",
-    sentiment: "neutral",
-    impact: "medium",
-    credibilityScore: 100,
-    source: "SEBI Circular",
-    publishedAt: "5 hr ago",
-    tags: ["REGULATORY"],
-    relatedAssets: ["Nifty Options", "Bank Nifty Options"],
-    featured: false,
-    sparkData: [5.0, 4.8, 4.6, 4.7, 4.5, 4.6, 4.4, 4.5, 4.3, 4.4],
-  },
-];
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+// Format ISO date to relative/readable string
+function formatRelativeTime(iso) {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr ago`;
+  return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+}
 
 const WEEKLY_PULSE = {
   summary: "Overall, markets are showing strong resilience. While some sectors are volatile, the general trend for your retail portfolio remains healthy.",
@@ -391,8 +311,8 @@ function SmallCard({ item, index }) {
     >
       {/* Tag + time */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <CategoryTag label={item.tags[0]} />
-        <span style={{ fontSize: 11, color: TEXT_MUTED }}>{item.publishedAt}</span>
+        <CategoryTag label={item.tags?.[0] || "NEWS"} />
+        <span style={{ fontSize: 11, color: TEXT_MUTED }}>{formatRelativeTime(item.publishedAt)}</span>
       </div>
 
       {/* Headline */}
@@ -520,7 +440,7 @@ function SidePanel({ news }) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {highImpact.map(item => (
-            <div key={item.id} style={{ borderLeft: "2px solid #ff8c00", paddingLeft: 12 }}>
+            <div key={item._id || item.id} style={{ borderLeft: "2px solid #ff8c00", paddingLeft: 12 }}>
               <p style={{ fontSize: 12.5, color: "#d5d5d5", lineHeight: 1.4, margin: "0 0 4px", fontWeight: 600 }}>{item.title}</p>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 <span style={{ fontSize: 10, color: TEXT_MUTED }}>{item.source}</span>
@@ -540,7 +460,7 @@ function SidePanel({ news }) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {trending.map((item, i) => (
-            <div key={item.id} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <div key={item._id || item.id} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
               <span style={{ fontSize: 18, fontWeight: 900, color: "#1a2a1a", lineHeight: 1, minWidth: 18 }}>0{i + 1}</span>
               <div>
                 <p style={{ fontSize: 12.5, color: "#d5d5d5", lineHeight: 1.4, margin: "0 0 4px", fontWeight: 600 }}>{item.title}</p>
@@ -593,27 +513,26 @@ function SidePanel({ news }) {
 
 // ─── AI INSIGHT BANNER ────────────────────────────────────────────────────────
 function AIInsightBanner() {
-  const [insight, setInsight] = useState("Markets are showing steady momentum today. RBI's stable stance and strong Q3 earnings from major companies signal a healthy environment for long-term investors.");
-  const [loading, setLoading] = useState(false);
+  const [insight, setInsight] = useState("Loading today's market insight…");
+  const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 80,
-          system: "You are a friendly market commentator for everyday Indian retail investors. Write ONE sentence (max 25 words) in very simple terms.",
-          messages: [{ role: "user", content: "Give today's market insight for retail investors." }],
-        }),
-      });
-      const data = await res.json();
-      setInsight(data.content?.[0]?.text || insight);
-    } catch { }
-    finally { setLoading(false); }
+      const data = await fetchInsights();
+      // Insights endpoint returns an array; use the first one's insight field
+      const text = Array.isArray(data) && data[0]?.insight
+        ? data[0].insight
+        : "Markets are showing steady momentum today. Stay informed and invest wisely.";
+      setInsight(text);
+    } catch {
+      setInsight("Markets are showing steady momentum today. Stay informed and invest wisely.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => { refresh(); }, []);
 
   return (
     <div style={{
@@ -695,26 +614,41 @@ function FilterBar({ active, setActive, search, setSearch }) {
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export function Markets() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [news, setNews] = useState([]);
 
   useEffect(() => {
-    const t = setTimeout(() => { setNews(NEWS_DATA); setLoading(false); }, 1200);
+    const loadNews = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const filters = {
+          sentiment:
+            activeFilter === "Bullish" ? "bullish" :
+            activeFilter === "Bearish" ? "bearish" :
+            activeFilter === "Neutral" ? "neutral" : undefined,
+          impact: activeFilter === "High Impact" ? "high" : undefined,
+          search: search || undefined,
+        };
+        const data = await fetchRetailNews(filters);
+        // Normalize MongoDB _id to id for key usage
+        setNews(data.map(n => ({ ...n, id: n._id || n.id })));
+      } catch (err) {
+        setError("Failed to load market news. Please try again.");
+        setNews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    const t = setTimeout(loadNews, 400); // 400ms debounce
     return () => clearTimeout(t);
-  }, []);
+  }, [activeFilter, search]);
 
+  // Backend already filters; just split featured from the rest
   const featured = news.find(n => n.featured);
-  const filtered = news.filter(n => {
-    const matchFilter =
-      activeFilter === "All" ? true :
-      activeFilter === "Bullish" ? n.sentiment === "bullish" :
-      activeFilter === "Bearish" ? n.sentiment === "bearish" :
-      activeFilter === "Neutral" ? n.sentiment === "neutral" :
-      activeFilter === "High Impact" ? n.impact === "high" : true;
-    const matchSearch = search === "" || n.title.toLowerCase().includes(search.toLowerCase()) || n.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
-    return matchFilter && matchSearch && !n.featured;
-  });
+  const filtered = news.filter(n => !n.featured);
 
   return (
     <div style={{ color: TEXT_PRIMARY, fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
