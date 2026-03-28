@@ -115,8 +115,21 @@ export function Sidebar({ isOpen, onClose }) {
             </NavLink>
           ))}
         </div>
+
+        {isCompany && (
+          <div className="mt-6 p-4 rounded-2xl bg-neon-green/5 border border-neon-green/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Globe className="w-4 h-4 text-neon-green" />
+              <span className="text-[10px] font-bold text-neon-green uppercase tracking-wider">
+                {t('pro_mode_active')}
+              </span>
+            </div>
+            <p className="text-[10px] text-white/40 leading-relaxed">
+              {t('pro_mode_desc')}
+            </p>
+          </div>
+        )}
       </aside>
     </>
   );
 }
-
