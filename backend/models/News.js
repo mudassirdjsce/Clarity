@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const newsSchema = new mongoose.Schema({
   title:           { type: String, required: true },
+  url:             { type: String, default: null },   // Original article URL
   summary:         String,
   fullSummary:     String,  // Retail-facing plain language breakdown
   fullAnalysis:    String,  // Institution-facing detailed analysis

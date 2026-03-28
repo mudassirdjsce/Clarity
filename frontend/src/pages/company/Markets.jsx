@@ -36,6 +36,12 @@ function formatTime(iso) {
   return d.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
 }
 
+// Returns a working URL: stored URL or Google News search fallback
+function getArticleUrl(item) {
+  if (item.url && item.url.startsWith("http")) return item.url;
+  return `https://www.google.com/search?q=${encodeURIComponent(item.title)}&tbm=nws`;
+}
+
 // ─────────────────────────────────────────────
 // SUB-COMPONENTS
 // ─────────────────────────────────────────────
@@ -176,9 +182,21 @@ const NewsCard = ({ news }) => {
       </div>
 
       {/* Title */}
-      <h3 style={{ fontSize: 15, fontWeight: 700, color: hovered ? "#ffffff" : "#e8e8e8", lineHeight: 1.45, marginBottom: 9, transition: "color 0.2s" }}>
-        {news.title}
-      </h3>
+      <a
+        href={getArticleUrl(news)}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={e => e.stopPropagation()}
+        style={{ textDecoration: "none" }}
+      >
+        <h3 style={{
+          fontSize: 15, fontWeight: 700,
+          color: hovered ? NEON : "#e8e8e8",
+          lineHeight: 1.45, marginBottom: 9, transition: "color 0.2s",
+        }}>
+          {news.title} ↗
+        </h3>
+      </a>
 
       {/* Summary */}
       <p style={{ fontSize: 13, color: TEXT_SECONDARY, lineHeight: 1.65, marginBottom: 12,
@@ -241,6 +259,24 @@ const NewsCard = ({ news }) => {
               }}>{a}</span>
             ))}
           </div>
+          {(
+            <a
+              href={getArticleUrl(news)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                marginTop: 14, padding: "8px 16px",
+                background: NEON_DIM, border: `1px solid ${NEON_BORDER}`,
+                borderRadius: 8, color: NEON,
+                fontSize: 12, fontWeight: 700, textDecoration: "none",
+                transition: "all 0.2s",
+              }}
+            >
+              Read Full Article ↗
+            </a>
+          )}
         </div>
       )}
     </div>

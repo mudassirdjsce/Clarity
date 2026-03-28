@@ -28,6 +28,13 @@ function formatRelativeTime(iso) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 }
 
+// Returns a working URL for the article:
+// → uses stored URL if available, otherwise falls back to Google News search
+function getArticleUrl(item) {
+  if (item.url && item.url.startsWith("http")) return item.url;
+  return `https://www.google.com/search?q=${encodeURIComponent(item.title)}&tbm=nws`;
+}
+
 const WEEKLY_PULSE = {
   summary: "Overall, markets are showing strong resilience. While some sectors are volatile, the general trend for your retail portfolio remains healthy.",
   topGainer: { name: "NVIDIA", change: "+4.2%" },
@@ -121,8 +128,22 @@ function CategoryTag({ label }) {
   );
 }
 
-function SparkLine({ data, color = NEON }) {
-  const chartData = data.map((v, i) => ({ i, v }));
+// Generates a stable 12-point sparkline from a seed string (article title)
+// so every card has a unique but consistent chart even when sparkData is empty
+function generateFallbackSpark(seed = "", points = 12) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) & 0xffffffff;
+  }
+  return Array.from({ length: points }, (_, i) => {
+    hash = (hash * 1664525 + 1013904223) & 0xffffffff;
+    return 40 + (Math.abs(hash) % 60); // values between 40–100
+  });
+}
+
+function SparkLine({ data, color = NEON, seed = "" }) {
+  const raw = data && data.length >= 3 ? data : generateFallbackSpark(seed);
+  const chartData = raw.map((v, i) => ({ i, v }));
   return (
     <ResponsiveContainer width="100%" height={42}>
       <AreaChart data={chartData} margin={{ top: 2, right: 0, left: 0, bottom: 2 }}>
@@ -212,9 +233,24 @@ function FeaturedCard({ item }) {
       </div>
 
       {/* Headline */}
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: TEXT_PRIMARY, lineHeight: 1.35, marginBottom: 16, maxWidth: "88%" }}>
-        {item.title}
-      </h2>
+      <a
+        href={getArticleUrl(item)}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={e => e.stopPropagation()}
+        style={{ textDecoration: "none" }}
+      >
+        <h2 style={{
+          fontSize: 22, fontWeight: 800, color: TEXT_PRIMARY,
+          lineHeight: 1.35, marginBottom: 16, maxWidth: "88%",
+          transition: "color 0.2s",
+        }}
+          onMouseEnter={e => e.currentTarget.style.color = NEON}
+          onMouseLeave={e => e.currentTarget.style.color = TEXT_PRIMARY}
+        >
+          {item.title} ↗
+        </h2>
+      </a>
 
       {/* AI Summary Box */}
       <div style={{
@@ -273,6 +309,20 @@ function FeaturedCard({ item }) {
             color: TEXT_SECONDARY, borderRadius: 8, padding: "8px 14px",
             fontSize: 11, cursor: "pointer", fontWeight: 600, transition: "all 0.2s",
           }}>↺ Refresh AI</button>
+          {(
+            <a
+              href={getArticleUrl(item)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: "transparent", border: `1px solid ${NEON_BORDER}`,
+                color: NEON, borderRadius: 8, padding: "8px 14px",
+                fontSize: 11, fontWeight: 700, textDecoration: "none",
+                display: "inline-flex", alignItems: "center", gap: 4,
+              }}
+            >Read Article ↗</a>
+          )}
           <button onClick={() => setExpanded(e => !e)} style={{
             background: expanded ? NEON_DIM : NEON,
             border: `1px solid ${expanded ? NEON_BORDER : NEON}`,
@@ -316,13 +366,25 @@ function SmallCard({ item, index }) {
       </div>
 
       {/* Headline */}
-      <h3 style={{ fontSize: 15, fontWeight: 700, color: hovered ? "#ffffff" : "#e8e8e8", lineHeight: 1.4, marginBottom: 10, transition: "color 0.2s" }}>
-        {item.title}
-      </h3>
+      <a
+        href={getArticleUrl(item)}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={e => e.stopPropagation()}
+        style={{ textDecoration: "none" }}
+      >
+        <h3 style={{
+          fontSize: 15, fontWeight: 700,
+          color: hovered ? NEON : "#e8e8e8",
+          lineHeight: 1.4, marginBottom: 10, transition: "color 0.2s",
+        }}>
+          {item.title} ↗
+        </h3>
+      </a>
 
       {/* Sparkline */}
       <div style={{ marginBottom: 10 }}>
-        <SparkLine data={item.sparkData} color={sparkColor} />
+        <SparkLine data={item.sparkData} color={sparkColor} seed={item.title} />
       </div>
 
       {/* Summary */}

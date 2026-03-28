@@ -36,6 +36,7 @@ const fetchNewsAPI = async () => {
 const normalizeFinnhub = (data) => {
   return data.map(item => ({
     title: item.headline || "No Title",
+    url: item.url || null,
     description: item.summary || "",
     source: item.source || "Unknown",
     publishedAt: item.datetime ? item.datetime * 1000 : new Date()
@@ -45,6 +46,7 @@ const normalizeFinnhub = (data) => {
 const normalizeNewsAPI = (data) => {
   return data.map(item => ({
     title: item.title || "No Title",
+    url: item.url || null,
     description: item.description || "",
     source: item.source?.name || "Unknown",
     publishedAt: item.publishedAt || new Date()
@@ -101,6 +103,7 @@ const runNewsPipeline = async () => {
 
         const saved = await News.create({
           title: article.title,
+          url: article.url || null,
           summary: ai.summary,
           fullSummary: article.description || ai.summary,
           sentiment: ai.sentiment,
@@ -108,8 +111,8 @@ const runNewsPipeline = async () => {
           credibilityScore: calculateCredibility(),
           source: article.source,
           publishedAt: article.publishedAt,
-          tags: article.title.split(" ").slice(0, 6), // cap at 6 tags
-          mode: "both",  // visible to both retail and institution
+          tags: article.title.split(" ").slice(0, 6),
+          mode: "both",
           featured: false,
           relatedAssets: [],
           sparkData: [],
