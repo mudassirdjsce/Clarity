@@ -22,6 +22,7 @@ import {
   Camera,
   ScanLine
 } from 'lucide-react';
+import { cn } from '../../lib/utils';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
 import { WrappedTriggerButton } from '../common/WrappedPage';
@@ -137,6 +138,40 @@ export default function UserProfile() {
         setFraudReport(FRAUD_REPORT);
       }, 3000);
     }, 1500);
+  };
+
+  const [points, setPoints] = useState(() => {
+    return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
+  });
+  const [hasPro, setHasPro] = useState(() => {
+    return localStorage.getItem('clarityProStatus') === 'true';
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPoints(parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10));
+    };
+    window.addEventListener('pointsUpdate', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('pointsUpdate', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const handleGetPro = () => {
+    if (points >= 250) {
+      if (window.confirm('Are you sure you want to buy one month pro with 250 points?')) {
+        const newPoints = points - 250;
+        setPoints(newPoints);
+        localStorage.setItem('clarityAcademyPoints', newPoints);
+        setHasPro(true);
+        localStorage.setItem('clarityProStatus', 'true');
+        window.dispatchEvent(new Event('pointsUpdate'));
+      }
+    } else {
+      window.alert('You need at least 250 points to activate Pro.');
+    }
   };
 
   useEffect(() => {
@@ -746,38 +781,10 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* Security & Experience */}
       <section className="space-y-6 relative z-10">
-        <h2 className="text-2xl font-semibold">Security & Experience</h2>
+        <h2 className="text-2xl font-semibold">Scan and Search</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
-                <ShieldCheck size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-[#E8F5E9]">Security Protocol</h3>
-                <p className="text-xs text-[#9FB8A7]">Protection for your assets</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-[#1A231C] border border-[#2A3B2E] rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <Fingerprint size={20} className="text-[#9FB8A7]" />
-                  <span className="text-sm font-medium text-[#E8F5E9]">Biometric Access</span>
-                </div>
-                <Toggle active={biometric} onToggle={() => setBiometric(!biometric)} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-[#1A231C] border border-[#2A3B2E] rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <MessageSquare size={20} className="text-[#9FB8A7]" />
-                  <span className="text-sm font-medium text-[#E8F5E9]">2-Factor Auth (2FA)</span>
-                </div>
-                <Toggle active={twoFactor} onToggle={() => setTwoFactor(!twoFactor)} />
-              </div>
-            </div>
-          </Card>
-
+          
           {/* Scan Product — BuyHatke Camera Scanner */}
           <Card className="p-6 flex flex-col gap-5 relative overflow-hidden">
             <div className="absolute -top-8 -right-8 w-36 h-36 bg-[#39ff14]/5 rounded-full blur-[50px] pointer-events-none" />
@@ -807,52 +814,6 @@ export default function UserProfile() {
               Open Camera Scanner
             </motion.button>
             <p className="text-[9px] text-[#9FB8A7]/50 text-center font-mono uppercase tracking-widest">Powered by TensorFlow · COCO-SSD</p>
-          </Card>
-
-          {/* Financial Wrapped + Get Pro — single card */}
-          <Card className="p-6 relative overflow-hidden flex flex-col gap-5">
-            <div className="absolute -top-10 -right-10 w-48 h-48 bg-[#8EFF71]/8 rounded-full blur-[60px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#00d4ff]/5 rounded-full blur-[60px] pointer-events-none" />
-
-            {/* Financial Wrapped */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-[#39ff14]/10 p-2.5 rounded-full text-[#39ff14] border border-[#39ff14]/20">
-                  <span className="text-sm font-black leading-none">✦</span>
-                </div>
-                <h3 className="font-bold text-[#E8F5E9] text-sm">Financial Wrapped</h3>
-              </div>
-              <WrappedTriggerButton />
-            </div>
-
-            <div className="border-t border-white/5" />
-
-            {/* Get Pro */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-gradient-to-br from-[#8EFF71]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#8EFF71]/20">
-                  <span className="text-sm">⚡</span>
-                </div>
-                <h3 className="font-bold text-[#E8F5E9] text-sm">Clarity Pro</h3>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
-                style={{
-                  background: "linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)",
-                  boxShadow: "0 0 24px rgba(142,255,113,0.3)",
-                }}
-              >
-                <motion.div
-                  className="absolute inset-0 bg-white/20"
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                />
-                <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
-              </motion.button>
-            </div>
           </Card>
         </div>
       </section>

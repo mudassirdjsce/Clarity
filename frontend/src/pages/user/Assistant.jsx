@@ -429,7 +429,7 @@ function InputBar({ input, setInput, onSend, onFileUpload, isLoading, disabled }
 
       {/* Input row */}
       <div className={cn(
-        'flex items-center gap-2 bg-white/5 border rounded-2xl px-3 py-2 transition-all duration-200',
+        'relative flex items-center gap-2 bg-white/5 border rounded-2xl px-3 py-2 transition-all duration-200',
         'focus-within:border-neon-green/40 focus-within:shadow-[0_0_24px_rgba(57,255,20,0.07)]',
         'border-white/10'
       )}>
@@ -541,7 +541,8 @@ function EmptyState({ onPrompt }) {
 // ─── Main Assistant Component ─────────────────────────────────────────────────
 export function Assistant({ type = 'user' }) {
   const { t } = useTranslation();
-  const userMode = type === 'company' ? 'company' : 'user';
+  const hasPro = localStorage.getItem('clarityProStatus') === 'true';
+  const userMode = (type === 'company' || hasPro) ? 'company' : 'user';
 
   const [sessions, setSessions]   = React.useState(() => loadSessions());
   const [activeId, setActiveId]   = React.useState(null);

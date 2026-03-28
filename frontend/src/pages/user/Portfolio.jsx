@@ -10,6 +10,8 @@ import {
   Trash2,
   X,
   FileText,
+  Lock,
+  Eye,
 } from 'lucide-react';
 import {
   PieChart,
@@ -22,6 +24,8 @@ import { cn } from '../../lib/utils';
 import { fetchHoldings, addHolding, deleteHolding } from '../../services/api';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { encryptPdfBlob } from '../../lib/securePdf';
+import SecurePDFViewer from '../../components/SecurePDFViewer';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const COLORS = ['#8eff71', '#627eea', '#14f195', '#2775ca', '#f7931a', '#e84142', '#c3a634'];
@@ -159,6 +163,8 @@ export function Portfolio() {
   const [holdings, setHoldings]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showViewer, setShowViewer] = useState(false);
+  const [exporting, setExporting]   = useState(false);
 
   useEffect(() => {
     if (!email) { setLoading(false); return; }
@@ -180,179 +186,181 @@ export function Portfolio() {
     setHoldings(prev => prev.filter(h => h._id !== id));
   };
 
-  const exportPDF = () => {
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  /**
+   * exportSecurePDF
+   * Generates the PDF exactly as before, but instead of calling doc.save()
+   * it converts the output to a Blob, AES-encrypts it, and downloads
+   * a .secure file that can only be decrypted inside Clarity.
+   */
+  const exportSecurePDF = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-    // PDF-safe number formatter — jsPDF Helvetica can't render the ₹ Unicode glyph
-    // or en-IN locale separators, so we use Rs. and en-US comma formatting instead
-    const fmtP = (n) =>
-      'Rs. ' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const NEON   = [142, 255, 113];   // #8eff71
-    const DARK   = [11,  15,  11];    // bg
-    const WHITE  = [255, 255, 255];
-    const MUTED  = [120, 150, 120];
-    const RED    = [239, 68,  68];
-    const W = doc.internal.pageSize.getWidth();
+      const fmtP = (n) =>
+        'Rs. ' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const NEON   = [142, 255, 113];
+      const DARK   = [11,  15,  11];
+      const WHITE  = [255, 255, 255];
+      const MUTED  = [120, 150, 120];
+      const RED    = [239, 68,  68];
+      const W = doc.internal.pageSize.getWidth();
 
-    // ─ Dark background
-    doc.setFillColor(...DARK);
-    doc.rect(0, 0, W, 297, 'F');
-
-    // ─ Neon accent bar
-    doc.setFillColor(...NEON);
-    doc.rect(0, 0, 6, 297, 'F');
-
-    // ─ Header
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(26);
-    doc.setTextColor(...NEON);
-    doc.text('CLARITY', 14, 22);
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...MUTED);
-    doc.text('Portfolio Analysis Report', 14, 30);
-    doc.text(`Generated: ${new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`, 14, 36);
-    if (email) doc.text(`Account: ${email}`, 14, 42);
-
-    // Divider
-    doc.setDrawColor(...NEON);
-    doc.setLineWidth(0.3);
-    doc.line(14, 47, W - 14, 47);
-
-    // ─ Summary stats row
-    const stats = [
-      { label: 'Total Value',    value: fmtP(totalValue) },
-      { label: 'Total Invested', value: fmtP(totalInvested) },
-      { label: 'Total P&L',     value: `${totalPnl >= 0 ? '+' : ''}${fmtP(totalPnl)}` },
-      { label: 'P&L %',         value: `${pnlPctNum >= 0 ? '+' : ''}${totalPnlPct}%` },
-      { label: 'Risk Level',    value: risk.label },
-      { label: 'Beta (β)',       value: risk.beta },
-    ];
-
-    const boxW = (W - 28) / 3;
-    stats.forEach((s, i) => {
-      const col = i % 3;
-      const row = Math.floor(i / 3);
-      const x = 14 + col * boxW;
-      const y = 53 + row * 20;
-
-      doc.setFillColor(30, 40, 30);
-      doc.roundedRect(x, y, boxW - 3, 16, 2, 2, 'F');
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(7);
-      doc.setTextColor(...MUTED);
-      doc.text(s.label.toUpperCase(), x + 3, y + 6);
+      doc.setFillColor(...DARK);
+      doc.rect(0, 0, W, 297, 'F');
+      doc.setFillColor(...NEON);
+      doc.rect(0, 0, 6, 297, 'F');
 
       doc.setFont('helvetica', 'bold');
+      doc.setFontSize(26);
+      doc.setTextColor(...NEON);
+      doc.text('CLARITY', 14, 22);
+
       doc.setFontSize(10);
-      // colour the P&L values
-      if (s.label.includes('P&L') || s.label.includes('%')) {
-        doc.setTextColor(...(totalPnl >= 0 ? [142, 255, 113] : [239, 68, 68]));
-      } else if (s.label === 'Risk Level') {
-        const rc = risk.color.includes('red') ? RED : risk.color.includes('green') ? NEON : [251, 191, 36];
-        doc.setTextColor(...rc);
-      } else {
-        doc.setTextColor(...WHITE);
-      }
-      doc.text(s.value, x + 3, y + 13);
-    });
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...MUTED);
+      doc.text('Portfolio Analysis Report', 14, 30);
+      doc.text(`Generated: ${new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}`, 14, 36);
+      if (email) doc.text(`Account: ${email}`, 14, 42);
 
-    // ─ Holdings table
-    const startY = 99;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...NEON);
-    doc.text('Holdings', 14, startY);
+      // ── Watermark with user name + timestamp ──
+      doc.setGState(doc.GState({ opacity: 0.05 }));
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(40);
+      doc.setTextColor(...NEON);
+      doc.text('CLARITY SECURE', W / 2, 150, { align: 'center', angle: 35 });
+      doc.setGState(doc.GState({ opacity: 1 }));
 
-    const rows = holdings.map(h => {
-      const { pnl, pct, current } = calcPnl(h);
-      return [
-        h.name,
-        h.symbol,
-        `${h.amount}`,
-        fmtP(h.buyPrice),
-        fmtP(h.currentPrice),
-        fmtP(current),
-        `${pnl >= 0 ? '+' : ''}${fmtP(pnl)} (${pnl >= 0 ? '+' : ''}${pct}%)`,
+      doc.setDrawColor(...NEON);
+      doc.setLineWidth(0.3);
+      doc.line(14, 47, W - 14, 47);
+
+      const stats = [
+        { label: 'Total Value',    value: fmtP(totalValue) },
+        { label: 'Total Invested', value: fmtP(totalInvested) },
+        { label: 'Total P&L',     value: `${totalPnl >= 0 ? '+' : ''}${fmtP(totalPnl)}` },
+        { label: 'P&L %',         value: `${pnlPctNum >= 0 ? '+' : ''}${totalPnlPct}%` },
+        { label: 'Risk Level',    value: risk.label },
+        { label: 'Beta (\u03b2)',   value: risk.beta },
       ];
-    });
 
-    autoTable(doc, {
-      startY: startY + 4,
-      head: [['Asset', 'Symbol', 'Qty', 'Buy Price', 'Curr. Price', 'Value', 'P&L']],
-      body: rows,
-      theme: 'plain',
-      styles:     { textColor: WHITE, fillColor: DARK,        fontSize: 8,  font: 'helvetica', cellPadding: 3 },
-      headStyles: { textColor: NEON,  fillColor: [20, 30, 20], fontSize: 7, fontStyle: 'bold', lineColor: NEON, lineWidth: 0.2 },
-      alternateRowStyles: { fillColor: [18, 26, 18] },
-      columnStyles: {
-        6: {
-          textColor: totalPnl >= 0 ? NEON : RED,
-          fontStyle: 'bold',
-        },
-      },
-      didDrawCell: (data) => {
-        // colour individual P&L cells
-        if (data.column.index === 6 && data.section === 'body') {
-          const h = holdings[data.row.index];
-          if (h) {
-            const { pnl } = calcPnl(h);
-            doc.setTextColor(...(pnl >= 0 ? NEON : RED));
-          }
+      const boxW = (W - 28) / 3;
+      stats.forEach((s, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = 14 + col * boxW;
+        const y = 53 + row * 20;
+        doc.setFillColor(30, 40, 30);
+        doc.roundedRect(x, y, boxW - 3, 16, 2, 2, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(...MUTED);
+        doc.text(s.label.toUpperCase(), x + 3, y + 6);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        if (s.label.includes('P&L') || s.label.includes('%')) {
+          doc.setTextColor(...(totalPnl >= 0 ? [142, 255, 113] : [239, 68, 68]));
+        } else if (s.label === 'Risk Level') {
+          const rc = risk.color.includes('red') ? RED : risk.color.includes('green') ? NEON : [251, 191, 36];
+          doc.setTextColor(...rc);
+        } else {
+          doc.setTextColor(...WHITE);
         }
-      },
-      margin: { left: 14, right: 14 },
-    });
+        doc.text(s.value, x + 3, y + 13);
+      });
 
-    // ─ Allocation section
-    const afterTable = doc.lastAutoTable.finalY + 10;
-    if (afterTable < 250) {
+      const startY = 99;
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(...NEON);
-      doc.text('Asset Allocation', 14, afterTable);
+      doc.text('Holdings', 14, startY);
 
-      const alloc = holdings.map((h, i) => ({
-        sym: h.symbol,
-        pct: pieData[i]?.value ?? 0,
-        color: h.color || '#8eff71',
-      }));
-
-      alloc.forEach((a, i) => {
-        const y = afterTable + 6 + i * 7;
-        if (y > 270) return;
-        // small coloured dot
-        const hex = a.color.replace('#', '');
-        const r = parseInt(hex.substring(0,2),16);
-        const g = parseInt(hex.substring(2,4),16);
-        const b = parseInt(hex.substring(4,6),16);
-        doc.setFillColor(r, g, b);
-        doc.circle(18, y - 1.5, 1.5, 'F');
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8);
-        doc.setTextColor(...WHITE);
-        doc.text(`${a.sym}`, 22, y);
-
-        doc.setFillColor(30, 40, 30);
-        doc.roundedRect(55, y - 4, 60, 5, 1, 1, 'F');
-        doc.setFillColor(r, g, b);
-        doc.roundedRect(55, y - 4, 60 * (a.pct / 100), 5, 1, 1, 'F');
-
-        doc.setTextColor(...MUTED);
-        doc.text(`${a.pct}%`, 118, y);
+      const rows = holdings.map(h => {
+        const { pnl, pct, current } = calcPnl(h);
+        return [
+          h.name, h.symbol, `${h.amount}`,
+          fmtP(h.buyPrice), fmtP(h.currentPrice), fmtP(current),
+          `${pnl >= 0 ? '+' : ''}${fmtP(pnl)} (${pnl >= 0 ? '+' : ''}${pct}%)`,
+        ];
       });
+
+      autoTable(doc, {
+        startY: startY + 4,
+        head: [['Asset', 'Symbol', 'Qty', 'Buy Price', 'Curr. Price', 'Value', 'P&L']],
+        body: rows,
+        theme: 'plain',
+        styles:     { textColor: WHITE, fillColor: DARK,        fontSize: 8,  font: 'helvetica', cellPadding: 3 },
+        headStyles: { textColor: NEON,  fillColor: [20, 30, 20], fontSize: 7, fontStyle: 'bold', lineColor: NEON, lineWidth: 0.2 },
+        alternateRowStyles: { fillColor: [18, 26, 18] },
+        columnStyles: { 6: { textColor: totalPnl >= 0 ? NEON : RED, fontStyle: 'bold' } },
+        didDrawCell: (data) => {
+          if (data.column.index === 6 && data.section === 'body') {
+            const h = holdings[data.row.index];
+            if (h) { const { pnl } = calcPnl(h); doc.setTextColor(...(pnl >= 0 ? NEON : RED)); }
+          }
+        },
+        margin: { left: 14, right: 14 },
+      });
+
+      const afterTable = doc.lastAutoTable.finalY + 10;
+      if (afterTable < 250) {
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...NEON);
+        doc.text('Asset Allocation', 14, afterTable);
+        const alloc = holdings.map((h, i) => ({ sym: h.symbol, pct: pieData[i]?.value ?? 0, color: h.color || '#8eff71' }));
+        alloc.forEach((a, i) => {
+          const y = afterTable + 6 + i * 7;
+          if (y > 270) return;
+          const hex = a.color.replace('#', '');
+          const r = parseInt(hex.substring(0,2),16);
+          const g = parseInt(hex.substring(2,4),16);
+          const b = parseInt(hex.substring(4,6),16);
+          doc.setFillColor(r, g, b);
+          doc.circle(18, y - 1.5, 1.5, 'F');
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(...WHITE);
+          doc.text(`${a.sym}`, 22, y);
+          doc.setFillColor(30, 40, 30);
+          doc.roundedRect(55, y - 4, 60, 5, 1, 1, 'F');
+          doc.setFillColor(r, g, b);
+          doc.roundedRect(55, y - 4, 60 * (a.pct / 100), 5, 1, 1, 'F');
+          doc.setTextColor(...MUTED);
+          doc.text(`${a.pct}%`, 118, y);
+        });
+      }
+
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...MUTED);
+      doc.text('Generated by Clarity — For informational purposes only. Not financial advice.', W / 2, 290, { align: 'center' });
+
+      // ── Encrypt & download as .secure ──
+      const pdfBlob = doc.output('blob');
+      const storedUser = JSON.parse(localStorage.getItem('clarity_user') || '{}');
+      const encryptedStr = await encryptPdfBlob(pdfBlob, {
+        userName:  storedUser.name  || 'Clarity User',
+        email:     storedUser.email || email,
+        timestamp: new Date().toISOString(),
+      });
+
+      const secureBlob = new Blob([encryptedStr], { type: 'text/plain' });
+      const url  = URL.createObjectURL(secureBlob);
+      const link = document.createElement('a');
+      link.href     = url;
+      link.download = `Clarity_Portfolio_${new Date().toISOString().slice(0,10)}.secure`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Secure PDF export failed:', err);
+      alert('Export failed: ' + err.message);
+    } finally {
+      setExporting(false);
     }
-
-    // ─ Footer
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...MUTED);
-    doc.text('Generated by Clarity — For informational purposes only. Not financial advice.', W / 2, 290, { align: 'center' });
-
-    doc.save(`Clarity_Portfolio_${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   // Compute pie data from live holdings
@@ -384,7 +392,8 @@ export function Portfolio() {
 
   return (
     <div className="space-y-8">
-      {showModal && <AddHoldingModal onClose={() => setShowModal(false)} onSave={handleAdd} />}
+      {showModal  && <AddHoldingModal onClose={() => setShowModal(false)}  onSave={handleAdd} />}
+      <SecurePDFViewer isOpen={showViewer} onClose={() => setShowViewer(false)} />
 
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -402,10 +411,19 @@ export function Portfolio() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={exportPDF}
-            className="glass px-4 py-2 rounded-xl border border-white/10 text-sm font-bold flex items-center gap-2 hover:bg-white/5 transition-colors"
+            onClick={exportSecurePDF}
+            disabled={exporting}
+            className="glass px-4 py-2 rounded-xl border border-white/10 text-sm font-bold flex items-center gap-2 hover:bg-white/5 transition-colors disabled:opacity-50"
           >
-            <Download className="w-4 h-4" /> Export PDF
+            {exporting
+              ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Encrypting…</>
+              : <><Lock className="w-4 h-4 text-[#39ff14]" /> Export Secure PDF</>}
+          </button>
+          <button
+            onClick={() => setShowViewer(true)}
+            className="glass px-4 py-2 rounded-xl border border-[#39ff14]/30 text-sm font-bold flex items-center gap-2 hover:bg-[#39ff14]/5 text-[#39ff14] transition-colors"
+          >
+            <Eye className="w-4 h-4" /> View Secure PDF
           </button>
           <button
             onClick={() => setShowModal(true)}
