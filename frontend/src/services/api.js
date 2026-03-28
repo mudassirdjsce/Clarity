@@ -51,6 +51,7 @@ export const deleteUserFestival = (id) => apiDelete(`/auth/festivals/${id}`);
 // ── Bank Accounts ─────────────────────────────────────────────────────────────
 export const fetchBankAccounts = (email) => apiFetch("/auth/bank-accounts", { email });
 export const connectBankAccount = (payload) => apiPost("/auth/bank-accounts/connect", payload);
+export const addBankTransaction = (id) => apiPost(`/auth/bank-accounts/${id}/transactions`, {});
 
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");

@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank } = require("../controllers/authController");
+const { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction } = require("../controllers/authController");
 
 const router = express.Router();
 
@@ -18,5 +18,6 @@ router.delete("/festivals/:id", deleteFestival);
 
 router.get("/bank-accounts", getBankAccounts);
 router.post("/bank-accounts/connect", connectBank);
+router.post("/bank-accounts/:id/transactions", addTransaction);
 
 module.exports = router;

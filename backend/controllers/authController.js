@@ -248,4 +248,39 @@ const connectBank = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank };
+// ── POST /api/auth/bank-accounts/:id/transactions ────────────────────────────
+const addTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const account = await BankAccount.findById(id);
+    if (!account) return res.status(404).json({ error: "Account not found" });
+
+    const DESCS = [
+      { d: "Grocery Store",    c: "food",     range: [-3000, -200] },
+      { d: "UPI Payment",      c: "transfer", range: [-5000, -100] },
+      { d: "Online Shopping",  c: "shopping", range: [-8000, -300] },
+      { d: "Electricity Bill", c: "bills",    range: [-2500, -500] },
+      { d: "Restaurant",       c: "food",     range: [-1500, -100] },
+      { d: "ATM Withdrawal",   c: "other",    range: [-10000, -500] },
+      { d: "Mutual Fund SIP",  c: "other",    range: [-5000, -500] },
+      { d: "Freelance Income", c: "salary",   range: [5000, 30000] },
+      { d: "Rent Payment",     c: "bills",    range: [-25000, -5000] },
+      { d: "Salary Credit",    c: "salary",   range: [40000, 120000] },
+    ];
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const item = DESCS[rand(0, DESCS.length - 1)];
+    const amount = rand(item.range[0], item.range[1]);
+    const tx = { date: new Date(), description: item.d, amount, category: item.c };
+
+    account.transactions.unshift(tx); // newest first
+    account.balance = Math.max(0, account.balance + amount);
+    await account.save();
+
+    res.status(200).json({ message: "Transaction added", account });
+  } catch (error) {
+    console.error("Add transaction error:", error);
+    res.status(500).json({ error: "Server error adding transaction" });
+  }
+};
+
+module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction };
