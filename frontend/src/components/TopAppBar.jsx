@@ -56,7 +56,10 @@ export function TopAppBar() {
         
         <div className="h-8 w-px bg-white/10 mx-2"></div>
         
-        <button className="flex items-center gap-2 pl-2 pr-1 py-1 hover:bg-white/5 rounded-xl transition-colors">
+        <NavLink 
+          to={isCompany ? "/company/profile" : "/user/profile"}
+          className="flex items-center gap-2 pl-2 pr-1 py-1 hover:bg-white/5 rounded-xl transition-colors"
+        >
           <div className="text-right hidden sm:block">
             <p className="text-xs font-bold">Alex Rivera</p>
             <p className="text-[10px] text-neon-green font-mono uppercase tracking-wider">{isCompany ? 'Institutional' : 'Premium'}</p>
@@ -64,7 +67,7 @@ export function TopAppBar() {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-green to-emerald-500 flex items-center justify-center">
             <User className="text-obsidian w-5 h-5" />
           </div>
-        </button>
+        </NavLink>
       </div>
     </header>
   );

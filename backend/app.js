@@ -4,6 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 
+const authRoutes = require("./routes/authRoutes");
 const newsRoutes = require("./routes/newsRoutes");
 const insightsRoutes = require("./routes/insightsRoutes");
 const chatRoutes = require("./routes/chatRoutes");
@@ -30,6 +31,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // ── Routes ──────────────────────────────────────────────────────────────────
+app.use("/api/auth", authRoutes);
 app.use("/api/news", newsRoutes);
 app.use("/api/insights", insightsRoutes);
 app.use("/api/chat", chatRoutes);
