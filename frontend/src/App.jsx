@@ -31,7 +31,6 @@ export default function App() {
             <Route path="dashboard" element={<UserDashboard />} />
             <Route path="portfolio" element={<UserPortfolio />} />
             <Route path="markets" element={<UserMarkets />} />
-            <Route path="intelligence" element={<UserMarkets />} />
             <Route path="assistant" element={<UserAssistant />} />
           </Route>
 
@@ -40,7 +39,6 @@ export default function App() {
             <Route path="dashboard" element={<CompanyDashboard />} />
             <Route path="portfolio" element={<CompanyPortfolio />} />
             <Route path="markets" element={<CompanyMarkets />} />
-            <Route path="intelligence" element={<CompanyMarkets />} />
             <Route path="assistant" element={<CompanyAssistant />} />
           </Route>
 
