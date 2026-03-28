@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 import clarityLogo from "../../assets/CLARITY1.svg";
 import { 
   Activity, 
@@ -14,6 +16,7 @@ import {
 } from "lucide-react";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   return (
     <nav className="fixed top-0 w-full z-50 bg-[#0b0f0b]/80 backdrop-blur-xl border-b border-[#454943]/15 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
@@ -22,9 +25,14 @@ const Navbar = () => {
           <img src={clarityLogo} alt="Clarity" className="h-10 w-auto drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" />
         </div>
         <div className="hidden md:flex items-center gap-8">
-          {["Platform", "Intelligence", "Security", "Pricing"].map((item, idx) => (
+          {[
+            t('landing_nav_platform'),
+            t('landing_nav_intelligence'),
+            t('landing_nav_security'),
+            t('landing_nav_pricing'),
+          ].map((item, idx) => (
             <a 
-              key={item}
+              key={idx}
               className={`font-headline uppercase tracking-[0.05rem] text-sm transition-colors ${
                 idx === 0 ? "text-primary border-b-2 border-primary pb-1" : "text-on-surface-variant hover:text-[#fafdf5]"
               }`} 
@@ -34,18 +42,19 @@ const Navbar = () => {
             </a>
           ))}
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           <button
             onClick={() => navigate("/login")}
             className="font-headline uppercase tracking-[0.05rem] text-sm text-on-surface-variant hover:text-[#fafdf5] transition-colors active:scale-95 duration-200 ease-out"
           >
-            Login
+            {t('login')}
           </button>
           <button
             onClick={() => navigate("/signup")}
             className="bg-primary text-on-primary font-headline uppercase tracking-[0.05rem] text-sm font-bold px-6 py-2.5 rounded-full hover:bg-primary-dim transition-all active:scale-95 duration-200 ease-out shadow-[0_0_15px_rgba(57,255,20,0.3)]"
           >
-            Get Started
+            {t('get_started')}
           </button>
         </div>
       </div>
@@ -61,6 +70,7 @@ const animateScroll = {
 };
 
 const Hero = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   return (
   <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden hero-gradient">
@@ -77,7 +87,7 @@ const Hero = () => {
         className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-effect border border-outline-variant/20 mb-8"
       >
         <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-        <span className="font-label text-[10px] tracking-widest uppercase text-primary">System Online: v2.4 Pulse Engine</span>
+        <span className="font-label text-[10px] tracking-widest uppercase text-primary">{t('landing_hero_badge')}</span>
       </motion.div>
 
       <motion.h1 
@@ -85,7 +95,7 @@ const Hero = () => {
         transition={{ duration: 0.6, delay: 0.1 }}
         className="font-headline font-bold text-6xl md:text-8xl lg:text-9xl text-[#fafdf5] tracking-tighter leading-none mb-8"
       >
-        FINANCIAL <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dim">INTELLIGENCE</span> <br/>AT THE SPEED OF LIGHT
+        {t('landing_hero_h1_1')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dim">{t('landing_hero_h1_2')}</span> <br/>{t('landing_hero_h1_3')}
       </motion.h1>
 
       <motion.p 
@@ -93,8 +103,7 @@ const Hero = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="max-w-2xl mx-auto font-body text-xl md:text-2xl text-on-surface-variant mb-12 leading-relaxed"
       >
-        A dual-mode AI platform for retail simplicity and institutional precision. 
-        Built for those who demand clarity in chaos.
+        {t('landing_hero_sub')}
       </motion.p>
 
       <motion.div 
@@ -106,32 +115,32 @@ const Hero = () => {
           onClick={() => navigate("/signup")}
           className="group relative px-10 py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-lg tracking-wide hover:bg-primary-dim transition-all active:scale-95 shadow-[0_0_30px_rgba(57,255,20,0.4)] overflow-hidden"
         >
-          <span className="relative z-10 uppercase">GET STARTED</span>
+          <span className="relative z-10 uppercase">{t('get_started')}</span>
           <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
         </button>
         <button
           onClick={() => navigate("/login")}
           className="px-10 py-5 rounded-full border border-outline-variant/30 font-headline font-bold text-lg text-[#fafdf5] hover:bg-surface-variant transition-all active:scale-95 glass-effect"
         >
-          EXPLORE ENGINE
+          {t('explore_engine')}
         </button>
       </motion.div>
 
       <div className="mt-24 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { icon: Activity, label: "Latency", value: "0.002ms", progress: "80%" },
-          { icon: LayoutDashboard, label: "Assets Managed", value: "$12.4B", progress: "60%" },
-          { icon: Globe, label: "Global Nodes", value: "4,812", progress: "85%" }
+          { icon: Activity,       labelKey: "landing_stat_latency", value: "0.002ms", progress: "80%" },
+          { icon: LayoutDashboard,labelKey: "landing_stat_assets",  value: "$12.4B",  progress: "60%" },
+          { icon: Globe,          labelKey: "landing_stat_nodes",   value: "4,812",   progress: "85%" },
         ].map((stat, i) => (
           <motion.div 
-            key={stat.label}
+            key={stat.labelKey}
             {...animateScroll}
             transition={{ duration: 0.6, delay: 0.4 + i * 0.1 }}
             className="glass-effect p-6 rounded-xl border border-outline-variant/10 text-left"
           >
             <div className="flex items-center gap-3 mb-4">
               <stat.icon className="w-4 h-4 text-primary" />
-              <span className="font-label text-[10px] tracking-widest text-on-surface-variant uppercase">{stat.label}</span>
+              <span className="font-label text-[10px] tracking-widest text-on-surface-variant uppercase">{t(stat.labelKey)}</span>
             </div>
             <div className="font-headline text-3xl font-bold text-[#fafdf5]">{stat.value}</div>
             <div className="mt-2 w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
@@ -151,7 +160,10 @@ const Hero = () => {
   );
 };
 
-const VelocitySection = () => (
+const VelocitySection = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  return (
   <section className="py-32 px-6 bg-surface overflow-hidden">
     <div className="max-w-7xl mx-auto">
       <motion.div 
@@ -159,16 +171,14 @@ const VelocitySection = () => (
         className="mb-20 text-center md:text-left"
       >
         <h2 className="font-headline text-4xl md:text-6xl font-bold text-[#fafdf5] tracking-tight mb-4">
-          CHOOSE YOUR <span className="text-primary italic">VELOCITY</span>
+          {t('velocity_heading')}
         </h2>
         <p className="font-body text-on-surface-variant text-lg max-w-2xl">
-          Switch seamlessly between intuitive personal wealth management and high-frequency institutional execution.
+          {t('velocity_sub')}
         </p>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* Retail Mode Card */}
-        {/* Changed from md:col-span-7 to md:col-span-6 to make modes same size */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -178,7 +188,6 @@ const VelocitySection = () => (
           className="md:col-span-6 group relative overflow-hidden rounded-xl bg-surface-container-low border border-outline-variant/5 h-[600px] flex flex-col justify-end p-12 transition-all duration-500"
           onClick={() => navigate("/signup")}
         >
-          {/* Big person icon for Retail Mode */}
           <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 flex items-center justify-center transition-all duration-700 pointer-events-none">
             <User className="w-[300px] h-[300px] text-primary" strokeWidth={1} />
           </div>
@@ -198,15 +207,15 @@ const VelocitySection = () => (
               </div>
               <span className="font-label tracking-[0.2rem] text-primary uppercase text-sm">Level 01</span>
             </div>
-            <h3 className="font-headline text-4xl font-bold text-[#fafdf5] mb-4">RETAIL MODE</h3>
+            <h3 className="font-headline text-4xl font-bold text-[#fafdf5] mb-4">{t('retail_mode')}</h3>
             <p className="font-body text-on-surface-variant text-lg mb-8 max-w-md">
-              Simplified AI-driven insights for everyday growth. Zero-knowledge trading with one-tap rebalancing and risk mitigation.
+              {t('retail_mode_sub')}
             </p>
             <ul className="space-y-4 mb-8">
-              {["Automated Portfolio Shield", "Social Sentiment Analysis", "Zero Commission Engine"].map(item => (
-                <li key={item} className="flex items-center gap-3 text-[#fafdf5]/80">
+              {["retail_feature_1", "retail_feature_2", "retail_feature_3"].map(key => (
+                <li key={key} className="flex items-center gap-3 text-[#fafdf5]/80">
                   <CheckCircle2 className="w-4 h-4 text-primary" />
-                  <span>{item}</span>
+                  <span>{t(key)}</span>
                 </li>
               ))}
             </ul>
@@ -214,13 +223,11 @@ const VelocitySection = () => (
               onClick={(e) => { e.stopPropagation(); navigate("/signup"); }}
               className="w-full md:w-auto px-8 py-4 glass-effect border border-primary/20 text-primary font-bold rounded-full hover:bg-primary/10 transition-all"
             >
-              START RETAIL
+              {t('start_retail')}
             </button>
           </div>
         </motion.div>
 
-        {/* Pro Mode Card */}
-        {/* Changed from md:col-span-5 to md:col-span-6 to make modes same size */}
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -245,24 +252,27 @@ const VelocitySection = () => (
               </div>
               <span className="font-label tracking-[0.2rem] text-primary uppercase text-sm">Level MAX</span>
             </div>
-            <h3 className="font-headline text-4xl font-bold text-[#fafdf5] mb-4">PRO MODE</h3>
+            <h3 className="font-headline text-4xl font-bold text-[#fafdf5] mb-4">{t('pro_mode')}</h3>
             <p className="font-body text-on-surface-variant text-lg mb-8">
-              Institutional precision. Full API access, custom algorithmic execution, and sub-millisecond liquidity routing.
+              {t('pro_mode_sub')}
             </p>
             <button
               onClick={() => navigate("/signup")}
               className="w-full px-8 py-4 bg-primary text-on-primary font-bold rounded-full hover:bg-primary-dim transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)]"
             >
-              ACCESS TERMINAL
+              {t('access_terminal')}
             </button>
           </div>
         </motion.div>
       </div>
     </div>
   </section>
-);
+  );
+};
 
-const PulseSection = () => (
+const PulseSection = () => {
+  const { t } = useTranslation();
+  return (
   <section className="py-24 px-6 bg-surface-container-lowest overflow-hidden">
     <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-20">
       <div className="w-full md:w-1/2 order-2 md:order-1">
@@ -317,23 +327,15 @@ const PulseSection = () => (
           {...animateScroll}
           className="font-headline text-4xl md:text-6xl font-bold text-[#fafdf5] tracking-tight mb-8"
         >
-          POWERED BY THE <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[rgba(57,255,20,0.4)]">SYNTHETIC PULSE</span>
+          {t('pulse_heading_1')} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[rgba(57,255,20,0.4)]">{t('pulse_heading_2')}</span>
         </motion.h2>
         <div className="space-y-12">
           {[
-            { 
-              icon: Cpu, 
-              title: "Neural Arbitrage", 
-              desc: "Our LLM-integrated engine scans 4.2 billion data points per second to identify cross-asset discrepancies before they hit the public order book." 
-            },
-            { 
-              icon: Shield, 
-              title: "Quantum Encryption", 
-              desc: "Assets are secured using post-quantum cryptographic standards, ensuring your intelligence remains private and your capital remains yours." 
-            }
+            { icon: Cpu,    titleKey: "neural_title",  descKey: "neural_desc"  },
+            { icon: Shield, titleKey: "quantum_title", descKey: "quantum_desc" },
           ].map((feature, i) => (
             <motion.div 
-              key={feature.title} 
+              key={feature.titleKey} 
               {...animateScroll}
               transition={{ duration: 0.6, delay: i * 0.1 }}
               className="flex gap-6"
@@ -342,8 +344,8 @@ const PulseSection = () => (
                 <feature.icon className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-headline text-xl font-bold mb-2">{feature.title}</h4>
-                <p className="text-on-surface-variant leading-relaxed">{feature.desc}</p>
+                <h4 className="font-headline text-xl font-bold mb-2">{t(feature.titleKey)}</h4>
+                <p className="text-on-surface-variant leading-relaxed">{t(feature.descKey)}</p>
               </div>
             </motion.div>
           ))}
@@ -351,9 +353,13 @@ const PulseSection = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
-const CTASection = () => (
+const CTASection = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  return (
   <section className="py-32 px-6">
     <motion.div 
       initial={{ opacity: 0, scale: 0.8, y: 30 }}
@@ -371,7 +377,7 @@ const CTASection = () => (
         transition={{ delay: 0.2 }}
         className="font-headline text-4xl md:text-6xl font-bold text-[#fafdf5] mb-8 relative z-10"
       >
-        READY TO ACHIEVE <br/><span className="text-primary italic">TOTAL CLARITY?</span>
+        {t('cta_heading_1')} <br/><span className="text-primary italic">{t('cta_heading_2')}</span>
       </motion.h2>
       <motion.p 
         initial={{ opacity: 0, y: 15 }}
@@ -380,7 +386,7 @@ const CTASection = () => (
         transition={{ delay: 0.3 }}
         className="text-on-surface-variant text-xl mb-12 max-w-2xl mx-auto relative z-10"
       >
-        Join 50,000+ traders and institutions leveraging the world's most advanced financial intelligence engine.
+        {t('cta_sub')}
       </motion.p>
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
@@ -393,26 +399,34 @@ const CTASection = () => (
           onClick={() => navigate("/signup")}
           className="px-12 py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-xl shadow-[0_0_40px_rgba(57,255,20,0.3)] hover:scale-105 transition-transform active:scale-95"
         >
-          GET STARTED NOW
+          {t('get_started_now')}
         </button>
       </motion.div>
     </motion.div>
   </section>
-);
+  );
+};
 
-const Footer = () => (
+const Footer = () => {
+  const { t } = useTranslation();
+  return (
   <footer className="w-full py-12 border-t border-[#454943]/15 bg-[#000000]">
     <div className="flex flex-col md:flex-row justify-between items-center px-12 gap-6 max-w-screen-2xl mx-auto">
       <div className="flex flex-col items-center md:items-start gap-2">
         <img src={clarityLogo} alt="Clarity" className="h-8 w-auto mb-1 drop-shadow-[0_0_8px_rgba(57,255,20,0.3)]" />
         <div className="font-label text-[10px] tracking-widest uppercase text-on-surface-variant">
-          © 2024 CLARITY SYNTHETIC PULSE. ALL RIGHTS RESERVED.
+          {t('footer_copyright')}
         </div>
       </div>
       <div className="flex flex-wrap justify-center gap-8">
-        {["Privacy Policy", "Terms of Service", "API Status", "Contact Support"].map(link => (
-          <a key={link} className="font-label text-[10px] tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">
-            {link}
+        {[
+          {key: 'footer_privacy'},
+          {key: 'footer_terms'},
+          {key: 'footer_api'},
+          {key: 'footer_contact'},
+        ].map(link => (
+          <a key={link.key} className="font-label text-[10px] tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors" href="#">
+            {t(link.key)}
           </a>
         ))}
       </div>
@@ -426,7 +440,8 @@ const Footer = () => (
       </div>
     </div>
   </footer>
-);
+  );
+};
 
 export default function LandingPage() {
   return (

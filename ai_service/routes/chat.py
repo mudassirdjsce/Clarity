@@ -16,7 +16,7 @@ router = APIRouter()
 
 # ── Request Model ─────────────────────────────────────────────────────────────
 class ChatRequest(BaseModel):
-    message:   str                          = Field(..., min_length=1, max_length=2000)
+    message:   str                          = Field(..., min_length=1, max_length=16000)
     userMode:  Literal["user", "company"]   = Field("user")
     sessionId: str                          = Field(..., min_length=1)
 
@@ -63,13 +63,25 @@ async def chat(payload: ChatRequest):
     role       = payload.userMode
     session_id = payload.sessionId
 
-    # ── 1. Classify Intent (LLM-based) ──────────────────────────────────────
-    intent = await detect_intent(message, role)
+    # ── 1. Classify Intent ───────────────────────────────────────────────────
+    # File uploads are prefixed by the frontend — detect before LLM classification
+    _FILE_PREFIXES = ("analyze this dataset:", "analyze this document:")
+    is_file_message = message.lower().startswith(_FILE_PREFIXES)
+
+    if is_file_message:
+        intent = "file_analysis"
+    else:
+        intent = await detect_intent(message, role)
 
     # ── 2. Fetch Domain Data ─────────────────────────────────────────────────
     data = {}
 
-    if intent == "stock_analysis":
+    if is_file_message:
+        # File content IS the data — no external API calls needed
+        # We pass an empty dict; prompt_builder will handle via message text
+        data = {"source": "uploaded_file"}
+
+    elif intent == "stock_analysis":
         data = await get_stock_data(message)
 
     elif intent == "news":

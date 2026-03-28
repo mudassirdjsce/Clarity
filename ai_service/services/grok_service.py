@@ -8,18 +8,25 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
-# user  → fast 8b model, short output, ≤5s total
-# company → 70b model, richer output, ≤15s total
+# user          → fast 8b model, short output, ≤5s total
+# company       → 70b model, richer output, ≤15s total
+# file_analysis → 70b model, more tokens needed to analyze content
 _MODELS = {
-    "user":    ("llama-3.1-8b-instant",    400),
-    "company": ("llama-3.3-70b-versatile", 1600),
+    "user":          ("llama-3.1-8b-instant",    400),
+    "company":       ("llama-3.3-70b-versatile", 1600),
+    "file_analysis": ("llama-3.3-70b-versatile", 1200),
 }
 
 SYSTEM_PROMPT = (
-    "You are a financial AI. "
-    "Output a single raw JSON object. "
-    "Rules: No markdown. No code fences. No text before or after the JSON. "
-    "Start your response with { and end it with }. Nothing else."
+    "You are a multilingual financial AI assistant serving Indian users. "
+    "Output a single raw JSON object — no markdown, no code fences, no text before or after. "
+    "Start with { and end with }. Nothing else.\n"
+    "LANGUAGE RULE (highest priority): "
+    "The user prompt contains a LANGUAGE instruction. "
+    "You MUST respond in that exact language inside all JSON field values. "
+    "Do NOT default to English unless the LANGUAGE instruction says English. "
+    "JSON keys always stay in English — only VALUES change language. "
+    "Financial abbreviations (P/E, SIP, NAV, MACD, EBITDA) may remain in English in any language mode."
 )
 
 _REQUIRED_KEYS = {
@@ -97,7 +104,8 @@ async def _call_groq(messages: list[dict], model: str, max_tokens: int) -> str:
 async def generate_response(message: str, intent: str, data: dict, role: str) -> dict:
     from utils.prompt_builder import build_prompt
 
-    model, max_tokens = _MODELS.get(role, _MODELS["user"])
+    # Pick model config: intent-specific overrides take priority over role
+    model, max_tokens = _MODELS.get(intent) or _MODELS.get(role, _MODELS["user"])
     prompt = build_prompt(message, intent, data, role)
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},

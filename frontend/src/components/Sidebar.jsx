@@ -13,31 +13,35 @@ import {
   PieChart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const isCompany = location.pathname.startsWith('/company');
   const basePath = isCompany ? '/company' : '/user';
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard',  path: `${basePath}/dashboard` },
-    { icon: Wallet,          label: 'Portfolio',  path: `${basePath}/portfolio` },
-    { icon: LineChart,       label: 'Markets',    path: `${basePath}/markets`   },
-    { icon: TrendingUp,      label: 'Stocks',       path: `${basePath}/stocks`    },
-    { icon: PieChart,        label: 'Mutual Funds', path: `${basePath}/mutualfunds`},
-    { icon: MessageSquare,   label: 'Clarity AI', path: `${basePath}/assistant` },
+    { icon: LayoutDashboard, labelKey: 'dashboard',    path: `${basePath}/dashboard`    },
+    { icon: Wallet,          labelKey: 'portfolio',    path: `${basePath}/portfolio`    },
+    { icon: LineChart,       labelKey: 'markets',      path: `${basePath}/markets`      },
+    { icon: TrendingUp,      labelKey: 'stocks',       path: `${basePath}/stocks`       },
+    { icon: PieChart,        labelKey: 'mutual_funds', path: `${basePath}/mutualfunds`  },
+    { icon: MessageSquare,   labelKey: 'clarity_ai',   path: `${basePath}/assistant`    },
   ];
 
   const secondaryItems = [
-    { icon: Settings, label: 'Settings', path: '/settings' },
-    { icon: HelpCircle, label: 'Support', path: '/support' },
+    { icon: Settings,    labelKey: 'settings', path: '/settings' },
+    { icon: HelpCircle,  labelKey: 'support',  path: '/support'  },
   ];
 
   return (
     <aside className="fixed left-0 top-16 bottom-0 w-64 glass border-r border-glass-border hidden lg:flex flex-col p-4 z-40">
       <div className="flex-1 space-y-8">
         <div>
-          <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] mb-4 px-4">Main Menu</p>
+          <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] mb-4 px-4">
+            {t('main_menu')}
+          </p>
           <nav className="space-y-1">
             {navItems.map((item) => (
               <NavLink
@@ -54,14 +58,16 @@ export function Sidebar() {
                   "w-5 h-5 transition-transform group-hover:scale-110",
                   "group-[.active]:text-neon-green"
                 )} />
-                <span className="font-medium">{item.label}</span>
+                <span className="font-medium">{t(item.labelKey)}</span>
               </NavLink>
             ))}
           </nav>
         </div>
 
         <div>
-          <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] mb-4 px-4">Market Pulse</p>
+          <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] mb-4 px-4">
+            {t('market_pulse')}
+          </p>
           <div className="space-y-3 px-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -87,7 +93,7 @@ export function Sidebar() {
             )}
           >
             <item.icon className="w-5 h-5" />
-            <span className="font-medium">{item.label}</span>
+            <span className="font-medium">{t(item.labelKey)}</span>
           </NavLink>
         ))}
       </div>
@@ -96,10 +102,12 @@ export function Sidebar() {
         <div className="mt-6 p-4 rounded-2xl bg-neon-green/5 border border-neon-green/20">
           <div className="flex items-center gap-2 mb-2">
             <Globe className="w-4 h-4 text-neon-green" />
-            <span className="text-[10px] font-bold text-neon-green uppercase tracking-wider">Pro Mode Active</span>
+            <span className="text-[10px] font-bold text-neon-green uppercase tracking-wider">
+              {t('pro_mode_active')}
+            </span>
           </div>
           <p className="text-[10px] text-white/40 leading-relaxed">
-            Connected to Institutional Liquidity Pool #482. Latency: 4ms.
+            {t('pro_mode_desc')}
           </p>
         </div>
       )}

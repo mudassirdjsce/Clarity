@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Clock
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AreaChart,
   Area,
@@ -37,39 +38,40 @@ const assets = [
 ];
 
 export function UserDashboard() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">
-            Good Morning, Alex
+            {t('good_morning')}, Alex
           </h1>
           <p className="text-white/40 font-medium">
-            Your portfolio is up 4.2% today. Bitcoin is leading the rally.
+            {t('portfolio_up')}
           </p>
         </div>
         
         <div className="flex items-center gap-3">
           <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
-            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">Markets Live</span>
+            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">{t('markets_live')}</span>
           </div>
           <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform">
-            Deposit Funds
+            {t('deposit_funds')}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Balance', value: '$124,502.42', change: '+12.5%', icon: TrendingUp, color: 'text-neon-green' },
-          { label: 'Day P&L', value: '+$4,204.12', change: '+4.2%', icon: Zap, color: 'text-neon-green' },
-          { label: 'Active Positions', value: '12', change: 'Stable', icon: Activity, color: 'text-white/60' },
-          { label: 'Risk Score', value: 'Low', change: 'Institutional', icon: BarChart3, color: 'text-emerald-400' },
+          { labelKey: 'total_balance',    value: '$124,502.42', change: '+12.5%',       icon: TrendingUp, color: 'text-neon-green'  },
+          { labelKey: 'day_pnl',          value: '+$4,204.12',  change: '+4.2%',        icon: Zap,        color: 'text-neon-green'  },
+          { labelKey: 'active_positions', value: '12',          change: 'Stable',       icon: Activity,   color: 'text-white/60'   },
+          { labelKey: 'risk_score',       value: 'Low',         change: 'Institutional',icon: BarChart3,  color: 'text-emerald-400'},
         ].map((stat, i) => (
           <div key={i} className="bento-card group">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-mono text-white/40 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-xs font-mono text-white/40 uppercase tracking-widest">{t(stat.labelKey)}</p>
               <stat.icon className={cn("w-4 h-4", stat.color)} />
             </div>
             <div className="flex items-end justify-between">
@@ -92,9 +94,9 @@ export function UserDashboard() {
         {/* Glow blob */}
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-neon-green/5 blur-[80px] pointer-events-none" />
         <div>
-          <p className="text-xs font-mono tracking-[4px] text-neon-green/60 uppercase mb-1">New · Annual Review</p>
-          <h3 className="text-xl font-black text-white mb-1">Your Financial Wrapped 2026 is here ✦</h3>
-          <p className="text-sm text-white/40">See your top sectors, risk profile, and AI-powered insights.</p>
+          <p className="text-xs font-mono tracking-[4px] text-neon-green/60 uppercase mb-1">{t('annual_review')}</p>
+          <h3 className="text-xl font-black text-white mb-1">{t('wrapped_title')}</h3>
+          <p className="text-sm text-white/40">{t('wrapped_desc')}</p>
         </div>
         <WrappedTriggerButton />
       </div>
@@ -103,13 +105,13 @@ export function UserDashboard() {
         <div className="lg:col-span-2 bento-card flex flex-col min-h-[400px]">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-display font-bold">Portfolio Performance</h3>
+              <h3 className="text-xl font-display font-bold">{t('portfolio_performance')}</h3>
               <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
-                {['1D', '1W', '1M', '1Y', 'ALL'].map(t => (
-                  <button key={t} className={cn(
+                {['1D', '1W', '1M', '1Y', 'ALL'].map(period => (
+                  <button key={period} className={cn(
                     "px-3 py-1 rounded-md text-[10px] font-bold transition-all",
-                    t === '1D' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
-                  )}>{t}</button>
+                    period === '1D' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+                  )}>{period}</button>
                 ))}
               </div>
             </div>
@@ -169,8 +171,8 @@ export function UserDashboard() {
 
         <div className="bento-card">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-display font-bold">Watchlist</h3>
-            <button className="text-xs font-bold text-neon-green hover:underline">View All</button>
+            <h3 className="text-xl font-display font-bold">{t('watchlist')}</h3>
+            <button className="text-xs font-bold text-neon-green hover:underline">{t('view_all')}</button>
           </div>
           <div className="space-y-4">
             {assets.map((asset, i) => (
@@ -198,7 +200,7 @@ export function UserDashboard() {
           <div className="mt-8 p-4 rounded-xl bg-white/5 border border-white/10">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-white/40" />
-              <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Recent Activity</span>
+              <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">{t('recent_activity')}</span>
             </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between text-[10px]">
