@@ -33,19 +33,19 @@ export default function CompanyProfile() {
     <div className="fintech-wrapper space-y-12 relative overflow-hidden z-0">
       <GlobalProfileTheme />
       {/* Ambient backgrounds */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#8EFF71]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#39ff14]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#1a3821]/30 rounded-full blur-[150px] -z-10 pointer-events-none" />
 
       {/* Profile Section */}
       <section className="flex flex-col md:flex-row items-center md:items-end gap-8 mb-16 relative z-10">
         <div className="relative group">
-          <div className="absolute -inset-1 bg-[#8EFF71] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
-          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#8EFF71] to-[#1A231C]">
+          <div className="absolute -inset-1 bg-[#39ff14] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
+          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#39ff14] to-[#1A231C]">
             <div className="w-32 h-32 rounded-full bg-[#0B0F0C] flex items-center justify-center border-4 border-[#0B0F0C] overflow-hidden">
-               <Building2 size={64} className="text-[#8EFF71]" />
+               <Building2 size={64} className="text-[#39ff14]" />
             </div>
           </div>
-          <div className="absolute bottom-1 right-1 bg-[#8EFF71] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
+          <div className="absolute bottom-1 right-1 bg-[#39ff14] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
             <ShieldCheck size={16} className="text-[#0B0F0C]" />
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function CompanyProfile() {
           <button className="bg-[#1A231C] border border-[#2A3B2E] text-[#E8F5E9] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
             Corporate Settings
           </button>
-          <button className="bg-[#8EFF71] text-[#0B0F0C] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(142,255,113,0.4)] hover:shadow-[0_0_30px_rgba(142,255,113,0.6)] active:scale-95 transition-all">
+          <button className="bg-[#39ff14] text-[#0B0F0C] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(142,255,113,0.4)] hover:shadow-[0_0_30px_rgba(142,255,113,0.6)] active:scale-95 transition-all">
             Export Audit
           </button>
         </div>
@@ -74,7 +74,7 @@ export default function CompanyProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
         <Card className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
               <Briefcase size={24} />
             </div>
             <div>
@@ -102,7 +102,7 @@ export default function CompanyProfile() {
 
         <Card className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
               <Wallet size={24} />
             </div>
             <div>
@@ -112,16 +112,16 @@ export default function CompanyProfile() {
           </div>
           <div className="space-y-4 pt-2">
             <div className="bg-white/3 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-linear-to-r from-[#8EFF71]/0 via-[#8EFF71]/5 to-[#8EFF71]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              <div className="absolute inset-0 bg-linear-to-r from-[#39ff14]/0 via-[#39ff14]/5 to-[#39ff14]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               <div className="flex justify-between items-start mb-4 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#1A231C] border border-[#2A3B2E] flex items-center justify-center font-bold text-[#8EFF71]">GS</div>
+                  <div className="w-10 h-10 rounded-xl bg-[#1A231C] border border-[#2A3B2E] flex items-center justify-center font-bold text-[#39ff14]">GS</div>
                   <div>
                     <p className="font-bold text-[#E8F5E9]">Goldman Sachs Business</p>
                     <p className="text-xs text-[#9FB8A7]">Primary Treasury</p>
                   </div>
                 </div>
-                <CheckCircle2 className="text-[#8EFF71]" size={18} />
+                <CheckCircle2 className="text-[#39ff14]" size={18} />
               </div>
               <div className="space-y-3 relative z-10">
                 <div className="flex justify-between items-center text-sm">
@@ -130,11 +130,11 @@ export default function CompanyProfile() {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-[#9FB8A7]">Available Balance</span>
-                  <span className="font-mono text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$2,450,000.00</span>
+                  <span className="font-mono text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$2,450,000.00</span>
                 </div>
               </div>
             </div>
-            <button className="w-full border border-[#8EFF71]/30 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-4 rounded-2xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] hover:shadow-[0_0_20px_rgba(142,255,113,0.2)]">
+            <button className="w-full border border-[#39ff14]/30 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 py-4 rounded-2xl flex items-center justify-center gap-2 text-[#39ff14] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] hover:shadow-[0_0_20px_rgba(142,255,113,0.2)]">
               <Plus size={16} /> Add Treasury Node
             </button>
           </div>
@@ -149,7 +149,7 @@ export default function CompanyProfile() {
               <h2 className="text-2xl font-semibold">Growth Milestones</h2>
               <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Quarterly Performance Targets</p>
             </div>
-            <div className="bg-[#8EFF71]/10 p-2 rounded-lg text-[#8EFF71] border border-[#8EFF71]/20 shadow-[0_0_10px_rgba(142,255,113,0.15)]">
+            <div className="bg-[#39ff14]/10 p-2 rounded-lg text-[#39ff14] border border-[#39ff14]/20 shadow-[0_0_10px_rgba(142,255,113,0.15)]">
               <TrendingUp size={20} />
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function CompanyProfile() {
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Target: $50M</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$35M</span>
+                  <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$35M</span>
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">70% Committed</p>
                 </div>
               </div>
@@ -176,7 +176,7 @@ export default function CompanyProfile() {
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Target: 12 Regions</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">8 Regions</span>
+                  <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">8 Regions</span>
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">66% Complete</p>
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function CompanyProfile() {
         <div className="lg:col-span-5 space-y-6">
           <div className="flex justify-between items-center px-2">
             <h2 className="text-2xl font-semibold">Core Team</h2>
-            <button className="text-[#8EFF71] hover:text-[#E8F5E9] transition-colors drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">
+            <button className="text-[#39ff14] hover:text-[#E8F5E9] transition-colors drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">
               <Users size={24} />
             </button>
           </div>
@@ -210,12 +210,12 @@ export default function CompanyProfile() {
                   <h3 className="font-bold text-sm text-[#E8F5E9]">{member.name}</h3>
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">{member.role}</p>
                 </div>
-                <div className="ml-auto bg-[#8EFF71]/10 p-2 rounded-full text-[#8EFF71] shadow-[0_0_10px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+                <div className="ml-auto bg-[#39ff14]/10 p-2 rounded-full text-[#39ff14] shadow-[0_0_10px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                    <CheckCircle2 size={14} />
                 </div>
               </div>
             ))}
-            <button className="w-full py-3 rounded-xl bg-[#1A231C] border border-[#2A3B2E] text-[#9FB8A7] text-[10px] font-bold uppercase tracking-[0.2em] hover:text-[#8EFF71] hover:border-[#8EFF71]/30 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.2)]">
+            <button className="w-full py-3 rounded-xl bg-[#1A231C] border border-[#2A3B2E] text-[#9FB8A7] text-[10px] font-bold uppercase tracking-[0.2em] hover:text-[#39ff14] hover:border-[#39ff14]/30 transition-all shadow-[0_4px_15px_rgba(0,0,0,0.2)]">
               Manage Permissions
             </button>
           </div>
@@ -228,7 +228,7 @@ export default function CompanyProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                 <ShieldCheck size={24} />
               </div>
               <div>
@@ -256,7 +256,7 @@ export default function CompanyProfile() {
 
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                 <LayoutDashboard size={24} />
               </div>
               <div>
@@ -268,7 +268,7 @@ export default function CompanyProfile() {
               <button 
                 onClick={() => setMode('standard')}
                 className={`flex-1 py-3 rounded-4xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'standard' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
+                  mode === 'standard' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
                 }`}
               >
                 Standard
@@ -276,7 +276,7 @@ export default function CompanyProfile() {
               <button 
                 onClick={() => setMode('pro')}
                 className={`flex-1 py-3 rounded-4xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'pro' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
+                  mode === 'pro' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
                 }`}
               >
                 Pro Engine

@@ -193,14 +193,14 @@ export default function UserProfile() {
     <div className="fintech-wrapper space-y-12 relative overflow-hidden z-0">
       <GlobalProfileTheme />
       {/* Ambient backgrounds */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#8EFF71]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#39ff14]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#1a3821]/30 rounded-full blur-[150px] -z-10 pointer-events-none" />
 
       {/* Profile Section */}
       <section className="flex flex-col md:flex-row items-center md:items-end gap-8 mb-16 relative z-10">
         <div className="relative group">
-          <div className="absolute -inset-1 bg-[#8EFF71] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
-          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#8EFF71] to-[#1A231C]">
+          <div className="absolute -inset-1 bg-[#39ff14] rounded-full blur-[20px] opacity-30 group-hover:opacity-60 transition duration-1000" />
+          <div className="relative p-1 rounded-full bg-gradient-to-tr from-[#39ff14] to-[#1A231C]">
             <img 
               src="https://picsum.photos/seed/alex/300/300" 
               alt="Alex Rivera" 
@@ -208,7 +208,7 @@ export default function UserProfile() {
               referrerPolicy="no-referrer"
             />
           </div>
-          <div className="absolute bottom-1 right-1 bg-[#8EFF71] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
+          <div className="absolute bottom-1 right-1 bg-[#39ff14] text-[#0B0F0C] p-1.5 rounded-full shadow-[0_0_15px_rgba(142,255,113,0.8)]">
             <CheckCircle2 size={16} className="text-[#0B0F0C]" />
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function UserProfile() {
           <button className="bg-[#1A231C] border border-[#2A3B2E] text-[#E8F5E9] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)]">
             Edit Profile
           </button>
-          <button className="bg-[#8EFF71] text-[#0B0F0C] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(142,255,113,0.4)] hover:shadow-[0_0_30px_rgba(142,255,113,0.6)] active:scale-95 transition-all">
+          <button className="bg-[#39ff14] text-[#0B0F0C] px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(142,255,113,0.4)] hover:shadow-[0_0_30px_rgba(142,255,113,0.6)] active:scale-95 transition-all">
             Share Portfolio
           </button>
         </div>
@@ -237,7 +237,7 @@ export default function UserProfile() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
         <Card className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
               <User size={24} />
             </div>
             <div>
@@ -265,7 +265,7 @@ export default function UserProfile() {
 
         <Card className="space-y-6">
           <div className="flex items-center gap-4">
-            <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
               <Wallet size={24} />
             </div>
             <div>
@@ -280,11 +280,11 @@ export default function UserProfile() {
               <button
                 onClick={handleConnectBank}
                 disabled={isConnecting}
-                className="w-full border border-[#8EFF71]/30 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-4 rounded-2xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] hover:shadow-[0_0_20px_rgba(142,255,113,0.2)] disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full border border-[#39ff14]/30 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 py-4 rounded-2xl flex items-center justify-center gap-2 text-[#39ff14] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] hover:shadow-[0_0_20px_rgba(142,255,113,0.2)] disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isConnecting ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 text-[#8EFF71]" viewBox="0 0 24 24" fill="none">
+                    <svg className="animate-spin h-4 w-4 text-[#39ff14]" viewBox="0 0 24 24" fill="none">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
@@ -299,10 +299,10 @@ export default function UserProfile() {
                 {/* ── Connected account cards ── */}
                 {bankAccounts.map((acc) => (
                   <div key={acc._id} className="bg-white/3 border border-white/5 p-5 rounded-2xl relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-linear-to-r from-[#8EFF71]/0 via-[#8EFF71]/5 to-[#8EFF71]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    <div className="absolute inset-0 bg-linear-to-r from-[#39ff14]/0 via-[#39ff14]/5 to-[#39ff14]/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     <div className="flex justify-between items-start mb-4 relative z-10">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#1A231C] border border-[#2A3B2E] flex items-center justify-center font-bold text-[#8EFF71] text-sm">
+                        <div className="w-10 h-10 rounded-xl bg-[#1A231C] border border-[#2A3B2E] flex items-center justify-center font-bold text-[#39ff14] text-sm">
                           {acc.bankName.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
@@ -310,7 +310,7 @@ export default function UserProfile() {
                           <p className="text-xs text-[#9FB8A7]">Active Connection</p>
                         </div>
                       </div>
-                      <CheckCircle2 className="text-[#8EFF71]" size={18} />
+                      <CheckCircle2 className="text-[#39ff14]" size={18} />
                     </div>
 
                     <div className="space-y-3 relative z-10">
@@ -320,7 +320,7 @@ export default function UserProfile() {
                       </div>
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-[#9FB8A7]">Balance</span>
-                        <span className="font-mono text-[#8EFF71] font-bold drop-shadow-[0_0_6px_rgba(142,255,113,0.4)]">
+                        <span className="font-mono text-[#39ff14] font-bold drop-shadow-[0_0_6px_rgba(142,255,113,0.4)]">
                           ₹{acc.balance.toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -331,11 +331,11 @@ export default function UserProfile() {
                       <button
                         onClick={() => handleAddTransaction(acc._id)}
                         disabled={addingTxFor === acc._id}
-                        className="flex-1 border border-[#8EFF71]/20 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-2 rounded-xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex-1 border border-[#39ff14]/20 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 py-2 rounded-xl flex items-center justify-center gap-2 text-[#39ff14] text-[10px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {addingTxFor === acc._id ? (
                           <>
-                            <svg className="animate-spin h-3 w-3 text-[#8EFF71]" viewBox="0 0 24 24" fill="none">
+                            <svg className="animate-spin h-3 w-3 text-[#39ff14]" viewBox="0 0 24 24" fill="none">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                             </svg>
@@ -347,7 +347,7 @@ export default function UserProfile() {
                       </button>
                       <button
                         onClick={() => setExpandedAccount(expandedAccount === acc._id ? null : acc._id)}
-                        className="px-4 py-2 rounded-xl border border-white/10 text-[#9FB8A7] hover:text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-colors"
+                        className="px-4 py-2 rounded-xl border border-white/10 text-[#9FB8A7] hover:text-[#39ff14] text-[10px] font-bold uppercase tracking-[0.2em] transition-colors"
                       >
                         {expandedAccount === acc._id ? '▲' : '▼'}
                       </button>
@@ -367,7 +367,7 @@ export default function UserProfile() {
                                   {new Date(tx.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                                 </p>
                               </div>
-                              <span className={`font-mono font-bold text-sm ${ tx.amount >= 0 ? 'text-[#8EFF71]' : 'text-red-400' }`}>
+                              <span className={`font-mono font-bold text-sm ${ tx.amount >= 0 ? 'text-[#39ff14]' : 'text-red-400' }`}>
                                 {tx.amount >= 0 ? '+' : ''}₹{Math.abs(tx.amount).toLocaleString('en-IN')}
                               </span>
                             </div>
@@ -382,11 +382,11 @@ export default function UserProfile() {
                 <button
                   onClick={handleConnectBank}
                   disabled={isConnecting}
-                  className="w-full border border-[#8EFF71]/30 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-3 rounded-2xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full border border-[#39ff14]/30 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 py-3 rounded-2xl flex items-center justify-center gap-2 text-[#39ff14] text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-[0_0_15px_rgba(142,255,113,0.1)] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isConnecting ? (
                     <>
-                      <svg className="animate-spin h-4 w-4 text-[#8EFF71]" viewBox="0 0 24 24" fill="none">
+                      <svg className="animate-spin h-4 w-4 text-[#39ff14]" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                       </svg>
@@ -412,7 +412,7 @@ export default function UserProfile() {
             </div>
             <button 
               onClick={() => setIsGoalModalOpen(true)}
-              className="flex items-center gap-2 bg-[#8EFF71]/10 text-[#8EFF71] px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#8EFF71]/20 border border-[#8EFF71]/20 transition-all shadow-[0_0_10px_rgba(142,255,113,0.15)]"
+              className="flex items-center gap-2 bg-[#39ff14]/10 text-[#39ff14] px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#39ff14]/20 border border-[#39ff14]/20 transition-all shadow-[0_0_10px_rgba(142,255,113,0.15)]"
             >
               <Plus size={14} /> New Goal
             </button>
@@ -452,11 +452,11 @@ export default function UserProfile() {
                       </div>
                       <div className="text-right flex flex-col items-end gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xl text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${(goal.currentAmount || 0).toLocaleString()}</span>
+                          <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${(goal.currentAmount || 0).toLocaleString()}</span>
                           {!isCompleted && (
                             <button 
                               onClick={() => { setSelectedGoalId(goal._id); setIsAddFundsModalOpen(true); }}
-                              className="w-6 h-6 rounded-full bg-[#8EFF71]/10 text-[#8EFF71] flex items-center justify-center hover:bg-[#8EFF71]/20 border border-[#8EFF71]/20 transition-all font-bold"
+                              className="w-6 h-6 rounded-full bg-[#39ff14]/10 text-[#39ff14] flex items-center justify-center hover:bg-[#39ff14]/20 border border-[#39ff14]/20 transition-all font-bold"
                             >
                               +
                             </button>
@@ -478,7 +478,7 @@ export default function UserProfile() {
             <h2 className="text-2xl font-semibold">Events & Festivals</h2>
             <button
               onClick={() => setIsFestivalModalOpen(true)}
-              className="text-[#8EFF71] hover:text-[#E8F5E9] transition-colors drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]"
+              className="text-[#39ff14] hover:text-[#E8F5E9] transition-colors drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]"
             >
               <PlusCircle size={24} />
             </button>
@@ -497,7 +497,7 @@ export default function UserProfile() {
                 const isOver = remaining < 0;
                 const progress = Math.min(100, Math.round((spent / festival.targetAmount) * 100));
                 return (
-                  <div key={i} className="bg-white/3 border border-white/5 rounded-3xl p-5 border-l-4 border-l-[#8EFF71] hover:bg-white/5 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+                  <div key={i} className="bg-white/3 border border-white/5 rounded-3xl p-5 border-l-4 border-l-[#39ff14] hover:bg-white/5 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <div className="flex items-center gap-2">
@@ -515,7 +515,7 @@ export default function UserProfile() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${spent.toLocaleString()}</span>
+                        <span className="text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${spent.toLocaleString()}</span>
                         <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">{progress}% Used</p>
                       </div>
                     </div>
@@ -527,7 +527,7 @@ export default function UserProfile() {
                         {festival.expenses.map((exp, j) => (
                           <div key={j} className="bg-[#1A231C] border border-[#2A3B2E] p-2 rounded-xl flex justify-between items-center">
                             <p className="text-[10px] text-[#9FB8A7] uppercase tracking-wider font-bold">{exp.category}</p>
-                            <p className="text-[10px] text-[#8EFF71] font-bold">${exp.amount.toLocaleString()}</p>
+                            <p className="text-[10px] text-[#39ff14] font-bold">${exp.amount.toLocaleString()}</p>
                           </div>
                         ))}
                       </div>
@@ -535,7 +535,7 @@ export default function UserProfile() {
 
                     <button
                       onClick={() => { setSelectedFestivalId(festival._id); setIsExpenseModalOpen(true); }}
-                      className="mt-3 w-full border border-[#8EFF71]/20 bg-[#8EFF71]/5 hover:bg-[#8EFF71]/10 py-2 rounded-xl flex items-center justify-center gap-2 text-[#8EFF71] text-[10px] font-bold uppercase tracking-[0.2em] transition-all"
+                      className="mt-3 w-full border border-[#39ff14]/20 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 py-2 rounded-xl flex items-center justify-center gap-2 text-[#39ff14] text-[10px] font-bold uppercase tracking-[0.2em] transition-all"
                     >
                       <Plus size={12} /> Add Category
                     </button>
@@ -553,7 +553,7 @@ export default function UserProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                 <ShieldCheck size={24} />
               </div>
               <div>
@@ -581,7 +581,7 @@ export default function UserProfile() {
 
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#8EFF71]/10 p-3 rounded-full text-[#8EFF71] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#8EFF71]/20">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
                 <LayoutDashboard size={24} />
               </div>
               <div>
@@ -593,7 +593,7 @@ export default function UserProfile() {
               <button 
                 onClick={() => setMode('retail')}
                 className={`flex-1 py-3 rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'retail' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
+                  mode === 'retail' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
                 }`}
               >
                 Retail
@@ -601,7 +601,7 @@ export default function UserProfile() {
               <button 
                 onClick={() => setMode('pro')}
                 className={`flex-1 py-3 rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${
-                  mode === 'pro' ? 'bg-[#8EFF71] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
+                  mode === 'pro' ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_15px_rgba(142,255,113,0.4)]' : 'text-[#9FB8A7] hover:text-[#E8F5E9]'
                 }`}
               >
                 Pro Engine
@@ -633,7 +633,7 @@ export default function UserProfile() {
                   type="text" 
                   value={newGoal.title}
                   onChange={e => setNewGoal({...newGoal, title: e.target.value})}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. Porsche 911"
                   required
                 />
@@ -644,7 +644,7 @@ export default function UserProfile() {
                   type="number" 
                   value={newGoal.targetAmount}
                   onChange={e => setNewGoal({...newGoal, targetAmount: e.target.value})}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. 150000"
                   required
                 />
@@ -660,7 +660,7 @@ export default function UserProfile() {
                 <button 
                   type="submit" 
                   disabled={isSavingGoal}
-                  className="flex-1 py-3 rounded-xl bg-[#8EFF71] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all font-bold"
+                  className="flex-1 py-3 rounded-xl bg-[#39ff14] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all font-bold"
                 >
                   {isSavingGoal ? 'Saving...' : 'Deploy Goal'}
                 </button>
@@ -688,7 +688,7 @@ export default function UserProfile() {
                   type="number" 
                   value={fundsAmount}
                   onChange={e => setFundsAmount(e.target.value)}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. 500"
                   required
                 />
@@ -704,7 +704,7 @@ export default function UserProfile() {
                 <button 
                   type="submit" 
                   disabled={isAddingFunds}
-                  className="flex-1 py-3 rounded-xl bg-[#8EFF71] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all font-bold"
+                  className="flex-1 py-3 rounded-xl bg-[#39ff14] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all font-bold"
                 >
                   {isAddingFunds ? 'Processing...' : 'Add Funds'}
                 </button>
@@ -732,7 +732,7 @@ export default function UserProfile() {
                   type="text"
                   value={newFestival.title}
                   onChange={e => setNewFestival({ ...newFestival, title: e.target.value })}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. Diwali 2025"
                   required
                 />
@@ -743,7 +743,7 @@ export default function UserProfile() {
                   type="number"
                   value={newFestival.targetAmount}
                   onChange={e => setNewFestival({ ...newFestival, targetAmount: e.target.value })}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. 10000"
                   required
                 />
@@ -752,7 +752,7 @@ export default function UserProfile() {
                 <button type="button" onClick={() => setIsFestivalModalOpen(false)} className="flex-1 py-3 rounded-xl border border-[#2A3B2E] text-[#9FB8A7] text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={isSavingFestival} className="flex-1 py-3 rounded-xl bg-[#8EFF71] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all">
+                <button type="submit" disabled={isSavingFestival} className="flex-1 py-3 rounded-xl bg-[#39ff14] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all">
                   {isSavingFestival ? 'Creating...' : 'Create Festival'}
                 </button>
               </div>
@@ -779,7 +779,7 @@ export default function UserProfile() {
                   type="text"
                   value={newExpense.category}
                   onChange={e => setNewExpense({ ...newExpense, category: e.target.value })}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. Clothes, Food, Gifts"
                   required
                 />
@@ -790,7 +790,7 @@ export default function UserProfile() {
                   type="number"
                   value={newExpense.amount}
                   onChange={e => setNewExpense({ ...newExpense, amount: e.target.value })}
-                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#8EFF71]/50 transition-colors"
+                  className="w-full bg-[#0B0F0C] border border-[#2A3B2E] rounded-xl px-4 py-3 text-[#E8F5E9] focus:outline-none focus:border-[#39ff14]/50 transition-colors"
                   placeholder="e.g. 3000"
                   required
                 />
@@ -799,7 +799,7 @@ export default function UserProfile() {
                 <button type="button" onClick={() => setIsExpenseModalOpen(false)} className="flex-1 py-3 rounded-xl border border-[#2A3B2E] text-[#9FB8A7] text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#2A3B2E] transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={isAddingExpense} className="flex-1 py-3 rounded-xl bg-[#8EFF71] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all">
+                <button type="submit" disabled={isAddingExpense} className="flex-1 py-3 rounded-xl bg-[#39ff14] text-[#0B0F0C] text-[10px] font-bold uppercase tracking-[0.2em] hover:shadow-[0_0_20px_rgba(142,255,113,0.4)] disabled:opacity-50 transition-all">
                   {isAddingExpense ? 'Adding...' : 'Add Category'}
                 </button>
               </div>
