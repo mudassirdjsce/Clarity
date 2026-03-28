@@ -166,6 +166,7 @@ export default function GamifiedLearningPath() {
 
   React.useEffect(() => {
     localStorage.setItem('clarityAcademyPoints', userPoints);
+    window.dispatchEvent(new Event('pointsUpdate'));
   }, [userPoints]);
 
   const handlePass = (passedId) => {

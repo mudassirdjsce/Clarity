@@ -22,6 +22,7 @@ import {
   Camera,
   ScanLine
 } from 'lucide-react';
+import { cn } from '../../lib/utils';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
 import { WrappedTriggerButton } from '../common/WrappedPage';
@@ -38,7 +39,10 @@ export default function UserProfile() {
     if (location.state?.scrollTo) {
       const el = document.getElementById(location.state.scrollTo);
       if (el) {
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+        setTimeout(() => {
+          const top = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }, 300);
       }
     }
   }, [location.state]);
@@ -71,6 +75,40 @@ export default function UserProfile() {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [expandedAccount, setExpandedAccount] = useState(null);
+
+  const [points, setPoints] = useState(() => {
+    return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
+  });
+  const [hasPro, setHasPro] = useState(() => {
+    return localStorage.getItem('clarityProStatus') === 'true';
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPoints(parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10));
+    };
+    window.addEventListener('pointsUpdate', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('pointsUpdate', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const handleGetPro = () => {
+    if (points >= 250) {
+      if (window.confirm('Are you sure you want to buy one month pro with 250 points?')) {
+        const newPoints = points - 250;
+        setPoints(newPoints);
+        localStorage.setItem('clarityAcademyPoints', newPoints);
+        setHasPro(true);
+        localStorage.setItem('clarityProStatus', 'true');
+        window.dispatchEvent(new Event('pointsUpdate'));
+      }
+    } else {
+      window.alert('You need at least 250 points to activate Pro.');
+    }
+  };
 
   useEffect(() => {
     if (user.email) {

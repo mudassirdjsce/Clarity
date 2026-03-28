@@ -541,7 +541,8 @@ function EmptyState({ onPrompt }) {
 // ─── Main Assistant Component ─────────────────────────────────────────────────
 export function Assistant({ type = 'user' }) {
   const { t } = useTranslation();
-  const userMode = type === 'company' ? 'company' : 'user';
+  const hasPro = localStorage.getItem('clarityProStatus') === 'true';
+  const userMode = (type === 'company' || hasPro) ? 'company' : 'user';
 
   const [sessions, setSessions]   = React.useState(() => loadSessions());
   const [activeId, setActiveId]   = React.useState(null);
