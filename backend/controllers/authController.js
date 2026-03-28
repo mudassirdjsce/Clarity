@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Goal = require("../models/Goal");
 const Festival = require("../models/Festival");
 const BankAccount = require("../models/BankAccount");
+const Holding = require("../models/Holding");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
@@ -284,3 +285,54 @@ const addTransaction = async (req, res) => {
 };
 
 module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction };
+
+// ── GET /api/auth/holdings ─────────────────────────────────────────────────
+const getHoldings = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const holdings = await Holding.find({ userEmail: email }).sort({ createdAt: -1 }).lean();
+    res.status(200).json({ holdings });
+  } catch (error) {
+    console.error("Get holdings error:", error);
+    res.status(500).json({ error: "Server error fetching holdings" });
+  }
+};
+
+// ── POST /api/auth/holdings ────────────────────────────────────────────────
+const addHolding = async (req, res) => {
+  try {
+    const { email, name, symbol, icon, amount, buyPrice, currentPrice, color } = req.body;
+    if (!email || !name || !symbol || !amount || !buyPrice || !currentPrice) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const holding = await Holding.create({
+      userEmail: email,
+      name,
+      symbol: symbol.toUpperCase(),
+      icon: icon || symbol[0].toUpperCase(),
+      amount: parseFloat(amount),
+      buyPrice: parseFloat(buyPrice),
+      currentPrice: parseFloat(currentPrice),
+      color: color || "#8eff71",
+    });
+    res.status(201).json({ message: "Holding added", holding });
+  } catch (error) {
+    console.error("Add holding error:", error);
+    res.status(500).json({ error: "Server error adding holding" });
+  }
+};
+
+// ── DELETE /api/auth/holdings/:id ────────────────────────────────────────────
+const deleteHolding = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Holding.findByIdAndDelete(id);
+    res.status(200).json({ message: "Holding deleted" });
+  } catch (error) {
+    console.error("Delete holding error:", error);
+    res.status(500).json({ error: "Server error deleting holding" });
+  }
+};
+
+module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction, getHoldings, addHolding, deleteHolding };

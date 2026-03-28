@@ -53,6 +53,11 @@ export const fetchBankAccounts = (email) => apiFetch("/auth/bank-accounts", { em
 export const connectBankAccount = (payload) => apiPost("/auth/bank-accounts/connect", payload);
 export const addBankTransaction = (id) => apiPost(`/auth/bank-accounts/${id}/transactions`, {});
 
+// ── Holdings ──────────────────────────────────────────────────────────────────
+export const fetchHoldings = (email) => apiFetch("/auth/holdings", { email });
+export const addHolding = (payload) => apiPost("/auth/holdings", payload);
+export const deleteHolding = (id) => apiDelete(`/auth/holdings/${id}`);
+
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");
 
