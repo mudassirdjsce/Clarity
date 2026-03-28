@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, BarChart3, ChevronRight, Briefcase, Rocket, BadgeDollarSign, Smartphone } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -51,8 +52,13 @@ const TABS = ['Gainers', 'Losers', 'Volume Shockers'];
 
 // ── Components ─────────────────────────────────────────────────────────────────
 function StockMiniCard({ name, ticker, price, change, isPositive }) {
+  const navigate = useNavigate();
+
   return (
-    <div className="bento-card group cursor-pointer hover:scale-[1.02] transition-transform duration-200">
+    <div 
+      onClick={() => navigate(`/user/stock/${ticker}`)}
+      className="bento-card group cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+    >
       <div className="flex justify-between items-start mb-4">
         <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-bold text-sm text-white/60 group-hover:border-neon-green/30 group-hover:text-neon-green transition-colors">
           {name[0]}
