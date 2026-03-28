@@ -194,7 +194,7 @@ export function UserDashboard() {
                 {['1D', '1W', '1M', '1Y', 'ALL'].map(period => (
                   <button 
                     key={period} 
-                    onClick={() => setTimeFilter(t)}
+                    onClick={() => setTimeFilter(period)}
                     className={cn(
                       "px-3 py-1 rounded-md text-[10px] font-bold transition-all whitespace-nowrap",
                       period === timeFilter ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
