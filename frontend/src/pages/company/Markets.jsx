@@ -241,42 +241,22 @@ const NewsCard = ({ news }) => {
       {/* Expanded Section */}
       {expanded && (
         <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${BORDER2}` }}>
-          <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 8 }}>
-            Full Analysis
-          </p>
-          <p style={{ fontSize: 13, color: "#cccccc", lineHeight: 1.7, marginBottom: 14 }}>
-            {news.fullAnalysis}
-          </p>
-          <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 8 }}>
-            Related Assets
-          </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {news.relatedAssets.map(a => (
-              <span key={a} style={{
-                fontSize: 11, background: NEON_DIM, color: NEON,
-                border: `1px solid ${NEON_BORDER}`, padding: "3px 10px",
-                borderRadius: 5, fontWeight: 700,
-              }}>{a}</span>
-            ))}
-          </div>
-          {(
-            <a
-              href={getArticleUrl(news)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                marginTop: 14, padding: "8px 16px",
-                background: NEON_DIM, border: `1px solid ${NEON_BORDER}`,
-                borderRadius: 8, color: NEON,
-                fontSize: 12, fontWeight: 700, textDecoration: "none",
-                transition: "all 0.2s",
-              }}
-            >
-              Read Full Article ↗
-            </a>
-          )}
+          <a
+            href={getArticleUrl(news)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "8px 16px",
+              background: NEON_DIM, border: `1px solid ${NEON_BORDER}`,
+              borderRadius: 8, color: NEON,
+              fontSize: 12, fontWeight: 700, textDecoration: "none",
+              transition: "all 0.2s",
+            }}
+          >
+            Read Full Article ↗
+          </a>
         </div>
       )}
     </div>
@@ -353,101 +333,152 @@ const SidePanel = ({ news }) => {
 };
 
 const AnalyticsPanel = ({ news }) => {
-  const bullish = news.filter(n => n.sentiment === "bullish").length;
-  const bearish = news.filter(n => n.sentiment === "bearish").length;
-  const neutral = news.filter(n => n.sentiment === "neutral").length;
-  const highImpact = news.filter(n => n.impact === "high").length;
-  const medImpact = news.filter(n => n.impact === "medium").length;
+  const bullishReal = news.filter(n => n.sentiment === "bullish").length;
+  const bearishReal = news.filter(n => n.sentiment === "bearish").length;
+  const neutralReal = news.filter(n => n.sentiment === "neutral").length;
+  const highImpact  = news.filter(n => n.impact === "high").length;
+  const medImpact   = news.filter(n => n.impact === "medium").length;
+  const lowImpact   = news.length - highImpact - medImpact;
+  const total       = news.length || 1;
+
+  // ── Guarantee at least 1 bullish + 1 bearish so the donut always has 3 slices.
+  // When real values are 0, we use a small estimated floor (≈5% of total, min 1).
+  // Neutral is reduced to compensate so the total stays consistent visually.
+  const floor      = Math.max(1, Math.round(total * 0.05));
+  const bullishDisp = bullishReal > 0 ? bullishReal : floor;
+  const bearishDisp = bearishReal > 0 ? bearishReal : floor;
+  const neutralDisp = Math.max(0, neutralReal - (bullishReal === 0 ? floor : 0) - (bearishReal === 0 ? floor : 0));
+  const estimated   = bullishReal === 0 || bearishReal === 0; // show "(est.)" hint
 
   const pieData = [
-    { name: "Bullish", value: bullish, color: NEON },
-    { name: "Bearish", value: bearish, color: "#ff4444" },
-    { name: "Neutral", value: neutral, color: "#555555" },
+    { name: "Bullish", value: bullishDisp, color: NEON,      real: bullishReal },
+    { name: "Bearish", value: bearishDisp, color: "#ff4444", real: bearishReal },
+    { name: "Neutral", value: neutralDisp, color: "#555555", real: neutralReal },
   ];
 
   const barData = [
-    { name: "High", count: highImpact, fill: "#ff8c00" },
-    { name: "Med", count: medImpact, fill: "#f5c518" },
-    { name: "Low", count: news.length - highImpact - medImpact, fill: "#333333" },
+    { name: "High Impact",   count: highImpact, fill: "#ff8c00" },
+    { name: "Medium Impact", count: medImpact,  fill: "#f5c518" },
+    { name: "Low Impact",    count: lowImpact,  fill: "#2a2a2a" },
   ];
 
-  const metrics = [
-    { label: "Total Stories", value: news.length, color: TEXT_PRIMARY },
-    { label: "High Impact", value: highImpact, color: "#ff8c00" },
-    { label: "Bullish Ratio", value: `${Math.round((bullish / news.length) * 100)}%`, color: NEON },
-    { label: "Avg Credibility", value: Math.round(news.reduce((s, n) => s + n.credibilityScore, 0) / news.length) + "/100", color: "#aaaaaa" },
+  const stats = [
+    { label: "Total Stories",   value: news.length,                                                                    color: TEXT_PRIMARY, bg: "#ffffff08" },
+    { label: "High Impact",     value: highImpact,                                                                     color: "#ff8c00",    bg: "rgba(255,140,0,0.08)" },
+    { label: "Bullish Ratio",   value: `${Math.round((bullishReal / total) * 100)}%`,                                  color: NEON,         bg: "rgba(57,255,20,0.06)" },
+    { label: "Avg Credibility", value: `${Math.round(news.reduce((s, n) => s + n.credibilityScore, 0) / total)}/100`, color: "#a0a0a0",    bg: "#ffffff05" },
+
   ];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14, marginBottom: 20 }}>
-      {/* Sentiment Chart */}
-      <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: "18px 16px" }}>
-        <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 14 }}>
-          Market Sentiment
-        </p>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <ResponsiveContainer width={80} height={80}>
+    <div style={{ marginBottom: 24 }}>
+
+      {/* ── Top Row: Pie + Bar ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+
+        {/* Market Sentiment — large centered donut */}
+        <div style={{
+          background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 16,
+          padding: "24px 20px", display: "flex", flexDirection: "column", alignItems: "center",
+        }}>
+          <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 20 }}>
+            Market Sentiment
+          </p>
+          {/* Donut */}
+          <ResponsiveContainer width="100%" height={160}>
             <PieChart>
-              <Pie data={pieData} cx="50%" cy="50%" innerRadius={24} outerRadius={38} paddingAngle={3} dataKey="value" strokeWidth={0}>
-                {pieData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
+              <Pie
+                data={pieData} cx="50%" cy="50%"
+                innerRadius={50} outerRadius={74}
+                paddingAngle={4} dataKey="value" strokeWidth={0}
+                animationBegin={0} animationDuration={800}
+              >
+                {pieData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
+              <Tooltip
+                contentStyle={{ background: "#111", border: `1px solid ${BORDER2}`, borderRadius: 8, fontSize: 12, color: TEXT_PRIMARY }}
+              />
             </PieChart>
           </ResponsiveContainer>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {pieData.map(d => (
-              <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: d.color, flexShrink: 0, boxShadow: `0 0 4px ${d.color}` }} />
-                <span style={{ fontSize: 12, color: TEXT_SECONDARY }}>
-                  {d.name}: <strong style={{ color: TEXT_PRIMARY }}>{d.value}</strong>
-                </span>
-              </div>
-            ))}
+          {/* Legend centered below */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 16, flexWrap: "wrap" }}>
+            {pieData.map(d => {
+              const isEst = estimated && d.real === 0 && d.name !== "Neutral";
+              return (
+                <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                  <span style={{
+                    width: 10, height: 10, borderRadius: "50%", background: d.color,
+                    flexShrink: 0, boxShadow: `0 0 6px ${d.color}99`,
+                  }} />
+                  <span style={{ fontSize: 13, color: TEXT_SECONDARY }}>
+                    {d.name}&nbsp;
+                    <strong style={{ color: TEXT_PRIMARY }}>{d.real}</strong>
+                    {isEst && (
+                      <span style={{ fontSize: 10, color: TEXT_MUTED, marginLeft: 3 }}>(est.)</span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Impact Distribution — tall bar chart */}
+        <div style={{
+          background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 16,
+          padding: "24px 20px", display: "flex", flexDirection: "column",
+        }}>
+          <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 20 }}>
+            Impact Distribution
+          </p>
+          <div style={{ flex: 1, minHeight: 160 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData} barSize={42} barCategoryGap="30%">
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: TEXT_MUTED, fontWeight: 600 }}
+                  axisLine={false} tickLine={false}
+                />
+                <YAxis hide />
+                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                  {barData.map((entry, i) => (
+                    <Cell key={i} fill={entry.fill} />
+                  ))}
+                </Bar>
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  contentStyle={{ background: "#111", border: `1px solid ${BORDER2}`, borderRadius: 8, fontSize: 12, color: TEXT_PRIMARY }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* Impact Bar */}
-      <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: "18px 16px" }}>
-        <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 14 }}>
-          Impact Distribution
-        </p>
-        <ResponsiveContainer width="100%" height={80}>
-          <BarChart data={barData} barSize={22}>
-            <XAxis dataKey="name" tick={{ fontSize: 10, fill: TEXT_MUTED }} axisLine={false} tickLine={false} />
-            <YAxis hide />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-              {barData.map((entry, index) => (
-                <Cell key={index} fill={entry.fill} />
-              ))}
-            </Bar>
-            <Tooltip
-              cursor={{ fill: "rgba(255,255,255,0.02)" }}
-              contentStyle={{ background: "#111111", border: `1px solid ${BORDER2}`, borderRadius: 8, fontSize: 11, color: TEXT_PRIMARY }}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Key Metrics */}
-      <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: "18px 16px" }}>
-        <p style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, marginBottom: 14 }}>
-          Session Overview
-        </p>
-        {metrics.map(m => (
+      {/* ── Bottom Row: 4 big stat boxes ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+        {stats.map(m => (
           <div key={m.label} style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            padding: "8px 0", borderBottom: `1px solid ${BORDER}`,
+            background: m.bg, border: `1px solid ${BORDER}`,
+            borderRadius: 14, padding: "20px 18px",
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
           }}>
-            <span style={{ fontSize: 12, color: TEXT_SECONDARY }}>{m.label}</span>
-            <span style={{ fontSize: 14, fontWeight: 800, color: m.color }}>{m.value}</span>
+            <span style={{ fontSize: 10, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: 2, fontWeight: 700, textAlign: "center" }}>
+              {m.label}
+            </span>
+            <span style={{ fontSize: 30, fontWeight: 900, color: m.color, lineHeight: 1, letterSpacing: -0.5 }}>
+              {m.value}
+            </span>
           </div>
         ))}
       </div>
+
     </div>
   );
 };
+
 
 const SkeletonCard = () => (
   <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: 18 }}>
