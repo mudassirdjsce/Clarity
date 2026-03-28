@@ -163,8 +163,6 @@ const Hero = () => {
 const VelocitySection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  return {
-  const navigate = useNavigate();
   return (
   <section className="py-24 md:py-32 px-4 md:px-6 bg-surface overflow-hidden">
     <div className="max-w-7xl mx-auto">
@@ -360,8 +358,6 @@ const PulseSection = () => {
 
 const CTASection = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  return {
   const navigate = useNavigate();
   return (
   <section className="py-20 md:py-32 px-4 md:px-6">

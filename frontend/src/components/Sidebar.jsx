@@ -5,6 +5,7 @@ import {
   LineChart,
   MessageSquare,
   LogOut,
+  Settings,
   HelpCircle,
   Wallet,
   Globe,
@@ -65,7 +66,9 @@ export function Sidebar({ isOpen, onClose }) {
       )}>
         <div className="flex-1 space-y-8 overflow-y-auto">
           <div>
-            <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] mb-4 px-4">Main Menu</p>
+            <p className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] mb-4 px-4">
+              {t('main_menu')}
+            </p>
             <nav className="space-y-1">
               {navItems.map((item) => (
                 <NavLink
@@ -82,7 +85,7 @@ export function Sidebar({ isOpen, onClose }) {
                     "w-5 h-5 transition-transform group-hover:scale-110",
                     "group-[.active]:text-neon-green"
                   )} />
-                  <span className="font-medium">{item.label}</span>
+                  <span className="font-medium">{item.labelKey ? t(item.labelKey) : item.label}</span>
                 </NavLink>
               ))}
             </nav>
