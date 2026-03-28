@@ -63,6 +63,16 @@ export const fetchInstitutionalHoldings = (email) => apiFetch("/auth/institution
 export const addInstitutionalHolding = (payload) => apiPost("/auth/institutional-holdings", payload);
 export const deleteInstitutionalHolding = (id) => apiDelete(`/auth/institutional-holdings/${id}`);
 
+// ── Treasury Accounts ────────────────────────────────────────────────────────
+export const fetchTreasuryAccounts = (email) => apiFetch("/auth/treasury-accounts", { email });
+export const addTreasuryAccount = (payload) => apiPost("/auth/treasury-accounts", payload);
+export const deleteTreasuryAccount = (id) => apiDelete(`/auth/treasury-accounts/${id}`);
+
+// ── Team Members ─────────────────────────────────────────────────────────────
+export const fetchTeamMembers = (email) => apiFetch("/auth/team-members", { email });
+export const addTeamMember = (payload) => apiPost("/auth/team-members", payload);
+export const deleteTeamMember = (id) => apiDelete(`/auth/team-members/${id}`);
+
 // ── Health ───────────────────────────────────────────────────────────────────
 export const checkHealth = () => apiFetch("/health");
 

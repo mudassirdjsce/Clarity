@@ -4,6 +4,8 @@ const Festival = require("../models/Festival");
 const BankAccount = require("../models/BankAccount");
 const Holding = require("../models/Holding");
 const InstitutionalHolding = require("../models/InstitutionalHolding");
+const TreasuryAccount = require("../models/TreasuryAccount");
+const TeamMember = require("../models/TeamMember");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
@@ -386,5 +388,104 @@ const deleteInstitutionalHolding = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction, getHoldings, addHolding, deleteHolding, getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding };
+// ── GET /api/auth/treasury-accounts ─────────────────────────────────────────────────
+const getTreasuryAccounts = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const accounts = await TreasuryAccount.find({ companyEmail: email }).sort({ createdAt: -1 }).lean();
+    res.status(200).json({ accounts });
+  } catch (error) {
+    console.error("Get treasury accounts error:", error);
+    res.status(500).json({ error: "Server error fetching treasury accounts" });
+  }
+};
 
+// ── POST /api/auth/treasury-accounts ────────────────────────────────────────────────
+const addTreasuryAccount = async (req, res) => {
+  try {
+    const { email, bankName, bankIconText, accountType, balance, isPrimary } = req.body;
+    if (!email || !bankName || !accountType || balance == null) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const account = await TreasuryAccount.create({
+      companyEmail: email,
+      bankName,
+      bankIconText: bankIconText || bankName.slice(0, 2).toUpperCase(),
+      accountType,
+      balance: parseFloat(balance),
+      isPrimary: isPrimary || false
+    });
+    res.status(201).json({ message: "Treasury Account added", account });
+  } catch (error) {
+    console.error("Add treasury account error:", error);
+    res.status(500).json({ error: "Server error adding treasury account" });
+  }
+};
+
+// ── DELETE /api/auth/treasury-accounts/:id ──────────────────────────────────────────
+const deleteTreasuryAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await TreasuryAccount.findByIdAndDelete(id);
+    res.status(200).json({ message: "Treasury Account deleted" });
+  } catch (error) {
+    console.error("Delete treasury account error:", error);
+    res.status(500).json({ error: "Server error deleting treasury account" });
+  }
+};
+
+// ── GET /api/auth/team-members ──────────────────────────────────────────────────────
+const getTeamMembers = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const members = await TeamMember.find({ companyEmail: email }).sort({ createdAt: 1 }).lean();
+    res.status(200).json({ members });
+  } catch (error) {
+    console.error("Get team members error:", error);
+    res.status(500).json({ error: "Server error fetching team members" });
+  }
+};
+
+// ── POST /api/auth/team-members ─────────────────────────────────────────────────────
+const addTeamMember = async (req, res) => {
+  try {
+    const { email, name, role } = req.body;
+    if (!email || !name || !role) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const member = await TeamMember.create({
+      companyEmail: email,
+      name,
+      role,
+      imageSeed: name.toLowerCase().replace(/\s+/g, '-')
+    });
+    res.status(201).json({ message: "Team Member added", member });
+  } catch (error) {
+    console.error("Add team member error:", error);
+    res.status(500).json({ error: "Server error adding team member" });
+  }
+};
+
+// ── DELETE /api/auth/team-members/:id ───────────────────────────────────────────────
+const deleteTeamMember = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await TeamMember.findByIdAndDelete(id);
+    res.status(200).json({ message: "Team Member deleted" });
+  } catch (error) {
+    console.error("Delete team member error:", error);
+    res.status(500).json({ error: "Server error deleting team member" });
+  }
+};
+
+module.exports = { 
+  signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, 
+  getFestivals, addFestival, addFestivalExpense, deleteFestival, 
+  getBankAccounts, connectBank, addTransaction, 
+  getHoldings, addHolding, deleteHolding, 
+  getInstitutionalHoldings, addInstitutionalHolding, deleteInstitutionalHolding,
+  getTreasuryAccounts, addTreasuryAccount, deleteTreasuryAccount,
+  getTeamMembers, addTeamMember, deleteTeamMember
+};
