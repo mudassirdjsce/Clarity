@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   MapPin,
   Mail,
@@ -17,16 +18,35 @@ import {
   Wallet,
   Target,
   User,
-  Trash2
+  Trash2,
+  Camera,
+  ScanLine
 } from 'lucide-react';
+import { cn } from '../../lib/utils';
 import { Badge, Card, ProgressBar, Toggle, GlobalProfileTheme } from '../../components/CommonProfile';
 import { fetchUserGoals, addUserGoal, addGoalFunds, deleteUserGoal, fetchUserFestivals, addUserFestival, addFestivalExpense, deleteUserFestival, fetchBankAccounts, connectBankAccount, addBankTransaction } from '../../services/api';
 import { WrappedTriggerButton } from '../common/WrappedPage';
+import CameraScanner from '../../components/CameraScanner';
 
 export default function UserProfile() {
+  const location = useLocation();
   const [biometric, setBiometric] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
   const [proFlipped, setProFlipped] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  // Scroll to section if navigated with state
+  useEffect(() => {
+    if (location.state?.scrollTo) {
+      const el = document.getElementById(location.state.scrollTo);
+      if (el) {
+        setTimeout(() => {
+          const top = el.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }, 300);
+      }
+    }
+  }, [location.state]);
 
   const storedUser = localStorage.getItem('clarity_user');
   const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera", email: "alex@synthetic.io", phone: "+1 234 567 8900" };
@@ -56,6 +76,104 @@ export default function UserProfile() {
   const [bankAccounts, setBankAccounts] = useState([]);
   const [isConnecting, setIsConnecting] = useState(false);
   const [expandedAccount, setExpandedAccount] = useState(null);
+
+  // Check Safety State
+  const [isCheckingSafety, setIsCheckingSafety] = useState(false);
+  const [suspiciousFound, setSuspiciousFound] = useState(false);
+  const [fraudReport, setFraudReport] = useState(null);
+  const sirenRef = useRef(null);
+
+  // Hardcoded fraud report template
+  const FRAUD_REPORT = {
+    account: 'HDFC Bank • Savings ••••4821',
+    transaction: 'INR 24,999 debit',
+    merchant: 'UNKNOWN_MERCHANT_SG',
+    date: '28 Mar 2026, 11:47 PM',
+    location: 'Singapore (IP: 103.14.xx.xx)',
+    txnId: 'TXN8823910XF',
+  };
+
+  // Cleanup siren on unmount
+  useEffect(() => {
+    return () => {
+      if (sirenRef.current) {
+        try { sirenRef.current.osc.stop(); sirenRef.current.ctx.close(); } catch {}
+      }
+    };
+  }, []);
+
+  const handleCheckSafety = () => {
+    if (isCheckingSafety || suspiciousFound) return;
+    setIsCheckingSafety(true);
+
+    setTimeout(() => {
+      setIsCheckingSafety(false);
+      setSuspiciousFound(true);
+
+      // Build wailing siren with Web Audio API
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      gain.gain.value = 0.25;
+
+      // Wail: sweep 700 Hz → 1300 Hz → 700 Hz every 0.8s
+      const start = ctx.currentTime;
+      const cycle = 0.8;
+      const totalCycles = Math.ceil(3 / cycle);
+      for (let i = 0; i < totalCycles; i++) {
+        osc.frequency.setValueAtTime(700, start + i * cycle);
+        osc.frequency.linearRampToValueAtTime(1300, start + i * cycle + cycle / 2);
+        osc.frequency.linearRampToValueAtTime(700, start + i * cycle + cycle);
+      }
+      osc.start();
+      osc.stop(start + 3);
+      sirenRef.current = { ctx, osc };
+
+      // Auto-dismiss siren after 3s, then show fraud report
+      setTimeout(() => {
+        setSuspiciousFound(false);
+        sirenRef.current = null;
+        setFraudReport(FRAUD_REPORT);
+      }, 3000);
+    }, 1500);
+  };
+
+  const [points, setPoints] = useState(() => {
+    return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
+  });
+  const [hasPro, setHasPro] = useState(() => {
+    return localStorage.getItem('clarityProStatus') === 'true';
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPoints(parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10));
+    };
+    window.addEventListener('pointsUpdate', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('pointsUpdate', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const handleGetPro = () => {
+    if (points >= 250) {
+      if (window.confirm('Are you sure you want to buy one month pro with 250 points?')) {
+        const newPoints = points - 250;
+        setPoints(newPoints);
+        localStorage.setItem('clarityAcademyPoints', newPoints);
+        setHasPro(true);
+        localStorage.setItem('clarityProStatus', 'true');
+        window.dispatchEvent(new Event('pointsUpdate'));
+      }
+    } else {
+      window.alert('You need at least 250 points to activate Pro.');
+    }
+  };
 
   useEffect(() => {
     if (user.email) {
@@ -191,6 +309,112 @@ export default function UserProfile() {
 
   return (
     <div className="fintech-wrapper space-y-12 relative overflow-hidden z-0">
+      {/* Camera Scanner Modal */}
+      <CameraScanner isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
+
+      {/* ── Suspicious Activity Overlay ── */}
+      <AnimatePresence>
+        {suspiciousFound && (
+          <>
+            {/* Pulsing red screen flash */}
+            <motion.div
+              key="redflash"
+              className="fixed inset-0 z-[500] pointer-events-none"
+              animate={{ backgroundColor: ['rgba(220,38,38,0.25)', 'rgba(220,38,38,0.0)', 'rgba(220,38,38,0.25)'] }}
+              transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            {/* Alert modal */}
+            <motion.div
+              key="alertmodal"
+              initial={{ opacity: 0, scale: 0.9, y: -20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[600] bg-[#1a0505] border border-red-500/50 rounded-2xl px-8 py-5 flex items-center gap-4 shadow-[0_0_40px_rgba(220,38,38,0.5)]"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0 animate-pulse">
+                <ShieldCheck className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <p className="text-red-400 font-bold text-sm uppercase tracking-widest">⚠ Suspicious Activity Detected</p>
+                <p className="text-red-400/60 text-[10px] mt-0.5 font-mono">Unusual transaction patterns found · Siren active for 5s</p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── Fraud Report Card (appears after siren ends) ── */}
+      <AnimatePresence>
+        {fraudReport && (
+          <motion.div
+            key="fraudcard"
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[600] w-[520px] bg-[#130505] border border-red-500/30 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden"
+          >
+            {/* Top accent bar */}
+            <div className="h-1 w-full bg-gradient-to-r from-red-600 via-red-400 to-red-600" />
+
+            <div className="p-7 space-y-5">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div>
+                    <p className="text-red-400 text-[13px] font-bold uppercase tracking-[0.18em]">Fraud Alert</p>
+                    <p className="text-white/50 text-[10px] font-mono mt-0.5">Ref: {fraudReport.txnId}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setFraudReport(null)}
+                  className="text-white/20 hover:text-white/60 transition-colors mt-0.5"
+                >
+                  <span className="text-lg leading-none">&times;</span>
+                </button>
+              </div>
+
+              {/* Transaction detail rows */}
+              <div className="space-y-3 bg-red-500/5 border border-red-500/10 rounded-xl p-5">
+                {[
+                  { label: 'Account', value: fraudReport.account },
+                  { label: 'Transaction', value: fraudReport.transaction },
+                  { label: 'Merchant', value: fraudReport.merchant },
+                  { label: 'Date & Time', value: fraudReport.date },
+                  { label: 'Origin', value: fraudReport.location },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-start justify-between gap-3 text-[11px]">
+                    <span className="text-white/30 uppercase tracking-widest font-bold whitespace-nowrap">{label}</span>
+                    <span className="text-white/70 font-mono text-right">{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Warning message */}
+              <p className="text-red-400/80 text-[11px] font-mono leading-relaxed">
+                ⚠ This transaction appears fraudulent. Contact your bank immediately and freeze your card.
+              </p>
+
+              {/* CTA buttons */}
+              <div className="flex gap-3">
+                <button className="flex-1 py-3 rounded-xl bg-red-500 text-white text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-red-400 transition-colors shadow-[0_0_15px_rgba(220,38,38,0.4)]">
+                  Contact Immediately
+                </button>
+                <button
+                  onClick={() => setFraudReport(null)}
+                  className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white/40 text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-white/10 transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <GlobalProfileTheme />
       {/* Ambient backgrounds */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#39ff14]/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
@@ -265,15 +489,26 @@ export default function UserProfile() {
         </Card>
 
         <Card className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
-              <Wallet size={24} />
+        <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
+                <Wallet size={24} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold">Bank Accounts</h2>
+                <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Connected Institutions</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-2xl font-semibold">Bank Accounts</h2>
-              <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-1">Connected Institutions</p>
-            </div>
+            <button
+              onClick={handleCheckSafety}
+              disabled={isCheckingSafety || suspiciousFound}
+              className="flex items-center gap-2 bg-white/5 text-white/40 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white/10 hover:text-white/60 border border-white/10 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ShieldCheck size={14} />
+              {isCheckingSafety ? 'Scanning...' : suspiciousFound ? 'Alert Active' : 'Check Safety'}
+            </button>
           </div>
+
 
           <div className="space-y-4 pt-2">
             {bankAccounts.length === 0 ? (
@@ -404,7 +639,7 @@ export default function UserProfile() {
       </div>
 
       {/* Goals & Events Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
+      <div id="savings-goals" className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
         <Card className="lg:col-span-7 space-y-8">
           <div className="flex justify-between items-center">
             <div>
@@ -548,175 +783,40 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* Security & Experience */}
       <section className="space-y-6 relative z-10">
-        <h2 className="text-2xl font-semibold">Security & Experience</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="bg-[#39ff14]/10 p-3 rounded-full text-[#39ff14] shadow-[0_0_15px_rgba(142,255,113,0.2)] border border-[#39ff14]/20">
-                <ShieldCheck size={24} />
+        <h2 className="text-2xl font-semibold">Scan and Search</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          {/* Scan Product — BuyHatke Camera Scanner */}
+          <Card className="p-6 flex flex-col gap-5 relative overflow-hidden">
+            <div className="absolute -top-8 -right-8 w-36 h-36 bg-[#39ff14]/5 rounded-full blur-[50px] pointer-events-none" />
+            <div className="flex items-center gap-3">
+              <div className="bg-[#39ff14]/10 p-2.5 rounded-full text-[#39ff14] border border-[#39ff14]/20">
+                <Camera size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-[#E8F5E9]">Security Protocol</h3>
-                <p className="text-xs text-[#9FB8A7]">Protection for your assets</p>
+                <h3 className="font-bold text-[#E8F5E9] text-sm">Scan Product</h3>
+                <p className="text-xs text-[#9FB8A7]">Compare prices instantly</p>
               </div>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-[#1A231C] border border-[#2A3B2E] rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <Fingerprint size={20} className="text-[#9FB8A7]" />
-                  <span className="text-sm font-medium text-[#E8F5E9]">Biometric Access</span>
-                </div>
-                <Toggle active={biometric} onToggle={() => setBiometric(!biometric)} />
-              </div>
-              <div className="flex items-center justify-between p-4 bg-[#1A231C] border border-[#2A3B2E] rounded-2xl">
-                <div className="flex items-center gap-3">
-                  <MessageSquare size={20} className="text-[#9FB8A7]" />
-                  <span className="text-sm font-medium text-[#E8F5E9]">2-Factor Auth (2FA)</span>
-                </div>
-                <Toggle active={twoFactor} onToggle={() => setTwoFactor(!twoFactor)} />
-              </div>
-            </div>
-          </Card>
-
-          {/* Clarity Pro — flip card */}
-          <div className="relative" style={{ perspective: '1000px', minHeight: '100%' }}>
-            <motion.div
-              animate={{ rotateY: proFlipped ? 180 : 0 }}
-              transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
-              style={{ transformStyle: 'preserve-3d', position: 'relative', height: '100%' }}
+            <p className="text-xs text-[#9FB8A7] leading-relaxed">
+              Point your camera at any item — laptop, bottle, phone — and we'll find the best price on BuyHatke instantly.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setIsScannerOpen(true)}
+              className="relative w-full py-3.5 rounded-2xl font-bold text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] flex items-center justify-center gap-2 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #39ff14 0%, #8EFF71 100%)',
+                boxShadow: '0 0 20px rgba(57,255,20,0.3)',
+              }}
             >
-              {/* FRONT */}
-              <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-                <Card className="p-6 relative overflow-hidden flex flex-col h-full">
-                  <div className="absolute -top-12 -right-12 w-56 h-56 bg-[#39ff14]/10 rounded-full blur-[70px] pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#00d4ff]/8 rounded-full blur-[60px] pointer-events-none" />
-
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-4 relative z-10">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-gradient-to-br from-[#39ff14]/20 to-[#00d4ff]/20 p-2.5 rounded-full border border-[#39ff14]/20">
-                        <span className="text-sm leading-none">⚡</span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-[#E8F5E9] text-sm leading-tight">Clarity Pro</h3>
-                        <p className="text-[9px] text-[#9FB8A7] uppercase tracking-[0.15em] font-bold">Premium Plan</p>
-                      </div>
-                    </div>
-                    <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/30 text-[#39ff14] animate-pulse">
-                      Free · Hackathon
-                    </span>
-                  </div>
-
-                  {/* Benefits list */}
-                  <ul className="space-y-1.5 mb-5 relative z-10 flex-1">
-                    {[
-                      { label: 'AI-Powered Insights',  desc: 'Personalised financial nudges daily'   },
-                      { label: 'Advanced Charting',     desc: 'Multi-timeframe technical overlays'    },
-                      { label: 'Unlimited Portfolios',  desc: 'Track stocks, MFs, bonds & more'       },
-                      { label: 'Priority Alerts',       desc: 'Real-time price & event notifications' },
-                      { label: 'Early API Access',      desc: 'Be first to new Clarity features'      },
-                    ].map(({ label, desc }) => (
-                      <li key={label} className="flex items-center gap-2">
-                        <span className="w-1 h-1 rounded-full bg-[#39ff14] flex-shrink-0" />
-                        <span className="text-[10px] font-bold text-[#E8F5E9]">{label}</span>
-                        <span className="text-[9px] text-[#9FB8A7]">— {desc}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <div className="relative z-10">
-                    <motion.button
-                      onClick={() => setProFlipped(true)}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      className="relative w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-[#0B0F0C] overflow-hidden"
-                      style={{
-                        background: 'linear-gradient(135deg, #39ff14 0%, #00d4ff 100%)',
-                        boxShadow: '0 0 24px rgba(57,255,20,0.3)',
-                      }}
-                    >
-                      <motion.div
-                        className="absolute inset-0 bg-white/20"
-                        initial={{ x: '-100%' }}
-                        animate={{ x: '100%' }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                      />
-                      <span className="relative z-10">Get Pro — Free During Hackathon ⚡</span>
-                    </motion.button>
-                    <p className="text-center text-[9px] text-[#9FB8A7] mt-1.5 font-mono uppercase tracking-widest">No credit card required</p>
-                  </div>
-                </Card>
-              </div>
-
-              {/* BACK */}
-              <div style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)', position: 'absolute', inset: 0 }}>
-                <Card className="p-6 relative overflow-hidden flex flex-col h-full">
-                  <div className="absolute -top-12 -right-12 w-56 h-56 bg-[#00d4ff]/10 rounded-full blur-[70px] pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-44 h-44 bg-[#39ff14]/8 rounded-full blur-[60px] pointer-events-none" />
-
-                  {/* Back header */}
-                  <div className="flex items-center justify-between mb-3 relative z-10">
-                    <div>
-                      <h3 className="font-bold text-[#E8F5E9] text-sm">Choose Your Plan</h3>
-                      <p className="text-[9px] text-[#9FB8A7] uppercase tracking-[0.12em] font-bold mt-0.5">Pick how to unlock Pro</p>
-                    </div>
-                    <button
-                      onClick={() => setProFlipped(false)}
-                      className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors text-xs font-bold"
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* Options */}
-                  <div className="space-y-2 flex-1 relative z-10">
-                    {/* Royalty Points */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full p-3 rounded-2xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/10 hover:border-amber-400/70 transition-all text-left"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider">Royalty Points</span>
-                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-400 uppercase tracking-widest">Recommended</span>
-                      </div>
-                      <p className="text-lg font-black text-white font-mono leading-tight">250 <span className="text-xs text-amber-400">pts</span></p>
-                      <p className="text-[9px] text-[#9FB8A7] mt-0.5">Use your earned Clarity reward points</p>
-                    </motion.button>
-
-                    {/* Divider */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-px bg-white/5" />
-                      <span className="text-[9px] text-white/20 font-bold uppercase tracking-widest">or</span>
-                      <div className="flex-1 h-px bg-white/5" />
-                    </div>
-
-                    {/* Rupees */}
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full p-3 rounded-2xl border-2 border-[#39ff14]/30 bg-[#39ff14]/5 hover:bg-[#39ff14]/10 hover:border-[#39ff14]/60 transition-all text-left"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-black text-[#39ff14] uppercase tracking-wider">One-time Payment</span>
-                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/25 text-[#39ff14] uppercase tracking-widest">Instant</span>
-                      </div>
-                      <p className="text-lg font-black text-white font-mono leading-tight">₹499</p>
-                      <p className="text-[9px] text-[#9FB8A7] mt-0.5">Secure checkout · Annual access</p>
-                    </motion.button>
-                  </div>
-
-                  <p className="text-center text-[9px] text-[#9FB8A7] mt-2 font-mono uppercase tracking-widest relative z-10">Cancel anytime · No hidden fees</p>
-                </Card>
-
-              </div>
-            </motion.div>
-          </div>
-
-
+              <Camera size={14} />
+              Open Camera Scanner
+            </motion.button>
+            <p className="text-[9px] text-[#9FB8A7]/50 text-center font-mono uppercase tracking-widest">Powered by TensorFlow · COCO-SSD</p>
+          </Card>
         </div>
       </section>
 

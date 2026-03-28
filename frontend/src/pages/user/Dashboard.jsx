@@ -138,7 +138,10 @@ export function UserDashboard() {
             <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
             <span className="text-xs font-mono text-white/60 uppercase tracking-wider">{t('markets_live')}</span>
           </div>
-          <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform w-full sm:w-auto">
+          <button
+            onClick={() => navigate('/user/profile', { state: { scrollTo: 'savings-goals' } })}
+            className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform w-full sm:w-auto"
+          >
             {t('deposit_funds')}
           </button>
         </div>

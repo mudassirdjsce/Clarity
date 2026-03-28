@@ -21,7 +21,7 @@ router.post("/login", login);
 
 router.post("/goals", addGoal);
 router.get("/goals", getGoals);
-router.patch("/goals/:id/funds", addGoalFunds);
+router.post("/goals/add-funds", addGoalFunds);
 router.delete("/goals/:id", deleteGoal);
 
 router.post("/festivals", addFestival);

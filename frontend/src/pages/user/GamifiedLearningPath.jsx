@@ -147,11 +147,27 @@ function QuizModal({ level, onClose, onPass }) {
 }
 
 export default function GamifiedLearningPath() {
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [userPoints, setUserPoints] = useState(0);
+  const [currentLevel, setCurrentLevel] = useState(() => {
+    const saved = localStorage.getItem('clarityAcademyLevel');
+    return saved ? parseInt(saved, 10) : 1;
+  });
+  const [userPoints, setUserPoints] = useState(() => {
+    const saved = localStorage.getItem('clarityAcademyPoints');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [activeQuiz, setActiveQuiz] = useState(null);
   const [showBonus, setShowBonus] = useState(false);
   const [playingVideoId, setPlayingVideoId] = useState(null);
+
+  // Save progress whenever it changes
+  React.useEffect(() => {
+    localStorage.setItem('clarityAcademyLevel', currentLevel);
+  }, [currentLevel]);
+
+  React.useEffect(() => {
+    localStorage.setItem('clarityAcademyPoints', userPoints);
+    window.dispatchEvent(new Event('pointsUpdate'));
+  }, [userPoints]);
 
   const handlePass = (passedId) => {
     setActiveQuiz(null);

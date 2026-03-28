@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, Languages, Type, Eye, Globe, Accessibility, Menu } from 'lucide-react';
+import { Bell, User, Languages, Type, Eye, Globe, Accessibility, Menu, Star } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import logo from '../assets/CLARITY1.svg';
@@ -62,6 +62,22 @@ export function TopAppBar({ onMenuClick }) {
 
   const toggle = (panel) => setOpenPanel(prev => prev === panel ? null : panel);
 
+  const [points, setPoints] = useState(() => {
+    return parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10);
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPoints(parseInt(localStorage.getItem('clarityAcademyPoints') || '0', 10));
+    };
+    window.addEventListener('pointsUpdate', handleUpdate);
+    // Also listen to storage events across tabs
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('pointsUpdate', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
   // close on outside click
   useEffect(() => {
     function onOutside(e) {
@@ -112,6 +128,12 @@ export function TopAppBar({ onMenuClick }) {
 
         {/* ── Right: Actions ───────────────────────────────────────────────── */}
         <div className="flex items-center gap-2" ref={panelRef}>
+
+          {/* Royalty Points */}
+          <div className="flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-colors mr-1 cursor-default group" title="Academy Points">
+            <Star className="w-4 h-4 text-[#39ff14] group-hover:drop-shadow-[0_0_8px_rgba(57,255,20,0.6)] transition-all" fill="currentColor" />
+            <span className="text-sm font-bold text-[#E8F5E9] font-mono tracking-wider">{points}</span>
+          </div>
 
           {/* Bell */}
           <button className="p-2 hover:bg-white/5 rounded-xl transition-colors relative">

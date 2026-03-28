@@ -21,6 +21,12 @@ export function Family() {
   const [memberForm, setMemberForm] = useState({ name: '', role: '', income: '', savings: '' });
   const [goalForm, setGoalForm] = useState({ title: '', targetAmount: '', currentAmount: '', deadline: '' });
 
+  // Add Funds state
+  const [isAddFundsModalOpen, setIsAddFundsModalOpen] = useState(false);
+  const [selectedGoalId, setSelectedGoalId] = useState(null);
+  const [fundsAmount, setFundsAmount] = useState('');
+  const [isAddingFunds, setIsAddingFunds] = useState(false);
+
   useEffect(() => {
     if (user.email) {
       loadFamilyData();
@@ -145,6 +151,27 @@ export function Family() {
       deadline: goal.deadline || ''
     });
     setShowGoalModal(true);
+  };
+
+  const handleAddFunds = async (e) => {
+    e.preventDefault();
+    if (!fundsAmount || !selectedGoalId) return;
+    setIsAddingFunds(true);
+    try {
+      const goal = goals.find(g => g._id === selectedGoalId);
+      if (goal) {
+        const newTotal = (goal.currentAmount || 0) + Number(fundsAmount);
+        await updateFamilyGoal(selectedGoalId, { currentAmount: newTotal });
+        loadFamilyData();
+      }
+      setFundsAmount('');
+      setIsAddFundsModalOpen(false);
+      setSelectedGoalId(null);
+    } catch (err) {
+      console.error("Failed to add funds:", err);
+    } finally {
+      setIsAddingFunds(false);
+    }
   };
 
   if (loading) {
@@ -308,7 +335,8 @@ export function Family() {
                           <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest mt-1">Due: {new Date(goal.deadline).toLocaleDateString()}</p>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
+                        <button onClick={() => { setSelectedGoalId(goal._id); setIsAddFundsModalOpen(true); }} className="w-6 h-6 rounded-full bg-[#39ff14]/10 text-[#39ff14] flex items-center justify-center hover:bg-[#39ff14]/20 border border-[#39ff14]/20 transition-all p-1"><Plus size={14} strokeWidth={3} /></button>
                         <button onClick={() => openEditGoal(goal)} className="text-white/20 hover:text-white transition-colors p-1"><Edit2 size={16} /></button>
                         <button onClick={() => handleDeleteGoal(goal._id)} className="text-white/20 hover:text-red-400 transition-colors p-1"><Trash2 size={16} /></button>
                       </div>
@@ -407,6 +435,39 @@ export function Family() {
                 <button type="button" onClick={() => setShowGoalModal(false)} className="flex-1 py-3 rounded-xl border border-white/10 hover:bg-white/5 text-white/60 text-xs font-bold uppercase tracking-widest transition-colors">Cancel</button>
                 <button type="submit" className="flex-1 py-3 rounded-xl bg-[#39ff14] text-obsidian text-xs font-bold uppercase tracking-widest hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] transition-all">
                   {editingGoal ? 'Save Changes' : 'Deploy Goal'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Add Funds Modal */}
+      {isAddFundsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-obsidian/80 backdrop-blur-sm" onClick={() => setIsAddFundsModalOpen(false)} />
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative w-full max-w-md bg-obsidian border border-white/10 rounded-3xl p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-6">Add Funds to Goal</h3>
+            <form onSubmit={handleAddFunds} className="space-y-4">
+              <div>
+                <label className="text-[10px] text-white/40 uppercase tracking-widest font-bold block mb-2">Amount to Add (₹)</label>
+                <input
+                  type="number"
+                  value={fundsAmount}
+                  onChange={(e) => setFundsAmount(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#39ff14]/50 transition-colors font-mono"
+                  placeholder="e.g. 500"
+                  required
+                />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsAddFundsModalOpen(false)} className="flex-1 py-3 rounded-xl border border-white/10 hover:bg-white/5 text-white/60 text-xs font-bold uppercase tracking-widest transition-colors">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={isAddingFunds}
+                  className="flex-1 py-3 rounded-xl bg-[#39ff14] text-obsidian text-xs font-bold uppercase tracking-widest hover:shadow-[0_0_20px_rgba(57,255,20,0.4)] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isAddingFunds ? 'Adding...' : 'Add Funds'}
                 </button>
               </div>
             </form>
