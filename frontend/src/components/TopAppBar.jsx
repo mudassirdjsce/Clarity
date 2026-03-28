@@ -7,6 +7,9 @@ export function TopAppBar() {
   const location = useLocation();
   const isCompany = location.pathname.startsWith('/company');
 
+  const storedUser = localStorage.getItem('clarity_user');
+  const user = storedUser ? JSON.parse(storedUser) : { name: "Alex Rivera" };
+
   return (
     <header className="fixed top-0 left-0 right-0 h-16 glass border-b border-glass-border z-50 px-6 flex items-center justify-between">
       <div className="flex items-center gap-8">
@@ -61,7 +64,7 @@ export function TopAppBar() {
           className="flex items-center gap-2 pl-2 pr-1 py-1 hover:bg-white/5 rounded-xl transition-colors"
         >
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-bold">Alex Rivera</p>
+            <p className="text-xs font-bold">{user.name}</p>
             <p className="text-[10px] text-neon-green font-mono uppercase tracking-wider">{isCompany ? 'Institutional' : 'Premium'}</p>
           </div>
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-neon-green to-emerald-500 flex items-center justify-center">

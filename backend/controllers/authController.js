@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const Goal = require("../models/Goal");
+const Festival = require("../models/Festival");
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
@@ -63,4 +65,122 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login };
+// ── POST /api/auth/goals ────────────────────────────────────────────────────
+const addGoal = async (req, res) => {
+  try {
+    const { email, title, targetAmount } = req.body;
+    if (!email || !title || !targetAmount) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const goal = await Goal.create({ userEmail: email, title, targetAmount });
+    res.status(201).json({ message: "Goal added successfully", goal });
+  } catch (error) {
+    console.error("Add goal error:", error);
+    res.status(500).json({ error: "Server error handling goal addition" });
+  }
+};
+
+// ── GET /api/auth/goals ─────────────────────────────────────────────────────
+const getGoals = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required to fetch goals" });
+    const goals = await Goal.find({ userEmail: email });
+    res.status(200).json({ goals });
+  } catch (error) {
+    console.error("Get goals error:", error);
+    res.status(500).json({ error: "Server error fetching goals" });
+  }
+};
+
+// ── POST /api/auth/goals/add-funds ──────────────────────────────────────────
+const addGoalFunds = async (req, res) => {
+  try {
+    const { goalId, amount } = req.body;
+    if (!goalId || !amount) return res.status(400).json({ error: "Missing goalId or amount" });
+
+    const goal = await Goal.findById(goalId);
+    if (!goal) return res.status(404).json({ error: "Goal not found" });
+
+    goal.currentAmount += Number(amount);
+    await goal.save();
+
+    res.status(200).json({ message: "Funds added successfully", goal });
+  } catch (error) {
+    console.error("Add funds error:", error);
+    res.status(500).json({ error: "Server error adding funds to goal" });
+  }
+};
+
+// ── DELETE /api/auth/goals/:id ──────────────────────────────────────────────
+const deleteGoal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: "Goal ID is required" });
+    const goal = await Goal.findByIdAndDelete(id);
+    if (!goal) return res.status(404).json({ error: "Goal not found" });
+    res.status(200).json({ message: "Goal deleted successfully", id: goal._id });
+  } catch (error) {
+    console.error("Delete goal error:", error);
+    res.status(500).json({ error: "Server error deleting goal" });
+  }
+};
+
+// ── GET /api/auth/festivals ──────────────────────────────────────────────────
+const getFestivals = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+    const festivals = await Festival.find({ userEmail: email });
+    res.status(200).json({ festivals });
+  } catch (error) {
+    console.error("Get festivals error:", error);
+    res.status(500).json({ error: "Server error fetching festivals" });
+  }
+};
+
+// ── POST /api/auth/festivals ─────────────────────────────────────────────────
+const addFestival = async (req, res) => {
+  try {
+    const { email, title, targetAmount } = req.body;
+    if (!email || !title || !targetAmount) return res.status(400).json({ error: "Missing fields" });
+    const festival = await Festival.create({ userEmail: email, title, targetAmount, expenses: [] });
+    res.status(201).json({ message: "Festival created", festival });
+  } catch (error) {
+    console.error("Add festival error:", error);
+    res.status(500).json({ error: "Server error creating festival" });
+  }
+};
+
+// ── POST /api/auth/festivals/:id/expenses ───────────────────────────────────
+const addFestivalExpense = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category, amount } = req.body;
+    if (!category || !amount) return res.status(400).json({ error: "Category and amount required" });
+    const festival = await Festival.findById(id);
+    if (!festival) return res.status(404).json({ error: "Festival not found" });
+    
+    festival.expenses.push({ category, amount: Number(amount) });
+    await festival.save();
+    res.status(200).json({ message: "Expense added", festival });
+  } catch (error) {
+    console.error("Add expense error:", error);
+    res.status(500).json({ error: "Server error adding expense" });
+  }
+};
+
+// ── DELETE /api/auth/festivals/:id ──────────────────────────────────────────
+const deleteFestival = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const festival = await Festival.findByIdAndDelete(id);
+    if (!festival) return res.status(404).json({ error: "Festival not found" });
+    res.status(200).json({ message: "Deleted successfully", id: festival._id });
+  } catch (error) {
+    console.error("Delete festival error:", error);
+    res.status(500).json({ error: "Server error deleting festival" });
+  }
+};
+
+module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival };
