@@ -6,6 +6,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import WrappedPage          from './pages/common/WrappedPage';
 
 // ── Auth (Common) ─────────────────────────────────────────────────────────────
 import Login       from './pages/common/Login';
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="news"      element={<RetailNews />} />
               <Route path="profile"   element={<UserProfile />} />
               <Route path="academy"   element={<GamifiedLearningPath />} />
+              <Route path="wrapped"   element={<WrappedPage />} />
               <Route path="stocks"    element={<Stocks />} />
               <Route path="mutualfunds" element={<MutualFunds />} />
             </Route>
@@ -75,6 +77,7 @@ export default function App() {
               <Route path="profile"   element={<CompanyProfile />} />
               <Route path="stocks"    element={<Stocks />} />
               <Route path="mutualfunds" element={<MutualFunds />} />
+              <Route path="wrapped"   element={<WrappedPage />} />
             </Route>
 
           </Route>
