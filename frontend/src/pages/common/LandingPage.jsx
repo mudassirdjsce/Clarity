@@ -262,12 +262,11 @@ function Hero() {
 
         {/* Headline */}
         <motion.h1
-          style={{ y: headingY, opacity: headingOp }}
+          style={{ y: headingY, opacity: headingOp, ...FONT_DISPLAY }}
           initial={{ opacity: 0, y: 48 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
           className="w-full text-center text-[clamp(2.2rem,5.5vw,4.8rem)] font-extrabold text-white tracking-tight leading-[1.1] mb-8"
-          style={{ ...FONT_DISPLAY }}
         >
           {t("landing_hero_h1_1")}{" "}
           <motion.span
