@@ -8,7 +8,7 @@ const News = require("../models/News");
 const fetchFinnhub = async () => {
   try {
     const res = await axios.get(
-      `https://finnhub.io/api/v1/news?category=general&token=${process.env.FINNHUB_API_KEY}`
+      `https://finnhub.io/api/v1/news?category=general&token=${process.env.FINNHUB_API_KEY?.trim()}`
     );
     console.log("Finnhub fetched:", res.data.length);
     return res.data;
@@ -21,7 +21,7 @@ const fetchFinnhub = async () => {
 const fetchNewsAPI = async () => {
   try {
     const res = await axios.get(
-      `https://newsapi.org/v2/top-headlines?category=business&apiKey=${process.env.NEWS_API_KEY}`
+      `https://newsapi.org/v2/top-headlines?category=business&apiKey=${process.env.NEWS_API_KEY?.trim()}`
     );
     console.log("NewsAPI fetched:", res.data.articles.length);
     return res.data.articles;
@@ -91,13 +91,35 @@ const runNewsPipeline = async () => {
       return;
     }
 
+    // ── Purge articles older than 7 days to keep the DB fresh ──────────────
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const purged = await News.deleteMany({ publishedAt: { $lt: sevenDaysAgo } });
+    if (purged.deletedCount > 0) {
+      console.log(`🗑️  Purged ${purged.deletedCount} old articles`);
+    }
+
+    // ── Collect existing URLs + titles to avoid duplicates ─────────────────
+    const existingUrls = new Set(
+      (await News.find({}, { url: 1, _id: 0 })).map(n => n.url).filter(Boolean)
+    );
+    const existingTitles = new Set(
+      (await News.find({}, { title: 1, _id: 0 })).map(n => n.title)
+    );
+
     let insertedCount = 0;
+    let skippedCount = 0;
 
     for (let article of data) {
       try {
-        // ── Skip duplicates ──────────────────────────────────────────────────
-        const exists = await News.findOne({ title: article.title });
-        if (exists) continue;
+        // ── Skip duplicates by URL (preferred) or title ───────────────────
+        if (article.url && existingUrls.has(article.url)) {
+          skippedCount++;
+          continue;
+        }
+        if (existingTitles.has(article.title)) {
+          skippedCount++;
+          continue;
+        }
 
         const ai = await analyzeNews(article);
 
@@ -118,15 +140,20 @@ const runNewsPipeline = async () => {
           sparkData: [],
         });
 
+        // Track to avoid intra-batch duplicates
+        if (article.url) existingUrls.add(article.url);
+        existingTitles.add(article.title);
+
         insertedCount++;
-        console.log("✅ Saved:", saved.title);
+        console.log("✅ Saved:", saved.title.slice(0, 60));
 
       } catch (err) {
-        console.error("Insert Error:", err.message);
+        console.error("❌ Insert Error for article:", article.title?.slice(0, 60));
+        console.error("   Reason:", err.message);
       }
     }
 
-    console.log(`🎉 DONE: Inserted ${insertedCount} articles`);
+    console.log(`🎉 DONE: Inserted ${insertedCount} | Skipped (duplicates) ${skippedCount}`);
 
   } catch (err) {
     console.error("Pipeline Error:", err.message);
@@ -136,6 +163,8 @@ const runNewsPipeline = async () => {
 // ================= CRON =================
 
 const startNewsCron = () => {
+  // Run immediately on startup, then every 10 minutes
+  runNewsPipeline();
   cron.schedule("*/10 * * * *", runNewsPipeline);
 };
 

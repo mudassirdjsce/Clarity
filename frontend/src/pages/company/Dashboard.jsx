@@ -12,6 +12,7 @@ import { ResponsiveContainer } from 'recharts';
 import { cn } from '../../lib/utils';
 import ReactECharts from 'echarts-for-react';
 import RiskExposureMetrics from './RiskExposureMetrics';
+import { useTranslation } from 'react-i18next';
 
 // ── Mock candlestick OHLC data (30-min candles, today's session) ──────────────
 // Format: [open, close, low, high]
@@ -122,40 +123,41 @@ const PortfolioSankeyChart = () => {
 
 export function CompanyDashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight mb-2">
-            Terminal Overview
+            {t('terminal_overview')}
           </h1>
           <p className="text-white/40 font-medium">
-            Institutional Node #482 • Real-time Liquidity Feed
+            {t('institutional_node')}
           </p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center justify-center gap-3">
             <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
-            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">Markets Live</span>
+            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">{t('markets_live')}</span>
           </div>
           <button className="bg-neon-green text-obsidian px-6 py-2 rounded-xl font-bold text-sm shadow-[0_0_20px_rgba(142,255,113,0.3)] hover:scale-105 transition-transform w-full sm:w-auto">
-            Deposit Funds
+            {t('deposit_funds')}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Balance', value: '₹1,24,502.42', change: '+12.5%', icon: TrendingUp, color: 'text-neon-green' },
-          { label: 'Day P&L', value: '+₹4,204.12', change: '+4.2%', icon: Zap, color: 'text-neon-green' },
-          { label: 'Active Positions', value: '12', change: 'Stable', icon: Activity, color: 'text-white/60' },
-          { label: 'Risk Score', value: 'Low', change: 'Institutional', icon: BarChart3, color: 'text-emerald-400' },
+          { labelKey: 'total_balance',    value: '₹1,24,502.42', change: '+12.5%', icon: TrendingUp, color: 'text-neon-green' },
+          { labelKey: 'day_pnl',          value: '+₹4,204.12',   change: '+4.2%', icon: Zap,        color: 'text-neon-green' },
+          { labelKey: 'active_positions', value: '12',           change: 'Stable', icon: Activity,   color: 'text-white/60'   },
+          { labelKey: 'risk_score',       value: 'Low',          change: 'Institutional', icon: BarChart3, color: 'text-emerald-400' },
         ].map((stat, i) => (
           <div key={i} className="bento-card group">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-mono text-white/40 uppercase tracking-widest">{stat.label}</p>
+              <p className="text-xs font-mono text-white/40 uppercase tracking-widest">{t(stat.labelKey)}</p>
               <stat.icon className={cn("w-4 h-4", stat.color)} />
             </div>
             <div className="flex items-end justify-between">
@@ -278,8 +280,8 @@ export function CompanyDashboard() {
 
         <div className="bento-card">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-display font-bold">Watchlist</h3>
-            <button onClick={() => navigate('/company/stocks')} className="text-xs font-bold text-neon-green hover:underline">View All</button>
+            <h3 className="text-xl font-display font-bold">{t('watchlist')}</h3>
+            <button onClick={() => navigate('/company/stocks')} className="text-xs font-bold text-neon-green hover:underline">{t('view_all')}</button>
           </div>
           <div className="space-y-4">
             {assets.map((asset, i) => (
@@ -311,7 +313,7 @@ export function CompanyDashboard() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-xl font-display font-bold flex items-center gap-2">
               <Activity className="w-5 h-5 text-neon-green" />
-              Portfolio Flow Summary
+              {t('portfolio_flow')}
             </h3>
           </div>
           <div className="w-full">

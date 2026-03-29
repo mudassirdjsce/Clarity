@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, TrendingDown, BarChart3, ChevronRight, Briefcase, Rocket, BadgeDollarSign, Smartphone } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 // ── Mock Data ─────────────────────────────────────────────────────────────────
 const indices = [
@@ -80,6 +81,7 @@ function StockMiniCard({ name, ticker, price, change, isPositive }) {
 
 function MoversTable() {
   const [activeTab, setActiveTab] = useState('Gainers');
+  const { t } = useTranslation();
   const rows = moversData[activeTab] || [];
 
   return (
@@ -107,10 +109,10 @@ function MoversTable() {
         <table className="w-full text-left">
           <thead>
             <tr className="text-[10px] text-white/30 uppercase tracking-widest border-b border-white/5">
-              <th className="font-semibold pb-3">Company</th>
-              <th className="font-semibold pb-3">Market Price</th>
-              <th className="font-semibold pb-3">Change</th>
-              <th className="font-semibold pb-3 text-right">Volume</th>
+              <th className="font-semibold pb-3">{t('company')}</th>
+              <th className="font-semibold pb-3">{t('market_price')}</th>
+              <th className="font-semibold pb-3">{t('change')}</th>
+              <th className="font-semibold pb-3 text-right">{t('volume')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -144,7 +146,7 @@ function MoversTable() {
         </table>
       </div>
       <div className="mt-4 pt-4 border-t border-white/5 text-center">
-        <button className="text-xs font-bold text-neon-green hover:underline">View All →</button>
+        <button className="text-xs font-bold text-neon-green hover:underline">{t('view_all')} →</button>
       </div>
     </div>
   );
@@ -152,18 +154,19 @@ function MoversTable() {
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 export function Stocks() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-8">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">Stocks</h1>
-          <p className="text-white/40 font-medium">Real-time market data and trending stocks</p>
+          <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">{t('stocks_title')}</h1>
+          <p className="text-white/40 font-medium">{t('stocks_sub')}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
-            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">Markets Live</span>
+            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">{t('markets_live')}</span>
           </div>
           <select className="glass border border-white/10 rounded-xl px-4 py-2 text-sm text-white/60 bg-transparent focus:outline-none focus:border-neon-green/40 transition cursor-pointer">
             <option className="bg-obsidian">NIFTY 100</option>
@@ -193,8 +196,8 @@ export function Stocks() {
         <div className="col-span-12 lg:col-span-8 space-y-8">
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-display font-bold">Most Searched on Clarity</h2>
-              <button className="text-xs font-bold text-neon-green hover:underline">View All</button>
+              <h2 className="text-xl font-display font-bold">{t('most_searched')}</h2>
+              <button className="text-xs font-bold text-neon-green hover:underline">{t('view_all')}</button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {topStocks.map((s, i) => <StockMiniCard key={i} {...s} />)}
@@ -202,7 +205,7 @@ export function Stocks() {
           </section>
 
           <section>
-            <h2 className="text-xl font-display font-bold mb-4">Top Movers Today</h2>
+            <h2 className="text-xl font-display font-bold mb-4">{t('top_movers')}</h2>
             <MoversTable />
           </section>
         </div>
@@ -211,15 +214,15 @@ export function Stocks() {
         <div className="col-span-12 lg:col-span-4 space-y-6">
           {/* Investment Card (empty state) */}
           <div className="bento-card text-center">
-            <h2 className="text-base font-display font-bold text-white mb-1 text-left">Your Investments</h2>
-            <p className="text-xs text-white/30 text-left mb-6">Track your stock portfolio</p>
+            <h2 className="text-base font-display font-bold text-white mb-1 text-left">{t('your_investments')}</h2>
+            <p className="text-xs text-white/30 text-left mb-6">{t('track_portfolio')}</p>
             <div className="py-6 flex flex-col items-center">
               <div className="w-16 h-16 rounded-full bg-neon-green/10 border border-neon-green/20 flex items-center justify-center mb-4">
                 <Briefcase className="w-7 h-7 text-neon-green" />
               </div>
-              <p className="font-bold text-white mb-1">You haven't invested yet</p>
+              <p className="font-bold text-white mb-1">{t('not_invested_yet')}</p>
               <p className="text-xs text-white/40 mb-6 max-w-[180px] leading-relaxed">
-                Start your investment journey to build wealth for tomorrow.
+                {t('start_investing_desc')}
               </p>
               <a
                 href="https://groww.in"
@@ -227,15 +230,15 @@ export function Stocks() {
                 rel="noopener noreferrer"
                 className="w-full block text-center bg-neon-green text-obsidian font-bold py-2.5 px-6 rounded-xl shadow-[0_0_20px_rgba(57,255,20,0.2)] hover:scale-105 transition-transform text-sm"
               >
-                Start Investing
+                {t('start_investing')}
               </a>
             </div>
           </div>
 
           {/* Tools Panel */}
           <div className="bento-card">
-            <h2 className="text-base font-display font-bold text-white mb-1">Products &amp; Tools</h2>
-            <p className="text-xs text-white/30 mb-4">Explore more market options</p>
+            <h2 className="text-base font-display font-bold text-white mb-1">{t('products_tools')}</h2>
+            <p className="text-xs text-white/30 mb-4">{t('explore_market_options')}</p>
             <div className="space-y-1">
               {tools.map((tool, i) => {
                 const Icon = tool.icon;

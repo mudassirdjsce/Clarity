@@ -7,6 +7,7 @@ import {
 import { cn } from '../../lib/utils';
 import { allFunds, riskColor } from '../../data/mutualFunds';
 import CompareFunds from '../../components/mutualfunds/CompareFunds';
+import { useTranslation } from 'react-i18next';
 
 // ── Popular Funds (top 4 from data file) ──────────────────────────────────────
 const popularFunds = allFunds.slice(0, 4);
@@ -40,6 +41,7 @@ const tools = [
 
 // ── FundCard ──────────────────────────────────────────────────────────────────
 function FundCard({ name, type, returns, duration, isPositive, onClick, onCompare }) {
+  const { t } = useTranslation();
   return (
     <div
       onClick={onClick}
@@ -66,7 +68,7 @@ function FundCard({ name, type, returns, duration, isPositive, onClick, onCompar
             onClick={(e) => { e.stopPropagation(); onCompare(); }}
             className="text-[9px] font-bold text-neon-green/60 hover:text-neon-green border border-neon-green/20 hover:border-neon-green/40 px-2 py-0.5 rounded-lg transition-colors"
           >
-            Compare
+            {t('compare')}
           </button>
         )}
       </div>
@@ -77,6 +79,7 @@ function FundCard({ name, type, returns, duration, isPositive, onClick, onCompar
 // ── Page ───────────────────────────────────────────────────────────────────────
 export function MutualFunds() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeCollection, setActiveCollection] = useState(null);
   const [compareOpen, setCompareOpen]           = useState(false);
   const [seedFund, setSeedFund]                 = useState(null);
@@ -101,12 +104,12 @@ export function MutualFunds() {
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">Mutual Funds</h1>
-            <p className="text-white/40 font-medium">Discover, compare and invest in top mutual funds</p>
+            <h1 className="text-4xl font-display font-extrabold tracking-tight mb-2">{t('mutual_funds_title')}</h1>
+            <p className="text-white/40 font-medium">{t('mutual_funds_sub')}</p>
           </div>
           <div className="glass px-4 py-2 rounded-xl border border-white/10 flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></div>
-            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">NAV Updated</span>
+            <span className="text-xs font-mono text-white/60 uppercase tracking-wider">{t('nav_updated')}</span>
           </div>
         </div>
 
@@ -119,8 +122,8 @@ export function MutualFunds() {
             {/* Popular Funds */}
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-display font-bold">Popular Funds</h2>
-                <button className="text-xs font-bold text-neon-green hover:underline">View All</button>
+                <h2 className="text-xl font-display font-bold">{t('popular_funds')}</h2>
+                <button className="text-xs font-bold text-neon-green hover:underline">{t('view_all')}</button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {popularFunds.map((fund, i) => (
@@ -140,7 +143,7 @@ export function MutualFunds() {
 
             {/* Collections */}
             <section>
-              <h2 className="text-xl font-display font-bold mb-4">Collections</h2>
+              <h2 className="text-xl font-display font-bold mb-4">{t('collections')}</h2>
               <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                 {collections.map((item, i) => {
                   const Icon = item.icon;
@@ -178,23 +181,23 @@ export function MutualFunds() {
                       <div className="flex items-center gap-2">
                         {col && <col.icon className={cn('w-4 h-4', col.color)} />}
                         <span className="text-sm font-bold text-white">{activeCollection}</span>
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">Top 5</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-white/30 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">{t('top_5')}</span>
                       </div>
                       <button
                         onClick={() => setActiveCollection(null)}
                         className="text-xs text-white/30 hover:text-white transition-colors"
                       >
-                        ✕ Close
+                        {t('close')}
                       </button>
                     </div>
 
                     {/* Column labels */}
                     <div className="grid grid-cols-12 text-[9px] font-bold uppercase tracking-widest text-white/25 px-5 py-2 border-b border-white/5">
-                      <span className="col-span-4">Fund Name</span>
-                      <span className="col-span-3">Category</span>
-                      <span className="col-span-1 text-right">NAV</span>
-                      <span className="col-span-2 text-right">1Y Return</span>
-                      <span className="col-span-2 text-right">3Y Return</span>
+                      <span className="col-span-4">{t('fund_name')}</span>
+                      <span className="col-span-3">{t('category')}</span>
+                      <span className="col-span-1 text-right">{t('nav')}</span>
+                      <span className="col-span-2 text-right">{t('one_yr_return')}</span>
+                      <span className="col-span-2 text-right">{t('three_yr_return')}</span>
                     </div>
 
                     {/* Rows */}
@@ -234,7 +237,7 @@ export function MutualFunds() {
                     {/* Footer */}
                     <div className="px-5 py-3 border-t border-white/5 flex justify-end">
                       <button className="text-[10px] font-bold text-neon-green hover:underline flex items-center gap-1">
-                        View All Funds <ChevronRight className="w-3 h-3" />
+                        {t('view_all_funds')} <ChevronRight className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
@@ -249,22 +252,22 @@ export function MutualFunds() {
 
             {/* Investment Summary */}
             <div className="bento-card">
-              <h2 className="text-base font-display font-bold text-white mb-1">Your Investments</h2>
-              <p className="text-xs text-white/30 mb-6">Mutual funds portfolio overview</p>
+              <h2 className="text-base font-display font-bold text-white mb-1">{t('your_investments')}</h2>
+              <p className="text-xs text-white/30 mb-6">{t('mf_portfolio_overview')}</p>
 
               <div className="mb-4">
-                <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-1">Current Value</p>
+                <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-1">{t('current_value')}</p>
                 <p className="text-3xl font-mono font-bold text-white">₹42,50,000</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="glass rounded-xl p-3 border border-white/5">
-                  <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest mb-1">1D Returns</p>
+                  <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest mb-1">{t('one_d_returns')}</p>
                   <p className="text-sm font-mono font-bold text-neon-green">+₹12,450</p>
                   <p className="text-[10px] text-neon-green/60">+0.30%</p>
                 </div>
                 <div className="glass rounded-xl p-3 border border-white/5">
-                  <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest mb-1">Total Returns</p>
+                  <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest mb-1">{t('total_returns')}</p>
                   <p className="text-sm font-mono font-bold text-neon-green">+₹8,25,000</p>
                   <p className="text-[10px] text-neon-green/60">+24.1%</p>
                 </div>
@@ -272,7 +275,7 @@ export function MutualFunds() {
 
               <div className="border-t border-white/5 pt-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-white/40 font-medium">Invested Value</span>
+                  <span className="text-xs text-white/40 font-medium">{t('invested_value')}</span>
                   <span className="text-sm font-mono font-bold text-white">₹34,25,000</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -284,8 +287,8 @@ export function MutualFunds() {
 
             {/* Tools Panel */}
             <div className="bento-card">
-              <h2 className="text-base font-display font-bold text-white mb-1">Products &amp; Tools</h2>
-              <p className="text-xs text-white/30 mb-4">Enhance your MF journey</p>
+              <h2 className="text-base font-display font-bold text-white mb-1">{t('products_tools')}</h2>
+              <p className="text-xs text-white/30 mb-4">{t('enhance_mf')}</p>
               <div className="space-y-1">
                 {tools.map((tool, i) => {
                   const Icon = tool.icon;

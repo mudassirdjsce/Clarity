@@ -374,90 +374,38 @@ function Hero() {
 // ══════════════════════════════════════════════════════════════════════════════
 // FEATURES SECTION  ← NEW
 // ══════════════════════════════════════════════════════════════════════════════
+// ── Features data (keys only — titles/descs/tags come from i18n) ──────────────
 const FEATURES = [
-  {
-    icon: Brain,
-    title: "AI Financial Assistant",
-    desc: "Groq-powered LLM analyses your portfolio in real-time, answers complex queries, and generates personalised insights instantly.",
-    tag: "Intelligence",
-    glow: "rgba(57,255,20,0.15)",
-  },
-  {
-    icon: BarChart3,
-    title: "Portfolio Analytics",
-    desc: "Deep P&L breakdowns, risk coefficients, beta calculation, and asset allocation — all rendered live from your actual holdings.",
-    tag: "Analytics",
-    glow: "rgba(99,126,234,0.15)",
-  },
-  {
-    icon: TrendingUp,
-    title: "Live Market Pulse",
-    desc: "Real-time stock & crypto data via Finnhub with sentiment indicators, alpha detection, and volatility signals.",
-    tag: "Markets",
-    glow: "rgba(20,241,149,0.15)",
-  },
-  {
-    icon: Newspaper,
-    title: "Smart News Feed",
-    desc: "Curated financial news ranked by relevance to your holdings, with AI-generated market impact summaries.",
-    tag: "News",
-    glow: "rgba(57,255,20,0.15)",
-  },
-  {
-    icon: Lock,
-    title: "Secure PDF Export",
-    desc: "AES-256 encrypted portfolio reports saved as .secure files — only readable inside Clarity. Checksum verified, expiry supported.",
-    tag: "Security",
-    glow: "rgba(239,68,68,0.12)",
-  },
-  {
-    icon: Camera,
-    title: "Camera Scanner",
-    desc: "Point your camera at any product — TensorFlow COCO-SSD detects it and instantly redirects you to BuyHatke for price comparison.",
-    tag: "Scan",
-    glow: "rgba(57,255,20,0.15)",
-  },
-  {
-    icon: Wallet,
-    title: "Multi-Bank Accounts",
-    desc: "Connect and manage multiple bank accounts and treasury vaults within a single unified financial workspace.",
-    tag: "Banking",
-    glow: "rgba(251,191,36,0.12)",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Biometric Access",
-    desc: "Enterprise-grade access control with biometric toggle, 2FA, and session-scoped decryption — your data never leaves your device.",
-    tag: "Security",
-    glow: "rgba(57,255,20,0.15)",
-  },
-  {
-    icon: Sparkles,
-    title: "Financial Wrapped",
-    desc: "A Spotify-Wrapped-style year-in-review of your financial journey — highlight reel, top holdings, and growth story.",
-    tag: "Experience",
-    glow: "rgba(99,126,234,0.15)",
-  },
+  { icon: Brain,       titleKey: "feat_ai_title",        descKey: "feat_ai_desc",        tagKey: "feat_ai_tag",        glow: "rgba(57,255,20,0.15)"   },
+  { icon: BarChart3,   titleKey: "feat_analytics_title", descKey: "feat_analytics_desc", tagKey: "feat_analytics_tag", glow: "rgba(99,126,234,0.15)"  },
+  { icon: TrendingUp,  titleKey: "feat_market_title",    descKey: "feat_market_desc",    tagKey: "feat_market_tag",    glow: "rgba(20,241,149,0.15)"  },
+  { icon: Newspaper,   titleKey: "feat_news_title",      descKey: "feat_news_desc",      tagKey: "feat_news_tag",      glow: "rgba(57,255,20,0.15)"   },
+  { icon: Lock,        titleKey: "feat_pdf_title",       descKey: "feat_pdf_desc",       tagKey: "feat_pdf_tag",       glow: "rgba(239,68,68,0.12)"   },
+  { icon: Camera,      titleKey: "feat_camera_title",    descKey: "feat_camera_desc",    tagKey: "feat_camera_tag",    glow: "rgba(57,255,20,0.15)"   },
+  { icon: Wallet,      titleKey: "feat_bank_title",      descKey: "feat_bank_desc",      tagKey: "feat_bank_tag",      glow: "rgba(251,191,36,0.12)"  },
+  { icon: ShieldCheck, titleKey: "feat_biometric_title", descKey: "feat_biometric_desc", tagKey: "feat_biometric_tag", glow: "rgba(57,255,20,0.15)"   },
+  { icon: Sparkles,    titleKey: "feat_wrapped_title",   descKey: "feat_wrapped_desc",   tagKey: "feat_wrapped_tag",   glow: "rgba(99,126,234,0.15)"  },
 ];
 
 function FeaturesSection() {
+  const { t } = useTranslation();
   return (
     <section id="features" className="py-28 px-5 md:px-10" style={{ background: "#070907" }}>
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div {...fadeUp} className="text-center mb-20">
-          <Pill>Platform Features</Pill>
+          <Pill>{t('pill_platform_features')}</Pill>
           <h2
             className="mt-5 text-[clamp(2rem,5vw,3.8rem)] font-extrabold text-white tracking-tight leading-tight"
             style={FONT_DISPLAY}
           >
-            Everything you need to{" "}
+            {t('features_heading_1')}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#8EFF71]">
-              own your finances
+              {t('features_heading_2')}
             </span>
           </h2>
           <p className="mt-5 text-white/40 text-lg max-w-2xl mx-auto leading-relaxed" style={FONT_BODY}>
-            A full-stack financial intelligence suite — from AI chat to encrypted exports, live markets to camera scanning.
+            {t('features_sub')}
           </p>
         </motion.div>
 
@@ -471,7 +419,7 @@ function FeaturesSection() {
         >
           {FEATURES.map((f, i) => (
             <motion.div
-              key={f.title}
+              key={f.titleKey}
               variants={staggerItem}
               whileHover={{
                 y: -6,
@@ -482,7 +430,6 @@ function FeaturesSection() {
               className="group relative p-7 rounded-2xl border border-white/8 overflow-hidden cursor-default"
               style={{ background: "rgba(255,255,255,0.025)" }}
             >
-              {/* Glow blob — animates in on hover via CSS group */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.6 }}
                 whileHover={{ opacity: 1, scale: 1 }}
@@ -490,8 +437,6 @@ function FeaturesSection() {
                 className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-[50px] pointer-events-none"
                 style={{ background: f.glow }}
               />
-
-              {/* Icon with entrance spin */}
               <motion.div
                 initial={{ rotate: -12, scale: 0.8, opacity: 0 }}
                 whileInView={{ rotate: 0, scale: 1, opacity: 1 }}
@@ -501,26 +446,20 @@ function FeaturesSection() {
               >
                 <f.icon className="w-5 h-5 text-[#39ff14]" />
               </motion.div>
-
-              {/* Tag */}
               <span
                 className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#39ff14]/50 mb-2 block"
                 style={FONT_BODY}
               >
-                {f.tag}
+                {t(f.tagKey)}
               </span>
-
-              {/* Title */}
               <h3
                 className="text-base font-bold text-white mb-2 leading-snug"
                 style={FONT_DISPLAY}
               >
-                {f.title}
+                {t(f.titleKey)}
               </h3>
-
-              {/* Desc */}
               <p className="text-sm text-white/40 leading-relaxed" style={FONT_BODY}>
-                {f.desc}
+                {t(f.descKey)}
               </p>
             </motion.div>
           ))}
@@ -544,7 +483,7 @@ function VelocitySection() {
     >
       <div className="max-w-6xl mx-auto">
         <motion.div {...fadeUp} className="mb-16 md:mb-20">
-          <Pill>Access Modes</Pill>
+          <Pill>{t('pill_access_modes')}</Pill>
           <h2
             className="mt-5 text-[clamp(2rem,5vw,3.8rem)] font-extrabold text-white tracking-tight"
             style={FONT_DISPLAY}
@@ -716,7 +655,7 @@ function PulseSection() {
 
         {/* Text */}
         <div className="w-full lg:w-1/2 order-1 lg:order-2">
-          <Pill>Neural Engine</Pill>
+          <Pill>{t('pill_neural_engine')}</Pill>
           <motion.h2
             {...fadeUp}
             className="mt-5 text-[clamp(2rem,5vw,3.5rem)] font-extrabold text-white tracking-tight leading-tight mb-10"
@@ -764,31 +703,32 @@ function PulseSection() {
 // TESTIMONIALS (SOCIAL PROOF)  ← NEW
 // ══════════════════════════════════════════════════════════════════════════════
 const TESTIMONIALS = [
-  { name: "Arjun Mehta",  role: "Equity Trader",         avatar: "AM", body: "Finally a platform that merges institutional-grade analysis with a retail-friendly interface. The AI insights alone are worth it." },
-  { name: "Priya Sharma", role: "Portfolio Manager",      avatar: "PS", body: "Encrypted PDF exports and biometric access give me the security confidence I need for client portfolios." },
-  { name: "Rohan Das",    role: "Startup Founder",        avatar: "RD", body: "The camera scanner feature is genuinely unprecedented in a fintech app. BuyHatke integration is clever." },
+  { nameKey: "testimonial_1_name", roleKey: "testimonial_1_role", avatar: "AM", bodyKey: "testimonial_1_body" },
+  { nameKey: "testimonial_2_name", roleKey: "testimonial_2_role", avatar: "PS", bodyKey: "testimonial_2_body" },
+  { nameKey: "testimonial_3_name", roleKey: "testimonial_3_role", avatar: "RD", bodyKey: "testimonial_3_body" },
 ];
 
 function TestimonialsSection() {
+  const { t } = useTranslation();
   return (
     <section className="py-24 px-5 md:px-10" style={{ background: "rgba(5,7,5,1)" }}>
       <div className="max-w-6xl mx-auto">
         <motion.div {...fadeUp} className="text-center mb-16">
-          <Pill>Social Proof</Pill>
+          <Pill>{t('pill_social_proof')}</Pill>
           <h2
             className="mt-5 text-[clamp(1.8rem,4vw,3rem)] font-extrabold text-white tracking-tight"
             style={FONT_DISPLAY}
           >
-            Trusted by investors who{" "}
+            {t('testimonials_heading_1')}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#8EFF71]">
-              demand more
+              {t('testimonials_heading_2')}
             </span>
           </h2>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {TESTIMONIALS.map((t, i) => (
+          {TESTIMONIALS.map((tm, i) => (
             <motion.div
-              key={t.name}
+              key={tm.nameKey}
               {...fadeUp}
               transition={{ duration: 0.55, delay: 0.08 * i }}
               className="p-7 rounded-2xl border border-white/8 flex flex-col gap-4"
@@ -800,18 +740,18 @@ function TestimonialsSection() {
                 ))}
               </div>
               <p className="text-white/60 text-sm leading-relaxed italic" style={FONT_BODY}>
-                "{t.body}"
+                "{t(tm.bodyKey)}"
               </p>
               <div className="flex items-center gap-3 pt-2 border-t border-white/5">
                 <div
                   className="w-9 h-9 rounded-full bg-[#39ff14]/10 border border-[#39ff14]/20 flex items-center justify-center text-[#39ff14] text-[11px] font-bold"
                   style={FONT_DISPLAY}
                 >
-                  {t.avatar}
+                  {tm.avatar}
                 </div>
                 <div>
-                  <p className="text-white text-sm font-semibold leading-none" style={FONT_DISPLAY}>{t.name}</p>
-                  <p className="text-white/30 text-[10px] mt-0.5" style={FONT_BODY}>{t.role}</p>
+                  <p className="text-white text-sm font-semibold leading-none" style={FONT_DISPLAY}>{t(tm.nameKey)}</p>
+                  <p className="text-white/30 text-[10px] mt-0.5" style={FONT_BODY}>{t(tm.roleKey)}</p>
                 </div>
               </div>
             </motion.div>
@@ -849,7 +789,7 @@ function CTASection() {
           transition={{ delay: 0.15 }}
           className="relative z-10"
         >
-          <Pill>Get Started Today</Pill>
+          <Pill>{t('pill_get_started')}</Pill>
           <h2
             className="mt-6 text-[clamp(2rem,5vw,4rem)] font-extrabold text-white tracking-tight mb-5 leading-tight"
             style={FONT_DISPLAY}

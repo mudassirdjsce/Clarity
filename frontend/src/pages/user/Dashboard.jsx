@@ -128,7 +128,7 @@ export function UserDashboard() {
             {t('good_morning')}, {user.name.split(' ')[0]}
           </h1>
           <p className="text-white/40 font-medium">
-            Your portfolio {dayPnL.value >= 0 ? "is up" : "is down"} {Math.abs(dayPnL.percentage).toFixed(1)}% today.
+            {dayPnL.value >= 0 ? t('portfolio_is_up') : t('portfolio_is_down')} {Math.abs(dayPnL.percentage).toFixed(1)}% {t('today')}.
 
           </p>
         </div>

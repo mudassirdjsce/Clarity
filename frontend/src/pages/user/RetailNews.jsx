@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 import { fetchRetailNews } from "../../services/api";
+import { useTranslation } from "react-i18next";
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
 const NEON = "#39FF14";
@@ -61,10 +62,11 @@ function normalizeArticle(raw, idx) {
 
 // ─── SUB-COMPONENTS ───────────────────────────────────────────────────────────
 function LiveBadge({ live }) {
+  const { t } = useTranslation();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7, background: NEON_DIM, border: `1px solid ${NEON_BORDER}`, borderRadius: 20, padding: "5px 14px" }}>
       <div style={{ width: 7, height: 7, borderRadius: "50%", background: live ? NEON : "#555", boxShadow: live ? `0 0 8px ${NEON}` : "none", animation: live ? "glow-pulse 2s infinite" : "none" }} />
-      <span style={{ fontSize: 11, color: live ? NEON : "#555", fontWeight: 700, letterSpacing: 1 }}>{live ? "Live · Scanning 42 Sources" : "Offline · Showing Cached Data"}</span>
+      <span style={{ fontSize: 11, color: live ? NEON : "#555", fontWeight: 700, letterSpacing: 1 }}>{live ? t('live_scanning') : t('offline_cached')}</span>
     </div>
   );
 }
@@ -171,6 +173,7 @@ function SmallCard({ item, index }) {
 }
 
 function SidePanel({ news }) {
+  const { t } = useTranslation();
   const highImpact = news.filter(n => n.impact === "high");
   const trending = news.filter(n => n.sentiment === "bullish").slice(0, 3);
 
@@ -179,7 +182,7 @@ function SidePanel({ news }) {
       <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: "18px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <span>⚡</span>
-          <span style={{ fontSize: 10, color: "#ff8c00", fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>High Impact</span>
+          <span style={{ fontSize: 10, color: "#ff8c00", fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>{t('high_impact')}</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {highImpact.slice(0, 4).map(item => (
@@ -193,7 +196,7 @@ function SidePanel({ news }) {
       <div style={{ background: BG_CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: "18px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
           <span>🔥</span>
-          <span style={{ fontSize: 10, color: NEON, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>Trending Bullish</span>
+          <span style={{ fontSize: 10, color: NEON, fontWeight: 800, letterSpacing: 2, textTransform: "uppercase" }}>{t('trending_bullish')}</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {trending.map((item, i) => (
@@ -202,8 +205,8 @@ function SidePanel({ news }) {
               <div>
                 <p style={{ fontSize: 12.5, color: "#d5d5d5", lineHeight: 1.4, margin: "0 0 4px", fontWeight: 600 }}>{item.title}</p>
                 <div style={{ display: "flex", gap: 5 }}>
-                  {(item.tags || []).slice(0, 2).map(t => (
-                    <span key={t} style={{ fontSize: 9, background: BG_CARD2, color: TEXT_MUTED, border: `1px solid ${BORDER}`, padding: "1px 6px", borderRadius: 3, fontWeight: 600 }}>#{t}</span>
+                  {(item.tags || []).slice(0, 2).map(tag => (
+                    <span key={tag} style={{ fontSize: 9, background: BG_CARD2, color: TEXT_MUTED, border: `1px solid ${BORDER}`, padding: "1px 6px", borderRadius: 3, fontWeight: 600 }}>#{tag}</span>
                   ))}
                 </div>
               </div>
@@ -216,27 +219,35 @@ function SidePanel({ news }) {
 }
 
 function FilterBar({ active, setActive, search, setSearch }) {
+  const { t } = useTranslation();
+  const FILTER_KEYS = [
+    { key: 'filter_all', value: 'All' },
+    { key: 'filter_bullish', value: 'Bullish' },
+    { key: 'filter_bearish', value: 'Bearish' },
+    { key: 'filter_neutral', value: 'Neutral' },
+    { key: 'filter_high_impact', value: 'High Impact' },
+  ];
   return (
     <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 22, flexWrap: "wrap" }}>
       <div style={{ flex: 1, minWidth: 200, position: "relative" }}>
-        <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: TEXT_MUTED, fontSize: 15 }}>⌕</span>
+        <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: TEXT_MUTED, fontSize: 15 }}>⎕</span>
         <input
           value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search company, stock, sector..."
+          placeholder={t('search_news')}
           style={{ width: "100%", background: BG_CARD, border: `1px solid ${BORDER2}`, borderRadius: 10, padding: "10px 14px 10px 38px", color: TEXT_PRIMARY, fontSize: 13, outline: "none" }}
           onFocus={e => e.target.style.borderColor = NEON_BORDER}
           onBlur={e => e.target.style.borderColor = BORDER2}
         />
       </div>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {FILTERS.map(f => (
-          <button key={f} onClick={() => setActive(f)} style={{
+        {FILTER_KEYS.map(f => (
+          <button key={f.value} onClick={() => setActive(f.value)} style={{
             padding: "8px 16px", borderRadius: 8,
-            border: `1px solid ${active === f ? NEON_BORDER : BORDER}`,
-            background: active === f ? NEON_DIM : "transparent",
-            color: active === f ? NEON : TEXT_MUTED,
-            fontSize: 12, cursor: "pointer", transition: "all 0.15s", fontWeight: active === f ? 700 : 500,
-          }}>{f}</button>
+            border: `1px solid ${active === f.value ? NEON_BORDER : BORDER}`,
+            background: active === f.value ? NEON_DIM : "transparent",
+            color: active === f.value ? NEON : TEXT_MUTED,
+            fontSize: 12, cursor: "pointer", transition: "all 0.15s", fontWeight: active === f.value ? 700 : 500,
+          }}>{t(f.key)}</button>
         ))}
       </div>
     </div>
@@ -245,6 +256,7 @@ function FilterBar({ active, setActive, search, setSearch }) {
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function RetailNews() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("All");
   const [search, setSearch] = useState("");
@@ -316,11 +328,11 @@ export default function RetailNews() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px" }}>
         {/* Page Title */}
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 10, color: TEXT_MUTED, letterSpacing: 3, marginBottom: 7, fontWeight: 700, textTransform: "uppercase" }}>{isLive ? "Live Intelligence · MongoDB" : "Cached Data · Start Backend for Live"}</div>
+          <div style={{ fontSize: 10, color: TEXT_MUTED, letterSpacing: 3, marginBottom: 7, fontWeight: 700, textTransform: "uppercase" }}>{isLive ? t('live_mongodb') : t('cached_backend')}</div>
           <h1 style={{ fontSize: 36, fontWeight: 900, color: TEXT_PRIMARY, letterSpacing: -0.5, lineHeight: 1 }}>
-            Market News <span style={{ color: NEON, textShadow: `0 0 24px ${NEON}55` }}>·</span>
+            {t('news_title')} <span style={{ color: NEON, textShadow: `0 0 24px ${NEON}55` }}>·</span>
           </h1>
-          <p style={{ fontSize: 13, color: TEXT_MUTED, marginTop: 8 }}>Simplified for everyday investors</p>
+          <p style={{ fontSize: 13, color: TEXT_MUTED, marginTop: 8 }}>{t('news_sub')}</p>
         </div>
 
         {/* Filter Bar */}
@@ -357,8 +369,8 @@ export default function RetailNews() {
                 </div>
                 {filtered.length === 0 && (
                   <div style={{ textAlign: "center", padding: "60px 20px" }}>
-                    <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>📭</div>
-                    <p style={{ fontSize: 14, color: TEXT_MUTED }}>No news matching your filters.</p>
+                    <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>💭</div>
+                    <p style={{ fontSize: 14, color: TEXT_MUTED }}>{t('no_news')}</p>
                   </div>
                 )}
               </>
