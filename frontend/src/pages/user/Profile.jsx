@@ -318,7 +318,7 @@ export default function UserProfile() {
             {/* Pulsing red screen flash */}
             <motion.div
               key="redflash"
-              className="fixed inset-0 z-[500] pointer-events-none"
+              className="fixed inset-0 z-500 pointer-events-none"
               animate={{ backgroundColor: ['rgba(220,38,38,0.25)', 'rgba(220,38,38,0.0)', 'rgba(220,38,38,0.25)'] }}
               transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
             />
@@ -328,7 +328,7 @@ export default function UserProfile() {
               initial={{ opacity: 0, scale: 0.9, y: -20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[600] bg-[#1a0505] border border-red-500/50 rounded-2xl px-8 py-5 flex items-center gap-4 shadow-[0_0_40px_rgba(220,38,38,0.5)]"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-600 bg-[#1a0505] border border-red-500/50 rounded-2xl px-8 py-5 flex items-center gap-4 shadow-[0_0_40px_rgba(220,38,38,0.5)]"
             >
               <div className="w-10 h-10 rounded-full bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0 animate-pulse">
                 <ShieldCheck className="w-5 h-5 text-red-400" />
@@ -351,7 +351,7 @@ export default function UserProfile() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[600] w-[520px] bg-[#130505] border border-red-500/30 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-600 w-[520px] bg-[#130505] border border-red-500/30 rounded-2xl shadow-[0_0_50px_rgba(220,38,38,0.3)] overflow-hidden"
           >
             {/* Top accent bar */}
             <div className="h-1 w-full bg-gradient-to-r from-red-600 via-red-400 to-red-600" />
@@ -681,12 +681,12 @@ export default function UserProfile() {
                         {isCompleted ? (
                           <div className="mt-1"><Badge>Completed</Badge></div>
                         ) : (
-                          <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Remaining: ${remaining.toLocaleString()}</p>
+                          <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Remaining: ₹{remaining.toLocaleString()}</p>
                         )}
                       </div>
                       <div className="text-right flex flex-col items-end gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${(goal.currentAmount || 0).toLocaleString()}</span>
+                          <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">₹{(goal.currentAmount || 0).toLocaleString()}</span>
                           {!isCompleted && (
                             <button
                               onClick={() => { setSelectedGoalId(goal._id); setIsAddFundsModalOpen(true); }}
@@ -741,15 +741,15 @@ export default function UserProfile() {
                           </button>
                         </div>
                         <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold mt-0.5">
-                          Budget: ${festival.targetAmount.toLocaleString()} &nbsp;•&nbsp;
+                          Budget: ₹{festival.targetAmount.toLocaleString()} &nbsp;•&nbsp;
                           {isOver
-                            ? <span className="text-red-400">Over by ${Math.abs(remaining).toLocaleString()}</span>
-                            : <span>Remaining: ${remaining.toLocaleString()}</span>
+                            ? <span className="text-red-400">Over by ₹{Math.abs(remaining).toLocaleString()}</span>
+                            : <span>Remaining: ₹{remaining.toLocaleString()}</span>
                           }
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">${spent.toLocaleString()}</span>
+                        <span className="text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">₹{spent.toLocaleString()}</span>
                         <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">{progress}% Used</p>
                       </div>
                     </div>
@@ -761,7 +761,7 @@ export default function UserProfile() {
                         {festival.expenses.map((exp, j) => (
                           <div key={j} className="bg-[#1A231C] border border-[#2A3B2E] p-2 rounded-xl flex justify-between items-center">
                             <p className="text-[10px] text-[#9FB8A7] uppercase tracking-wider font-bold">{exp.category}</p>
-                            <p className="text-[10px] text-[#39ff14] font-bold">${exp.amount.toLocaleString()}</p>
+                            <p className="text-[10px] text-[#39ff14] font-bold">₹{exp.amount.toLocaleString()}</p>
                           </div>
                         ))}
                       </div>
@@ -820,7 +820,7 @@ export default function UserProfile() {
 
       {/* Goal Form Modal */}
       {isGoalModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0B0F0C]/80 backdrop-blur-sm" onClick={() => setIsGoalModalOpen(false)} />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -843,7 +843,7 @@ export default function UserProfile() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Target Amount ($)</label>
+                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Target Amount (₹)</label>
                 <input
                   type="number"
                   value={newGoal.targetAmount}
@@ -887,7 +887,7 @@ export default function UserProfile() {
 
             <form onSubmit={handleAddFunds} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Amount to Add ($)</label>
+                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Amount to Add (₹)</label>
                 <input
                   type="number"
                   value={fundsAmount}
@@ -942,7 +942,7 @@ export default function UserProfile() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Total Budget ($)</label>
+                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Total Budget (₹)</label>
                 <input
                   type="number"
                   value={newFestival.targetAmount}
@@ -989,7 +989,7 @@ export default function UserProfile() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Amount ($)</label>
+                <label className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold block">Amount (₹)</label>
                 <input
                   type="number"
                   value={newExpense.amount}

@@ -43,10 +43,10 @@ const volumes = rawCandles.map((d, i) => ({
 
 
 const assets = [
-  { name: 'Bitcoin', symbol: 'BTC', price: '$46,200', change: '+4.2%', color: '#8eff71' },
-  { name: 'Ethereum', symbol: 'ETH', price: '$2,450', change: '-1.8%', color: '#627eea' },
-  { name: 'Solana', symbol: 'SOL', price: '$104', change: '+12.5%', color: '#14f195' },
-  { name: 'Apple', symbol: 'AAPL', price: '$189', change: '+0.5%', color: '#ffffff' },
+  { name: 'Bitcoin', symbol: 'BTC', price: '₹46,200', change: '+4.2%', color: '#8eff71' },
+  { name: 'Ethereum', symbol: 'ETH', price: '₹2,450', change: '-1.8%', color: '#627eea' },
+  { name: 'Solana', symbol: 'SOL', price: '₹104', change: '+12.5%', color: '#14f195' },
+  { name: 'Apple', symbol: 'AAPL', price: '₹189', change: '+0.5%', color: '#ffffff' },
 ];
 
 const PortfolioSankeyChart = () => {
@@ -60,9 +60,9 @@ const PortfolioSankeyChart = () => {
       textStyle: { color: '#ffffff' },
       formatter: function (params) {
         if (params.data.source) {
-          return `${params.data.source} → ${params.data.target}<br/><b>$${params.data.value.toLocaleString()}</b>`;
+          return `${params.data.source} → ${params.data.target}<br/><b>₹${params.data.value.toLocaleString()}</b>`;
         }
-        return `${params.name}<br/><b>$${params.value ? params.value.toLocaleString() : 0}</b>`;
+        return `${params.name}<br/><b>₹${params.value ? params.value.toLocaleString() : 0}</b>`;
       },
     },
     series: [
@@ -75,7 +75,7 @@ const PortfolioSankeyChart = () => {
         nodeAlign: 'justify',
         draggable: true,
         data: [
-          { name: 'Total Portfolio Value ($100k)', itemStyle: { color: '#39ff14' } },
+          { name: 'Total Portfolio Value (₹100k)', itemStyle: { color: '#39ff14' } },
           { name: 'Equities', itemStyle: { color: '#2ce60d' } },
           { name: 'Fixed Income', itemStyle: { color: '#ef4444' } },
           { name: 'Alternatives', itemStyle: { color: '#138200' } },
@@ -85,9 +85,9 @@ const PortfolioSankeyChart = () => {
           { name: 'Real Estate', itemStyle: { color: '#0a4a00' } },
         ],
         links: [
-          { source: 'Total Portfolio Value ($100k)', target: 'Equities', value: 60000 },
-          { source: 'Total Portfolio Value ($100k)', target: 'Fixed Income', value: 30000 },
-          { source: 'Total Portfolio Value ($100k)', target: 'Alternatives', value: 10000 },
+          { source: 'Total Portfolio Value (₹100k)', target: 'Equities', value: 60000 },
+          { source: 'Total Portfolio Value (₹100k)', target: 'Fixed Income', value: 30000 },
+          { source: 'Total Portfolio Value (₹100k)', target: 'Alternatives', value: 10000 },
           { source: 'Equities', target: 'US Tech', value: 40000 },
           { source: 'Equities', target: 'Healthcare', value: 20000 },
           { source: 'Fixed Income', target: 'Corp Bonds', value: 30000 },
@@ -148,8 +148,8 @@ export function CompanyDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Total Balance', value: '$124,502.42', change: '+12.5%', icon: TrendingUp, color: 'text-neon-green' },
-          { label: 'Day P&L', value: '+$4,204.12', change: '+4.2%', icon: Zap, color: 'text-neon-green' },
+          { label: 'Total Balance', value: '₹1,24,502.42', change: '+12.5%', icon: TrendingUp, color: 'text-neon-green' },
+          { label: 'Day P&L', value: '+₹4,204.12', change: '+4.2%', icon: Zap, color: 'text-neon-green' },
           { label: 'Active Positions', value: '12', change: 'Stable', icon: Activity, color: 'text-white/60' },
           { label: 'Risk Score', value: 'Low', change: 'Institutional', icon: BarChart3, color: 'text-emerald-400' },
         ].map((stat, i) => (
@@ -219,7 +219,7 @@ export function CompanyDashboard() {
                     axisTick: { show: false },
                     splitLine: { lineStyle: { color: '#ffffff06', type: 'dashed' } },
                     axisLabel: { color: '#ffffff40', fontSize: 9, fontFamily: 'monospace',
-                      formatter: v => `$${(v/1000).toFixed(1)}k` },
+                      formatter: v => `₹${(v/1000).toFixed(1)}k` },
                   },
                   {
                     scale: true, gridIndex: 1,

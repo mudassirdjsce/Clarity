@@ -23,13 +23,13 @@ function calcPnl(holding) {
 }
 
 function fmt(n) {
-  return '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 }
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#0b0f0b] border border-white/10 p-3 rounded-xl shadow-2xl z-50">
+      <div className="bg-obsidian-soft border border-white/10 p-3 rounded-xl shadow-2xl z-50">
         <p className="text-xs text-white/40 font-mono mb-2">{label}</p>
         {payload.map((entry, i) => (
           <div key={i} className="flex items-center gap-3 text-sm font-bold">
@@ -65,8 +65,8 @@ function AddAssetModal({ onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#0b0f0b] border border-white/10 rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="bg-obsidian-soft border border-white/10 rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-display font-bold">Add Institutional Asset</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
@@ -118,12 +118,12 @@ function AddAssetModal({ onClose, onSave }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Buy Price ($) *</label>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Buy Price (₹) *</label>
               <input type="number" step="any" min="0" value={form.buyPrice} onChange={e => set('buyPrice', e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-[#8eff71]/50" />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Current Price ($) *</label>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Current Price (₹) *</label>
               <input type="number" step="any" min="0" value={form.currentPrice} onChange={e => set('currentPrice', e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-[#8eff71]/50" />
             </div>
@@ -207,7 +207,7 @@ export function Portfolio() {
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
     const fmtP = (n) =>
-      '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const NEON   = [142, 255, 113];
     const DARK   = [11,  15,  11];
     const WHITE  = [255, 255, 255];
@@ -399,12 +399,12 @@ export function Portfolio() {
         {[
           { label: 'Total AUM', value: fmt(totalValue), colorClass: '' },
           { label: 'Total Invested', value: fmt(totalInvested), colorClass: '' },
-          { label: 'Total Return ($)', value: `${totalPnl >= 0 ? '+' : ''}${fmt(totalPnl)}`, colorClass: totalPnl > 0 ? 'text-neon-green' : totalPnl < 0 ? 'text-red-400' : '' },
+          { label: 'Total Return (₹)', value: `${totalPnl >= 0 ? '+' : ''}${fmt(totalPnl)}`, colorClass: totalPnl > 0 ? 'text-neon-green' : totalPnl < 0 ? 'text-red-400' : '' },
           { label: 'Return (%)', value: `${pnlPctNum >= 0 ? '+' : ''}${totalPnlPct}%`, colorClass: pnlPctNum > 0 ? 'text-neon-green' : pnlPctNum < 0 ? 'text-red-400' : '' },
           { label: 'Sharpe Ratio', value: sharpeRatio, colorClass: parseFloat(sharpeRatio) > 1 ? 'text-neon-green' : parseFloat(sharpeRatio) > 0 ? 'text-orange-400' : 'text-red-400' },
         ].map((m, i) => (
           <div key={i} className="bento-card py-4 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-16 h-16 bg-white/[0.02] rounded-bl-full group-hover:scale-110 transition-transform"></div>
+            <div className="absolute top-0 right-0 w-16 h-16 bg-white/2 rounded-bl-full group-hover:scale-110 transition-transform"></div>
             <p className="text-[10px] font-mono text-white/40 uppercase tracking-widest mb-1">{m.label}</p>
             <h3 className={cn("text-2xl font-display font-bold", m.colorClass)}>{m.value}</h3>
           </div>
@@ -476,7 +476,7 @@ export function Portfolio() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                 <XAxis dataKey="day" stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `$${(val/1000).toFixed(0)}k`} />
+                <YAxis stroke="#ffffff40" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${(val/1000).toFixed(0)}k`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Area type="monotone" dataKey="portfolio" stroke="#8eff71" strokeWidth={4} fillOpacity={1} fill="url(#colorPort)" />
                 <Area type="monotone" dataKey="market" stroke="#a855f7" strokeWidth={2} strokeDasharray="6 4" fillOpacity={0.4} fill="url(#colorMkt)" />
@@ -491,9 +491,9 @@ export function Portfolio() {
 
         {/* RISK ARCHITECTURE */}
         <div className="bento-card relative overflow-hidden group">
-          <div className="absolute -bottom-24 -right-24 w-64 h-64 border-[1px] border-white/5 rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
-          <div className="absolute -bottom-16 -right-16 w-48 h-48 border-[1px] border-white/5 rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
-          <div className="absolute -bottom-8 -right-8 w-32 h-32 border-[1px] border-white/5 rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-300 bg-linear-to-tr from-white/0 to-white/[0.02]"></div>
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 border border-white/5 rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 border border-white/5 rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-500"></div>
+          <div className="absolute -bottom-8 -right-8 w-32 h-32 border border-white/5 rounded-full pointer-events-none group-hover:scale-110 transition-transform duration-300 bg-linear-to-tr from-white/0 to-white/2"></div>
 
           <div className="flex justify-between items-start mb-6 relative z-10">
             <div>

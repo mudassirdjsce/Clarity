@@ -85,7 +85,7 @@ function QuizModal({ level, onClose, onPass }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#0b0f0b] border border-white/10 w-full max-w-lg rounded-2xl p-6 relative shadow-2xl">
+      <div className="bg-obsidian-soft border border-white/10 w-full max-w-lg rounded-2xl p-6 relative shadow-2xl">
         <button onClick={onClose} className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors">
           <X className="w-6 h-6" />
         </button>
@@ -221,13 +221,13 @@ export default function GamifiedLearningPath() {
             const isCurrent = level.id === currentLevel;
 
             return (
-              <div key={level.id} className={cn("flex w-full relative z-10 md:justify-end md:[&:nth-child(odd)]:justify-start")}>
+              <div key={level.id} className={cn("flex w-full relative z-10 md:justify-end md:odd:justify-start")}>
                 {/* Node Container */}
                 <div className={cn("w-full md:w-1/2 flex relative group px-16 md:px-0", isLeft ? "md:pr-36 md:justify-end" : "md:pl-36 md:justify-start")}>
                   
                   {/* Circular Node offset to create snake zigzag */}
                   <div className={cn(
-                    "absolute top-1/2 -translate-y-1/2 w-16 h-16 rounded-full flex items-center justify-center border-4 border-[#0b0f0b] transition-all z-20 shadow-xl",
+                    "absolute top-1/2 -translate-y-1/2 w-16 h-16 rounded-full flex items-center justify-center border-4 border-obsidian-soft transition-all z-20 shadow-xl",
                     "left-[-8px] md:left-auto", // Responsive positioning of the node
                     isLeft ? "md:right-12" : "md:left-12",
                     isCompleted ? "bg-neon-green text-obsidian shadow-[0_0_20px_rgba(57,255,20,0.4)]" : 
@@ -246,7 +246,7 @@ export default function GamifiedLearningPath() {
                   {/* Curved winding S-path (Desktop) */}
                   {idx < levelsData.length - 1 && (
                     <svg 
-                      className={cn("absolute hidden md:block z-[0] pointer-events-none",
+                      className={cn("absolute hidden md:block z-0 pointer-events-none",
                         isLeft ? "-right-20" : "-left-20"
                       )} 
                       style={{ 

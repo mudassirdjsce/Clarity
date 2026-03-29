@@ -19,7 +19,7 @@ const Navbar = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   return (
-    <nav className="fixed top-0 w-full z-50 bg-[#0b0f0b]/80 backdrop-blur-xl border-b border-[#454943]/15 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
+    <nav className="fixed top-0 w-full z-50 bg-obsidian-soft/80 backdrop-blur-xl border-b border-[#454943]/15 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
       <div className="flex justify-between items-center px-4 md:px-8 py-4 max-w-screen-2xl mx-auto">
         <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => navigate("/")}>
           <img src={clarityLogo} alt="Clarity" className="h-8 md:h-10 w-auto drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" />
@@ -129,7 +129,7 @@ const Hero = () => {
       <div className="mt-24 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
           { icon: Activity,       labelKey: "landing_stat_latency", value: "0.002ms", progress: "80%" },
-          { icon: LayoutDashboard,labelKey: "landing_stat_assets",  value: "$12.4B",  progress: "60%" },
+          { icon: LayoutDashboard,labelKey: "landing_stat_assets",  value: "₹12.4B",  progress: "60%" },
           { icon: Globe,          labelKey: "landing_stat_nodes",   value: "4,812",   progress: "85%" },
         ].map((stat, i) => (
           <motion.div 

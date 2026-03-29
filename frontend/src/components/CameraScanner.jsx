@@ -69,7 +69,7 @@ export default function CameraScanner({ isOpen, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-200 bg-black/80 backdrop-blur-md"
           />
 
           {/* ── Modal ── */}
@@ -79,12 +79,12 @@ export default function CameraScanner({ isOpen, onClose }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed inset-0 z-[210] flex flex-col items-center justify-center p-4 pointer-events-none"
+            className="fixed inset-0 z-210 flex flex-col items-center justify-center p-4 pointer-events-none"
           >
-            <div className="pointer-events-auto w-full max-w-lg bg-[#0b0f0b] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.7)] flex flex-col max-h-[90vh]">
+            <div className="pointer-events-auto w-full max-w-lg bg-obsidian-soft border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.7)] flex flex-col max-h-[90vh]">
 
               {/* ── Header ── */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 flex-shrink-0">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[#39ff14]/10 border border-[#39ff14]/20 flex items-center justify-center">
                     <Camera className="w-4 h-4 text-[#39ff14]" />
@@ -106,7 +106,7 @@ export default function CameraScanner({ isOpen, onClose }) {
               <div className="flex-1 overflow-y-auto flex flex-col">
 
                 {/* ── Detected Object Banner ── */}
-                <div className="px-6 pt-5 pb-3 flex-shrink-0">
+                <div className="px-6 pt-5 pb-3 shrink-0">
                   {detectedObject ? (
                     <div className="bg-[#39ff14]/10 border border-[#39ff14]/20 rounded-2xl px-5 py-3 flex items-center justify-between shadow-[0_0_20px_rgba(57,255,20,0.08)]">
                       <div className="flex items-center gap-3">
@@ -130,7 +130,7 @@ export default function CameraScanner({ isOpen, onClose }) {
                     </div>
                   ) : error ? (
                     <div className="bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-3 flex items-start gap-3">
-                      <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                       <p className="text-sm text-red-400">{error}</p>
                     </div>
                   ) : (
@@ -141,8 +141,8 @@ export default function CameraScanner({ isOpen, onClose }) {
                 </div>
 
                 {/* ── Video Feed ── */}
-                <div className="px-6 pb-4 flex-shrink-0">
-                  <div className="relative rounded-2xl overflow-hidden bg-black border border-white/8 aspect-[4/3]">
+                <div className="px-6 pb-4 shrink-0">
+                  <div className="relative rounded-2xl overflow-hidden bg-black border border-white/8 aspect-4/3">
                     {/* Video element — always rendered so the ref is attached */}
                     <video
                       ref={videoRef}
@@ -162,7 +162,7 @@ export default function CameraScanner({ isOpen, onClose }) {
                         <div className="absolute bottom-3 right-3 w-8 h-8 border-b-2 border-r-2 border-[#39ff14]/60 rounded-br-lg" />
                         {/* Animated scan line */}
                         <motion.div
-                          className="absolute left-4 right-4 h-px bg-gradient-to-r from-transparent via-[#39ff14]/60 to-transparent"
+                          className="absolute left-4 right-4 h-px bg-linear-to-r from-transparent via-[#39ff14]/60 to-transparent"
                           animate={{ top: ['20%', '80%', '20%'] }}
                           transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                         />
@@ -189,7 +189,7 @@ export default function CameraScanner({ isOpen, onClose }) {
 
                 {/* ── Multi-label secondary predictions ── */}
                 {topPredictions.length > 1 && (
-                  <div className="px-6 pb-4 flex-shrink-0">
+                  <div className="px-6 pb-4 shrink-0">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-white/20 mb-2">Also detected</p>
                     <div className="flex gap-2 flex-wrap">
                       {topPredictions.slice(1).map((p, i) => (
@@ -206,7 +206,7 @@ export default function CameraScanner({ isOpen, onClose }) {
               </div>
 
               {/* ── Footer / Action Buttons ── */}
-              <div className="px-6 py-5 border-t border-white/5 flex-shrink-0 flex gap-3">
+              <div className="px-6 py-5 border-t border-white/5 shrink-0 flex gap-3">
                 <button
                   onClick={handleClose}
                   className="flex-1 py-3.5 rounded-2xl border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white hover:border-white/20 transition-colors"
@@ -216,7 +216,7 @@ export default function CameraScanner({ isOpen, onClose }) {
                 <button
                   onClick={handleScan}
                   disabled={!detectedObject}
-                  className={`flex-2 flex-1 py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all
+                  className={`flex-1 py-3.5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all
                     ${detectedObject
                       ? 'bg-[#39ff14] text-[#0B0F0C] shadow-[0_0_25px_rgba(57,255,20,0.4)] hover:shadow-[0_0_35px_rgba(57,255,20,0.6)] active:scale-95'
                       : 'bg-white/5 text-white/20 cursor-not-allowed border border-white/10'
@@ -228,7 +228,7 @@ export default function CameraScanner({ isOpen, onClose }) {
               </div>
 
               {/* ── Disclaimer ── */}
-              <div className="px-6 pb-4 flex-shrink-0">
+              <div className="px-6 pb-4 shrink-0">
                 <p className="text-[9px] text-white/15 text-center font-mono">
                   Camera feed is processed locally · No data is sent to any server
                 </p>

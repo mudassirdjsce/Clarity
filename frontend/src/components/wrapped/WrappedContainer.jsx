@@ -85,7 +85,7 @@ export default function WrappedContainer({ onClose }) {
 
   return (
     // Full-screen fixed overlay
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center">
       {/* Blurred dark backdrop */}
       <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" />
 

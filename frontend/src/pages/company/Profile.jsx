@@ -30,7 +30,7 @@ function AddTreasuryModal({ onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#0b0f0b] border border-white/10 rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-obsidian-soft border border-white/10 rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-display font-bold text-[#E8F5E9]">Add Treasury Node</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
@@ -66,7 +66,7 @@ function AddTreasuryModal({ onClose, onSave }) {
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-[#8eff71]/50 text-[#E8F5E9]" />
             </div>
             <div>
-              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Balance ($) *</label>
+              <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-1 block">Balance (₹) *</label>
               <input type="number" step="any" min="0" value={form.balance} onChange={e => set('balance', e.target.value)} placeholder="0.00"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-[#8eff71]/50 text-[#E8F5E9]" />
             </div>
@@ -100,7 +100,7 @@ function AddTeamModal({ onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#0b0f0b] border border-white/10 rounded-3xl p-8 w-full max-w-sm mx-4 shadow-2xl">
+      <div className="bg-obsidian-soft border border-white/10 rounded-3xl p-8 w-full max-w-sm mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-display font-bold text-[#E8F5E9]">Add Team Member</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
@@ -301,7 +301,7 @@ export default function CompanyProfile() {
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-[#9FB8A7]">Available Balance</span>
                       <span className="font-mono text-[#8EFF71] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">
-                        ${Number(t.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ₹{Number(t.balance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                   </div>
@@ -333,10 +333,10 @@ export default function CompanyProfile() {
               <div className="flex justify-between items-end">
                 <div>
                   <h3 className="text-lg font-medium text-[#E8F5E9]">Series B Funding</h3>
-                  <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Target: $50M</p>
+                  <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">Target: ₹50M</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">$35M</span>
+                  <span className="text-xl text-[#39ff14] font-bold drop-shadow-[0_0_8px_rgba(142,255,113,0.4)]">₹35M</span>
                   <p className="text-[10px] text-[#9FB8A7] uppercase tracking-[0.2em] font-bold">70% Committed</p>
                 </div>
               </div>

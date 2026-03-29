@@ -25,10 +25,10 @@ import { WrappedTriggerButton } from '../common/WrappedPage';
 
 
 const assets = [
-  { name: 'Bitcoin', symbol: 'BTC', price: '$46,200', change: '+4.2%', color: '#8eff71' },
-  { name: 'Ethereum', symbol: 'ETH', price: '$2,450', change: '-1.8%', color: '#627eea' },
-  { name: 'Solana', symbol: 'SOL', price: '$104', change: '+12.5%', color: '#14f195' },
-  { name: 'Apple', symbol: 'AAPL', price: '$189', change: '+0.5%', color: '#ffffff' },
+  { name: 'Bitcoin', symbol: 'BTC', price: '₹46,200', change: '+4.2%', color: '#8eff71' },
+  { name: 'Ethereum', symbol: 'ETH', price: '₹2,450', change: '-1.8%', color: '#627eea' },
+  { name: 'Solana', symbol: 'SOL', price: '₹104', change: '+12.5%', color: '#14f195' },
+  { name: 'Apple', symbol: 'AAPL', price: '₹189', change: '+0.5%', color: '#ffffff' },
 ];
 
 export function UserDashboard() {

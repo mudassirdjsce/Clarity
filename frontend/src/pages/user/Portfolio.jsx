@@ -61,8 +61,8 @@ function AddHoldingModal({ onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#0b0f0b] border border-white/10 rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="bg-obsidian-soft border border-white/10 rounded-3xl p-8 w-full max-w-md mx-4 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-display font-bold">Add Holding</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
@@ -199,7 +199,7 @@ export function Portfolio() {
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
       const fmtP = (n) =>
-        'Rs. ' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        '₹' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const NEON   = [142, 255, 113];
       const DARK   = [11,  15,  11];
       const WHITE  = [255, 255, 255];

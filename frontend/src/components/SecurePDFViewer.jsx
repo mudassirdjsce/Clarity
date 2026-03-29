@@ -111,7 +111,7 @@ export default function SecurePDFViewer({ isOpen, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-200 bg-black/80 backdrop-blur-md"
           />
 
           {/* ── Modal ── */}
@@ -121,16 +121,16 @@ export default function SecurePDFViewer({ isOpen, onClose }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="fixed inset-0 z-[210] flex items-center justify-center p-4 pointer-events-none"
+            className="fixed inset-0 z-210 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className={`pointer-events-auto w-full bg-[#0b0f0b] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.7)] flex flex-col transition-all duration-300 ${
+              className={`pointer-events-auto w-full bg-obsidian-soft border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.7)] flex flex-col transition-all duration-300 ${
                 stage === 'viewing' ? 'max-w-4xl max-h-[92vh]' : 'max-w-lg'
               }`}
             >
 
               {/* ── Header ── */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 flex-shrink-0">
+              <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[#39ff14]/10 border border-[#39ff14]/20 flex items-center justify-center">
                     <ShieldCheck className="w-4 h-4 text-[#39ff14]" />
@@ -165,7 +165,7 @@ export default function SecurePDFViewer({ isOpen, onClose }) {
                       className={`flex flex-col items-center justify-center gap-4 py-12 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
                         dragging
                           ? 'border-[#39ff14]/60 bg-[#39ff14]/5 scale-[1.01]'
-                          : 'border-white/10 hover:border-white/20 hover:bg-white/[0.02]'
+                          : 'border-white/10 hover:border-white/20 hover:bg-white/2'
                       }`}
                     >
                       <div className="w-14 h-14 rounded-2xl bg-[#39ff14]/10 border border-[#39ff14]/20 flex items-center justify-center">
@@ -237,7 +237,7 @@ export default function SecurePDFViewer({ isOpen, onClose }) {
                   <div className="flex flex-col flex-1 min-h-0">
                     {/* Metadata bar */}
                     {meta && (
-                      <div className="flex items-center gap-4 px-6 py-3 border-b border-white/5 flex-shrink-0 flex-wrap">
+                      <div className="flex items-center gap-4 px-6 py-3 border-b border-white/5 shrink-0 flex-wrap">
                         <div className="flex items-center gap-1.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-[#39ff14] animate-pulse" />
                           <span className="text-[9px] font-bold uppercase tracking-widest text-[#39ff14]/70">Decrypted &amp; Verified</span>
@@ -275,7 +275,7 @@ export default function SecurePDFViewer({ isOpen, onClose }) {
                     </div>
 
                     {/* Warning footer */}
-                    <div className="px-6 py-3 border-t border-white/5 flex-shrink-0">
+                    <div className="px-6 py-3 border-t border-white/5 shrink-0">
                       <p className="text-[9px] text-white/15 text-center font-mono uppercase tracking-widest">
                         This document is decrypted in-memory only · Blob URL is session-scoped · Cannot be re-used outside Clarity
                       </p>
