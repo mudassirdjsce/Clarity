@@ -55,13 +55,19 @@ _HINDI_MARKERS = {
     "था", "थे", "होगा", "होगी", "रुपए", "रुपये", "कंपनी",
 }
 
-# Hinglish marker words (Hindi words written in Roman/Latin script)
+# Hinglish marker words — ONLY unambiguous Hindi-origin words in Roman script.
+# Deliberately excludes English finance/common words: share, market, trend, ya, aur.
 _HINGLISH_MARKERS = {
     "kya", "hai", "hain", "nahi", "karo", "batao", "mujhe", "mera",
-    "tumhara", "aur", "ya", "paisa", "share", "market", "bhai",
-    "yaar", "matlab", "accha", "theek", "bilkul", "lagta", "chahiye",
-    "kaisa", "kyun", "iska", "uska", "agar", "toh", "phir",
+    "tumhara", "paisa", "bhai", "yaar", "matlab", "accha", "theek",
+    "bilkul", "lagta", "chahiye", "kaisa", "kyun", "iska", "uska",
+    "agar", "toh", "phir", "rupaye", "rupee", "seedha", "samajh",
 }
+
+# Explicit language-switch commands (case-insensitive substring match)
+_SWITCH_HINDI    = {"switch to hindi", "hindi mein", "hindi me bolo", "devanagari mein"}
+_SWITCH_HINGLISH = {"switch to hinglish", "hinglish mein", "hinglish me bolo", "roman hindi"}
+_SWITCH_ENGLISH  = {"switch to english", "english mein", "respond in english", "answer in english"}
 
 _DEVANAGARI_RE = re.compile(r'[\u0900-\u097F]')
 
@@ -69,21 +75,40 @@ _DEVANAGARI_RE = re.compile(r'[\u0900-\u097F]')
 def detect_language(text: str) -> str:
     """
     Returns one of: 'english', 'hindi', 'marathi', 'hinglish'
+
+    Priority order:
+      1. Explicit language-switch command in the message (highest priority)
+      2. Devanagari script detected → Hindi or Marathi
+      3. 3+ unambiguous Hinglish markers in Latin script
+      4. Default → English (safe fallback)
     """
-    # 1. Check for Devanagari script
+    lower = text.lower()
+
+    # 1. Explicit switch commands — user deliberately asked to change language
+    for phrase in _SWITCH_ENGLISH:
+        if phrase in lower:
+            return "english"
+    for phrase in _SWITCH_HINDI:
+        if phrase in lower:
+            return "hindi"
+    for phrase in _SWITCH_HINGLISH:
+        if phrase in lower:
+            return "hinglish"
+
+    # 2. Devanagari script → Hindi or Marathi
     if _DEVANAGARI_RE.search(text):
         words = set(text.split())
         marathi_score = len(words & _MARATHI_MARKERS)
         hindi_score   = len(words & _HINDI_MARKERS)
         return "marathi" if marathi_score >= hindi_score else "hindi"
 
-    # 2. Check for Hinglish (Latin script with Hindi-origin words)
-    lower_words = set(text.lower().split())
+    # 3. Multiple unambiguous Hinglish markers (threshold = 3 to avoid false positives)
+    lower_words = set(lower.split())
     hinglish_hits = len(lower_words & _HINGLISH_MARKERS)
-    if hinglish_hits >= 1:          # even one marker → treat as Hinglish
+    if hinglish_hits >= 3:
         return "hinglish"
 
-    # 3. Default → English
+    # 4. Default → English
     return "english"
 
 
