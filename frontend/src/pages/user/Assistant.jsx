@@ -97,11 +97,15 @@ function CompanyResponse({ data }) {
   const sentiment    = safeObj(data.sentiment);
   const outlook      = safeObj(data.outlook);
 
+  // Keys handled by structured rendering — anything else is catch-all prose
+  const KNOWN_KEYS = new Set(['summary','financials','risk_analysis','sentiment','outlook','recommendation','explanation','sources']);
+
   return (
     <div className="space-y-3 text-sm">
       {data.summary && <p className="text-white/85 leading-relaxed font-medium">{data.summary}</p>}
 
-      {financials && typeof financials === 'object' && (
+      {/* Financials — object grid OR string fallback */}
+      {financials && typeof financials === 'object' ? (
         <div className="grid grid-cols-3 gap-2">
           {Object.entries(financials).map(([k, v]) => (
             <div key={k} className="p-2.5 rounded-xl bg-white/5 border border-white/8 space-y-1">
@@ -110,10 +114,16 @@ function CompanyResponse({ data }) {
             </div>
           ))}
         </div>
-      )}
+      ) : data.financials && typeof data.financials === 'string' ? (
+        <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+          <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold block mb-1.5">Financials</span>
+          <p className="text-white/75 text-xs leading-relaxed">{data.financials}</p>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-2">
-        {riskAnalysis && (
+        {/* Risk — object OR string fallback */}
+        {riskAnalysis && typeof riskAnalysis === 'object' ? (
           <div className={cn('p-3 rounded-xl border', RISK_COLOR[riskKey])}>
             <span className="text-[9px] uppercase tracking-widest opacity-60 font-bold block mb-1.5">Risk</span>
             <span className="font-bold text-sm block mb-2">{riskAnalysis.level}</span>
@@ -128,8 +138,15 @@ function CompanyResponse({ data }) {
               </ul>
             )}
           </div>
-        )}
-        {sentiment && (
+        ) : data.risk_analysis && typeof data.risk_analysis === 'string' ? (
+          <div className={cn('p-3 rounded-xl border', RISK_COLOR[riskKey])}>
+            <span className="text-[9px] uppercase tracking-widest opacity-60 font-bold block mb-1.5">Risk</span>
+            <p className="text-xs leading-relaxed opacity-90">{data.risk_analysis}</p>
+          </div>
+        ) : null}
+
+        {/* Sentiment — object OR string fallback */}
+        {sentiment && typeof sentiment === 'object' ? (
           <div className="p-3 rounded-xl border border-white/8 bg-white/5 space-y-2">
             <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold block">Sentiment</span>
             <span className={cn('inline-block px-2 py-0.5 rounded-full text-xs font-bold', SENTIMENT_COLOR[sentimentKey])}>
@@ -139,10 +156,16 @@ function CompanyResponse({ data }) {
               <p className="text-[10px] text-white/40 leading-snug">{sentiment.news_impact}</p>
             )}
           </div>
-        )}
+        ) : data.sentiment && typeof data.sentiment === 'string' ? (
+          <div className="p-3 rounded-xl border border-white/8 bg-white/5 space-y-2">
+            <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold block">Sentiment</span>
+            <p className="text-xs text-white/70 leading-snug">{data.sentiment}</p>
+          </div>
+        ) : null}
       </div>
 
-      {outlook && typeof outlook === 'object' && (
+      {/* Outlook — object grid OR string fallback */}
+      {outlook && typeof outlook === 'object' ? (
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(outlook).map(([k,v]) => (
             <div key={k} className="p-2.5 rounded-xl bg-white/5 border border-white/8 space-y-1">
@@ -151,8 +174,14 @@ function CompanyResponse({ data }) {
             </div>
           ))}
         </div>
-      )}
+      ) : data.outlook && typeof data.outlook === 'string' ? (
+        <div className="p-2.5 rounded-xl bg-white/5 border border-white/8 space-y-1">
+          <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold block">Outlook</span>
+          <p className="text-xs text-white/70 leading-snug">{data.outlook}</p>
+        </div>
+      ) : null}
 
+      {/* Recommendation badge */}
       {recoKey && (
         <div className={cn('inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-bold', RECO_COLOR[recoKey] || RECO_COLOR.Hold)}>
           <span className="text-[9px] uppercase tracking-widest opacity-70">Recommendation</span>
@@ -160,9 +189,21 @@ function CompanyResponse({ data }) {
         </div>
       )}
 
+      {/* Explanation */}
       {data.explanation && (
         <p className="text-xs text-white/40 leading-relaxed border-t border-white/5 pt-3">{data.explanation}</p>
       )}
+
+      {/* ── Catch-all: render any unexpected string fields as readable prose ── */}
+      {Object.entries(data)
+        .filter(([k, v]) => !KNOWN_KEYS.has(k) && v && typeof v === 'string')
+        .map(([k, v]) => (
+          <div key={k} className="p-3 rounded-xl bg-white/5 border border-white/8">
+            <span className="text-[9px] uppercase tracking-widest text-white/30 font-bold block mb-1">{k.replace(/_/g,' ')}</span>
+            <p className="text-xs text-white/70 leading-relaxed">{v}</p>
+          </div>
+        ))
+      }
     </div>
   );
 }
