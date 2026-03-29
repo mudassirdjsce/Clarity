@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 
-const TTS_ENDPOINT = 'http://localhost:5000/api/tts/speak';
+const TTS_ENDPOINT = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/tts/speak`;
 
 // Singleton audio instance so only one plays at a time
 let currentAudio = null;
