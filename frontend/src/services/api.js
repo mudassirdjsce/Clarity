@@ -98,8 +98,10 @@ const apiDelete = async (path) => {
   return data;
 };
 
-export const signup = (payload) => apiPost("/auth/signup", payload);
-export const login  = (payload) => apiPost("/auth/login", payload);
+export const signup    = (payload) => apiPost("/auth/signup", payload);
+export const verifyOtp = (payload) => apiPost("/auth/verify-otp", payload);
+export const resendOtp = (payload) => apiPost("/auth/resend-otp", payload);
+export const login     = (payload) => apiPost("/auth/login", payload);
 
 // ── Token helpers ─────────────────────────────────────────────────────────────
 export const saveSession = ({ token, user }) => {

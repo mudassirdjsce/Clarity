@@ -10,6 +10,7 @@ import { SpeakButton } from '../../components/chat/SpeakButton';
 import { useTranslation } from 'react-i18next';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
+const AI_URL = import.meta.env.VITE_AI_URL || 'http://localhost:8000';
 const INTENT_LABELS = {
   stock_analysis: '📈 Stock Analysis',
   news:           '📰 News Intelligence',
@@ -616,7 +617,7 @@ export function Assistant({ type = 'user' }) {
     scrollToBottom();
 
     try {
-      const res = await fetch('http://localhost:8000/api/chat/', {
+      const res = await fetch(`${AI_URL}/api/chat/`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, userMode, sessionId }),
@@ -669,7 +670,7 @@ export function Assistant({ type = 'user' }) {
     setError(null);
     scrollToBottom();
 
-    fetch('http://localhost:8000/api/chat/', {
+    fetch(`${AI_URL}/api/chat/`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: backendContent, userMode, sessionId }),

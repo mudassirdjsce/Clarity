@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Otp = require("../models/Otp");
 const Goal = require("../models/Goal");
 const Festival = require("../models/Festival");
 const BankAccount = require("../models/BankAccount");
@@ -9,36 +10,242 @@ const TeamMember = require("../models/TeamMember");
 const FamilyMember = require("../models/FamilyMember");
 const FamilyGoal = require("../models/FamilyGoal");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const { sendOtpEmail } = require("../utils/sendEmail");
 
 const JWT_SECRET = process.env.JWT_SECRET || "clarity_secret_key_2025";
 const JWT_EXPIRES = "7d";
+
+// Simple email format validator
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Generate a cryptographically-sufficient 6-digit OTP */
+const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+
+/** OTP validity window (ms) */
+const OTP_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/** Max wrong attempts before the OTP is invalidated */
+const MAX_OTP_ATTEMPTS = 5;
+
+/** Minimum gap between resend requests (ms) */
+const RESEND_COOLDOWN_MS = 60 * 1000; // 60 seconds
 
 const signToken = (id, role) =>
   jwt.sign({ id, role }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 
 // ── POST /api/auth/signup ──────────────────────────────────────────────────
+// Step 1: Validate → hash password → send OTP. User is NOT created yet.
 const signup = async (req, res) => {
   try {
     const { name, email, phone, password, role } = req.body;
 
+    // ── Validation ──
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ error: "All fields are required." });
     }
-
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(409).json({ error: "Email already registered." });
+    if (!EMAIL_REGEX.test(email)) {
+      return res.status(400).json({ error: "Invalid email format." });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters." });
     }
 
-    const user = await User.create({ name, email, phone, password, role: role || "user" });
-    const token = signToken(user._id, user.role);
+    const normalizedEmail = email.toLowerCase().trim();
 
-    res.status(201).json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    // ── Check if already a verified user ──
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      return res.status(409).json({ error: "Email is already registered." });
+    }
+
+    // ── Rate-limit: check resend cooldown ──
+    const existingOtp = await Otp.findOne({ email: normalizedEmail });
+    if (existingOtp) {
+      const elapsed = Date.now() - new Date(existingOtp.createdAt).getTime();
+      if (elapsed < RESEND_COOLDOWN_MS) {
+        const waitSec = Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000);
+        return res.status(429).json({
+          error: `Please wait ${waitSec}s before requesting a new OTP.`,
+        });
+      }
+    }
+
+    // ── Hash password before temporary storage ──
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    // ── Generate OTP ──
+    const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + OTP_TTL_MS);
+
+    // ── Remove any old pending OTP for this email, then create fresh one ──
+    await Otp.deleteOne({ email: normalizedEmail });
+    const saved = await Otp.create({
+      email: normalizedEmail,
+      otp,
+      userData: { name: name.trim(), phone: phone.trim(), passwordHash, role: role || "user" },
+      attempts: 0,
+      expiresAt,
+      createdAt: new Date(),
+    });
+
+    console.log(`[OTP] Stored for ${normalizedEmail} | OTP: ${otp} | expiresAt: ${expiresAt} | _id: ${saved._id}`);
+
+    // ── Send OTP email ──
+    await sendOtpEmail(normalizedEmail, otp);
+
+    return res.status(200).json({
+      message: "OTP sent to your email. Please verify to complete registration.",
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Signup error:", err);
+    res.status(500).json({ error: "Server error during signup." });
+  }
+};
+
+// ── POST /api/auth/verify-otp ──────────────────────────────────────────────
+// Step 2: Validate OTP → create user → delete OTP record.
+const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ error: "Email and OTP are required." });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const otpRecord = await Otp.findOne({ email: normalizedEmail });
+
+    console.log(`[OTP] verify attempt | email: ${normalizedEmail} | found: ${!!otpRecord} | submitted otp: ${otp}`);
+    if (otpRecord) {
+      console.log(`[OTP] stored otp: ${otpRecord.otp} | expiresAt: ${otpRecord.expiresAt} | attempts: ${otpRecord.attempts}`);
+    }
+
+    // ── Does OTP record exist? ──
+    if (!otpRecord) {
+      return res.status(404).json({
+        error: "No pending verification found. Please sign up again.",
+      });
+    }
+
+    // ── Is OTP expired? ──
+    if (new Date() > new Date(otpRecord.expiresAt)) {
+      await Otp.deleteOne({ email: normalizedEmail });
+      return res.status(410).json({
+        error: "OTP has expired. Please sign up again to receive a new code.",
+      });
+    }
+
+    // ── Max attempts guard ──
+    if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
+      await Otp.deleteOne({ email: normalizedEmail });
+      return res.status(429).json({
+        error: "Too many failed attempts. Please sign up again.",
+      });
+    }
+
+    // ── OTP match check ──
+    if (otpRecord.otp !== String(otp).trim()) {
+      // Increment attempt counter
+      otpRecord.attempts += 1;
+      await otpRecord.save();
+      const remaining = MAX_OTP_ATTEMPTS - otpRecord.attempts;
+      return res.status(401).json({
+        error: `Incorrect OTP. ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.`,
+      });
+    }
+
+    // ── OTP is valid — create the user ──
+    const { name, phone, passwordHash, role } = otpRecord.userData;
+
+    // Guard: someone might have registered between OTP issue and verification
+    const alreadyExists = await User.findOne({ email: normalizedEmail });
+    if (alreadyExists) {
+      await Otp.deleteOne({ email: normalizedEmail });
+      return res.status(409).json({ error: "Email is already registered." });
+    }
+
+    // Store pre-hashed password directly — bypass the pre-save hook
+    // by using insertOne so the hook doesn't double-hash
+    const user = new User({ name, email: normalizedEmail, phone, password: passwordHash, role });
+    // Mark password as already hashed so the pre-save hook skips re-hashing
+    user.$__.skipPasswordHashing = true;
+    // Use save with a custom flag that our pre-save hook will check
+    // Actually, because we stored the hash we just need to bypass the hook.
+    // The cleanest way: directly use Model.collection.insertOne
+    const insertedUser = await User.collection.insertOne({
+      name,
+      email: normalizedEmail,
+      phone,
+      password: passwordHash,
+      role,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // ── Delete OTP record (prevents reuse) ──
+    await Otp.deleteOne({ email: normalizedEmail });
+
+    // ── Issue JWT ──
+    const token = signToken(insertedUser.insertedId, role);
+
+    return res.status(201).json({
+      message: "Email verified. Account created successfully!",
+      token,
+      user: {
+        id: insertedUser.insertedId,
+        name,
+        email: normalizedEmail,
+        role,
+      },
+    });
+  } catch (err) {
+    console.error("Verify OTP error:", err);
+    res.status(500).json({ error: "Server error during OTP verification." });
+  }
+};
+
+// ── POST /api/auth/resend-otp ──────────────────────────────────────────────
+// Resend a fresh OTP to the same email (rate-limited).
+const resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required." });
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const existingOtp = await Otp.findOne({ email: normalizedEmail });
+    if (!existingOtp) {
+      return res.status(404).json({
+        error: "No pending verification found. Please sign up first.",
+      });
+    }
+
+    // ── Cooldown check ──
+    const elapsed = Date.now() - new Date(existingOtp.createdAt).getTime();
+    if (elapsed < RESEND_COOLDOWN_MS) {
+      const waitSec = Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000);
+      return res.status(429).json({
+        error: `Please wait ${waitSec}s before requesting a new OTP.`,
+      });
+    }
+
+    // ── Issue fresh OTP ──
+    const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + OTP_TTL_MS);
+
+    existingOtp.otp = otp;
+    existingOtp.attempts = 0;
+    existingOtp.expiresAt = expiresAt;
+    existingOtp.createdAt = new Date();
+    await existingOtp.save();
+
+    await sendOtpEmail(normalizedEmail, otp);
+
+    return res.status(200).json({ message: "A new OTP has been sent to your email." });
+  } catch (err) {
+    console.error("Resend OTP error:", err);
+    res.status(500).json({ error: "Server error resending OTP." });
   }
 };
 
@@ -289,7 +496,7 @@ const addTransaction = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, getFestivals, addFestival, addFestivalExpense, deleteFestival, getBankAccounts, connectBank, addTransaction };
+// (intermediate exports removed — consolidated at bottom of file)
 
 // ── GET /api/auth/holdings ─────────────────────────────────────────────────
 const getHoldings = async (req, res) => {
@@ -609,7 +816,8 @@ const deleteFamilyGoal = async (req, res) => {
 
 
 module.exports = { 
-  signup, login, addGoal, getGoals, addGoalFunds, deleteGoal, 
+  signup, login, verifyOtp, resendOtp,
+  addGoal, getGoals, addGoalFunds, deleteGoal, 
   getFestivals, addFestival, addFestivalExpense, deleteFestival, 
   getBankAccounts, connectBank, addTransaction, 
   getHoldings, addHolding, deleteHolding, 

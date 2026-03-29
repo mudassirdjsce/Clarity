@@ -1,456 +1,952 @@
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useRef, useEffect, useState } from "react";
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 import clarityLogo from "../../assets/CLARITY1.svg";
-import { 
-  Activity, 
-  CheckCircle2, 
-  Cpu, 
-  Globe, 
-  LayoutDashboard, 
-  Shield, 
-  Terminal, 
-  User, 
-  Zap 
+import {
+  Activity,
+  CheckCircle2,
+  Cpu,
+  Globe,
+  LayoutDashboard,
+  Shield,
+  Terminal,
+  User,
+  Zap,
+  Brain,
+  Lock,
+  BarChart3,
+  TrendingUp,
+  Newspaper,
+  Wallet,
+  ShieldCheck,
+  Sparkles,
+  ArrowRight,
+  Star,
+  Camera,
 } from "lucide-react";
 
-const Navbar = () => {
+// ── Typography helpers ─────────────────────────────────────────────────────────
+const FONT_DISPLAY = { fontFamily: "'Syne', sans-serif" };
+const FONT_BODY    = { fontFamily: "'Inter', sans-serif" };
+
+// ── Animation presets ──────────────────────────────────────────────────────────
+const EASE_OUT_EXPO = [0.16, 1, 0.3, 1];
+
+const fadeUp = {
+  initial:     { opacity: 0, y: 36 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport:    { once: true, margin: "-60px" },
+  transition:  { duration: 0.7, ease: EASE_OUT_EXPO },
+};
+
+// Stagger container — wrap children to cascade animations
+const staggerContainer = {
+  hidden:  {},
+  show:    { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+
+const staggerItem = {
+  hidden:  { opacity: 0, y: 28, scale: 0.97 },
+  show:    { opacity: 1, y: 0,  scale: 1,
+             transition: { duration: 0.6, ease: EASE_OUT_EXPO } },
+};
+
+// ── Animated counting number ───────────────────────────────────────────────────
+function CountUp({ value, suffix = '' }) {
+  const [display, setDisplay] = useState('0');
+  const raw = parseFloat(value.replace(/[^0-9.]/g, ''));
+  const isDecimal = value.includes('.');
+  const prefix = value.match(/^[^0-9]*/)?.[0] ?? '';
+
+  useEffect(() => {
+    let start = 0;
+    const duration = 1400;
+    const step = 16;
+    const increment = raw / (duration / step);
+    const timer = setInterval(() => {
+      start = Math.min(start + increment, raw);
+      setDisplay(
+        prefix +
+        (isDecimal ? start.toFixed(1) : Math.floor(start).toLocaleString()) +
+        (value.match(/[^0-9.]+$/)?.[0] ?? '')
+      );
+      if (start >= raw) clearInterval(timer);
+    }, step);
+    return () => clearInterval(timer);
+  }, []);
+
+  return <>{display}</>;
+}
+
+// ── Reusable neon pill label ───────────────────────────────────────────────────
+function Pill({ children }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#39ff14]/25 bg-[#39ff14]/8 text-[#39ff14] text-[10px] font-semibold uppercase tracking-[0.18em]"
+      style={FONT_BODY}
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-[#39ff14] animate-pulse" />
+      {children}
+    </span>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NAVBAR
+// ══════════════════════════════════════════════════════════════════════════════
+function Navbar() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 w-full z-50 bg-obsidian-soft/80 backdrop-blur-xl border-b border-[#454943]/15 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
-      <div className="flex justify-between items-center px-4 md:px-8 py-4 max-w-screen-2xl mx-auto">
-        <div className="cursor-pointer transition-transform hover:scale-105" onClick={() => navigate("/")}>
-          <img src={clarityLogo} alt="Clarity" className="h-8 md:h-10 w-auto drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]" />
+    <motion.nav
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.7, ease: EASE_OUT_EXPO }}
+      className="fixed top-0 w-full z-50 border-b transition-all duration-500"
+      style={{
+        background: scrolled ? "rgba(5,7,5,0.95)" : "rgba(7,9,7,0.7)",
+        backdropFilter: "blur(24px)",
+        borderColor: scrolled ? "rgba(57,255,20,0.08)" : "rgba(255,255,255,0.04)",
+        boxShadow: scrolled ? "0 4px 40px rgba(0,0,0,0.4)" : "none",
+      }}
+    >
+      <div className="flex justify-between items-center px-5 md:px-10 py-4 max-w-screen-xl mx-auto">
+        {/* Logo */}
+        <div
+          className="cursor-pointer hover:scale-105 transition-transform duration-200"
+          onClick={() => navigate("/")}
+        >
+          <img
+            src={clarityLogo}
+            alt="Clarity"
+            className="h-7 md:h-9 w-auto drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]"
+          />
         </div>
-        <div className="hidden lg:flex items-center gap-8">
+
+        {/* Nav links */}
+        <div className="hidden lg:flex items-center gap-8" style={FONT_BODY}>
           {[
-            t('landing_nav_platform'),
-            t('landing_nav_intelligence'),
-            t('landing_nav_security'),
-            t('landing_nav_pricing'),
-          ].map((item, idx) => (
-            <a 
-              key={idx}
-              className={`font-headline uppercase tracking-[0.05rem] text-sm transition-colors ${
-                idx === 0 ? "text-primary border-b-2 border-primary pb-1" : "text-on-surface-variant hover:text-[#fafdf5]"
-              }`} 
-              href="#"
+            { label: t("landing_nav_platform"),     href: "#features" },
+            { label: t("landing_nav_intelligence"),  href: "#pulse"    },
+            { label: t("landing_nav_security"),      href: "#security" },
+            { label: t("landing_nav_pricing"),       href: "#cta"      },
+          ].map(({ label, href }) => (
+            <a
+              key={label}
+              href={href}
+              className="text-sm text-white/50 hover:text-white transition-colors duration-200 font-medium tracking-wide"
             >
-              {item}
+              {label}
             </a>
           ))}
         </div>
-        <div className="flex items-center gap-4 md:gap-4">
+
+        {/* CTA row */}
+        <div className="flex items-center gap-3 md:gap-4">
           <LanguageSwitcher />
           <button
             onClick={() => navigate("/login")}
-            className="font-headline uppercase tracking-[0.05rem] text-xs md:text-sm text-on-surface-variant hover:text-[#fafdf5] transition-colors active:scale-95 duration-200 ease-out"
+            className="hidden sm:block text-sm font-medium text-white/50 hover:text-white transition-colors"
+            style={FONT_BODY}
           >
-            {t('login')}
+            {t("login")}
           </button>
           <button
             onClick={() => navigate("/signup")}
-            className="bg-primary text-on-primary font-headline uppercase tracking-[0.05rem] text-xs md:text-sm font-bold px-4 py-2 md:px-6 md:py-2.5 rounded-full hover:bg-primary-dim transition-all active:scale-95 duration-200 ease-out shadow-[0_0_15px_rgba(57,255,20,0.3)]"
+            className="px-5 py-2 text-xs font-bold rounded-full text-black bg-[#39ff14] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_18px_rgba(57,255,20,0.35)]"
+            style={FONT_BODY}
           >
-            {t('get_started')}
+            {t("get_started")}
           </button>
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
-};
+}
 
-const animateScroll = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: false, margin: "-50px" },
-  transition: { duration: 0.6 }
-};
-
-const Hero = () => {
+// ══════════════════════════════════════════════════════════════════════════════
+// HERO
+// ══════════════════════════════════════════════════════════════════════════════
+function Hero() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const blobY     = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const headingY  = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+  const headingOp = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
+  // Mouse-follow neon glow
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 60, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 60, damping: 20 });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const move = (e) => {
+      const r = el.getBoundingClientRect();
+      mouseX.set(e.clientX - r.left);
+      mouseY.set(e.clientY - r.top);
+    };
+    el.addEventListener('mousemove', move);
+    return () => el.removeEventListener('mousemove', move);
+  }, []);
+
+  const stats = [
+    { icon: Activity,        labelKey: "landing_stat_latency", value: "0.002ms", progress: "80%" },
+    { icon: LayoutDashboard, labelKey: "landing_stat_assets",  value: "$12.4B",  progress: "60%" },
+    { icon: Globe,           labelKey: "landing_stat_nodes",   value: "4,812",   progress: "85%" },
+  ];
+
   return (
-  <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden hero-gradient">
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 0.5, scale: 1 }}
-      transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#39ff14] blur-[150px] rounded-full pointer-events-none mix-blend-screen"
-    />
-    
-    <div className="relative z-10 max-w-7xl mx-auto px-6 text-center mt-12 md:mt-0">
-      <motion.div 
-        {...animateScroll}
-        className="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 rounded-full glass-effect border border-outline-variant/20 mb-8"
-      >
-        <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-        <span className="font-label text-[8px] md:text-[10px] tracking-widest uppercase text-primary">{t('landing_hero_badge')}</span>
-      </motion.div>
+    <section
+      ref={ref}
+      className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden"
+      style={{ background: "radial-gradient(ellipse 120% 80% at 50% -10%, rgba(57,255,20,0.08) 0%, transparent 60%), #070907" }}
+    >
+      {/* Mouse-follow glow */}
+      <motion.div
+        className="absolute pointer-events-none rounded-full mix-blend-screen"
+        style={{
+          width: 500, height: 500,
+          x: springX, y: springY,
+          translateX: '-50%', translateY: '-50%',
+          background: 'radial-gradient(circle, rgba(57,255,20,0.12) 0%, transparent 70%)',
+          filter: 'blur(40px)',
+        }}
+      />
 
-      <motion.h1 
-        {...animateScroll}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="font-headline font-bold text-4xl sm:text-6xl md:text-8xl lg:text-9xl text-[#fafdf5] tracking-tighter leading-tight md:leading-none mb-6 md:mb-8"
-      >
-        {t('landing_hero_h1_1')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dim">{t('landing_hero_h1_2')}</span> <br/>{t('landing_hero_h1_3')}
-      </motion.h1>
+      {/* Static centered blob */}
+      <motion.div
+        style={{ y: blobY }}
+        animate={{ opacity: [0.18, 0.35, 0.18], scale: [1, 1.08, 1] }}
+        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#39ff14] blur-[200px] rounded-full pointer-events-none mix-blend-screen"
+      />
 
-      <motion.p 
-        {...animateScroll}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="max-w-2xl mx-auto font-body text-lg md:text-2xl text-on-surface-variant mb-10 md:mb-12 leading-relaxed"
-      >
-        {t('landing_hero_sub')}
-      </motion.p>
+      {/* Grid overlay */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.028 }}
+        transition={{ duration: 2 }}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "linear-gradient(rgba(57,255,20,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,20,0.6) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
+        }}
+      />
 
-      <motion.div 
-        {...animateScroll}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 md:gap-6 w-full max-w-md mx-auto sm:max-w-none"
-      >
-        <button
-          onClick={() => navigate("/signup")}
-          className="group relative w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-base md:text-lg tracking-wide hover:bg-primary-dim transition-all active:scale-95 shadow-[0_0_30px_rgba(57,255,20,0.4)] overflow-hidden"
+      <div className="relative z-10 w-full max-w-6xl mx-auto text-center flex flex-col items-center">
+        {/* Badge */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE_OUT_EXPO }}
+          className="mb-8 flex justify-center"
         >
-          <span className="relative z-10 uppercase">{t('get_started')}</span>
-          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-        </button>
-        <button
-          onClick={() => navigate("/login")}
-          className="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 rounded-full border border-outline-variant/30 font-headline font-bold text-base md:text-lg text-[#fafdf5] hover:bg-surface-variant transition-all active:scale-95 glass-effect"
-        >
-          {t('explore_engine')}
-        </button>
-      </motion.div>
-
-      <div className="mt-24 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { icon: Activity,       labelKey: "landing_stat_latency", value: "0.002ms", progress: "80%" },
-          { icon: LayoutDashboard,labelKey: "landing_stat_assets",  value: "₹12.4B",  progress: "60%" },
-          { icon: Globe,          labelKey: "landing_stat_nodes",   value: "4,812",   progress: "85%" },
-        ].map((stat, i) => (
-          <motion.div 
-            key={stat.labelKey}
-            {...animateScroll}
-            transition={{ duration: 0.6, delay: 0.4 + i * 0.1 }}
-            className="glass-effect p-6 rounded-xl border border-outline-variant/10 text-left"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <stat.icon className="w-4 h-4 text-primary" />
-              <span className="font-label text-[10px] tracking-widest text-on-surface-variant uppercase">{t(stat.labelKey)}</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-[#fafdf5]">{stat.value}</div>
-            <div className="mt-2 w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                whileInView={{ width: stat.progress }}
-                viewport={{ once: false }}
-                transition={{ duration: 1, delay: 0.8 + i * 0.1 }}
-                className="h-full bg-primary shadow-[0_0_8px_#39ff14]"
-              />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  </section>
-  );
-};
-
-const VelocitySection = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  return (
-  <section className="py-24 md:py-32 px-4 md:px-6 bg-surface overflow-hidden">
-    <div className="max-w-7xl mx-auto">
-      <motion.div 
-        {...animateScroll}
-        className="mb-16 md:mb-20 text-center md:text-left"
-      >
-        <h2 className="font-headline text-3xl md:text-6xl font-bold text-[#fafdf5] tracking-tight mb-4">
-          {t('velocity_heading')}
-        </h2>
-        <p className="font-body text-on-surface-variant text-base md:text-lg max-w-2xl mx-auto md:mx-0">
-          {t('velocity_sub')}
-        </p>
-      </motion.div>
-
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false, margin: "-50px" }}
-          transition={{ duration: 0.6 }}
-          whileHover={{ borderColor: "rgba(57, 255, 20, 0.2)" }}
-          className="lg:col-span-6 group relative overflow-hidden rounded-xl bg-surface-container-low border border-outline-variant/5 h-[450px] md:h-[600px] flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
-          onClick={() => navigate("/signup")}
-        >
-          <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 flex items-center justify-center transition-all duration-700 pointer-events-none">
-            <User className="w-[200px] h-[200px] md:w-[300px] md:h-[300px] text-primary" strokeWidth={1} />
-          </div>
-          <div className="absolute inset-0 z-0 opacity-40 group-hover:scale-105 transition-transform duration-700 mix-blend-overlay">
-            <img 
-              alt="Retail mode financial interface" 
-              className="w-full h-full object-cover" 
-              src="https://picsum.photos/seed/finance-retail/1200/800"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent z-10"></div>
-          <div className="relative z-20">
-            <div className="mb-4 md:mb-6 flex items-center gap-3 animate-fade-in">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center border border-primary/30">
-                <User className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-              </div>
-              <span className="font-label tracking-[0.2rem] text-primary uppercase text-xs md:text-sm">Level 01</span>
-            </div>
-            <h3 className="font-headline text-3xl md:text-4xl font-bold text-[#fafdf5] mb-2 md:mb-4">{t('retail_mode')}</h3>
-            <p className="font-body text-on-surface-variant text-sm md:text-lg mb-6 max-w-md">
-              {t('retail_mode_sub')}
-            </p>
-            <ul className="space-y-4 mb-8">
-              {["retail_feature_1", "retail_feature_2", "retail_feature_3"].map(key => (
-                <li key={key} className="flex items-center gap-3 text-[#fafdf5]/80">
-                  <CheckCircle2 className="w-4 h-4 text-primary" />
-                  <span>{t(key)}</span>
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate("/signup"); }}
-              className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 glass-effect border border-primary/20 text-primary md:font-bold rounded-full hover:bg-primary/10 transition-all text-sm md:text-base"
-            >
-              {t('start_retail')}
-            </button>
-          </div>
+          <Pill>{t("landing_hero_badge")}</Pill>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, x: 50 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false, margin: "-50px" }}
-          transition={{ duration: 0.6 }}
-          whileHover={{ borderColor: "rgba(57, 255, 20, 0.2)" }}
-          className="lg:col-span-6 group relative overflow-hidden rounded-xl bg-surface-container-high border border-outline-variant/10 h-[450px] md:h-[600px] flex flex-col justify-end p-8 md:p-12 transition-all duration-500"
+
+        {/* Headline */}
+        <motion.h1
+          style={{ y: headingY, opacity: headingOp }}
+          initial={{ opacity: 0, y: 48 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.85, delay: 0.1, ease: EASE_OUT_EXPO }}
+          className="w-full text-center text-[clamp(2.2rem,5.5vw,4.8rem)] font-extrabold text-white tracking-tight leading-[1.1] mb-8"
+          style={{ ...FONT_DISPLAY }}
         >
-          <div className="absolute inset-0 z-0 opacity-30 group-hover:scale-105 transition-transform duration-700 mix-blend-overlay">
-            <img 
-              alt="Institutional pro trading terminal" 
-              className="w-full h-full object-cover" 
-              src="https://picsum.photos/seed/trading-pro/800/800"
-              referrerPolicy="no-referrer"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent z-10"></div>
-          <div className="relative z-20">
-            <div className="mb-4 md:mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary-dim/20 flex items-center justify-center border border-primary-dim/40">
-                <Terminal className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-              </div>
-              <span className="font-label tracking-[0.2rem] text-primary uppercase text-xs md:text-sm">Level MAX</span>
-            </div>
-            <h3 className="font-headline text-3xl md:text-4xl font-bold text-[#fafdf5] mb-2 md:mb-4">{t('pro_mode')}</h3>
-            <p className="font-body text-on-surface-variant text-sm md:text-lg mb-6">
-              {t('pro_mode_sub')}
-            </p>
-            <button
-              onClick={() => navigate("/signup")}
-              className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 bg-primary text-on-primary md:font-bold rounded-full hover:bg-primary-dim transition-all shadow-[0_0_20px_rgba(57,255,20,0.2)] text-sm md:text-base"
-            >
-              {t('access_terminal')}
-            </button>
-          </div>
+          {t("landing_hero_h1_1")}{" "}
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.45 }}
+            className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] via-[#8EFF71] to-[#39ff14]"
+            style={{ backgroundSize: '200%', backgroundPosition: '0%' }}
+          >
+            {t("landing_hero_h1_2")}
+          </motion.span>
+          {" "}{t("landing_hero_h1_3")}
+        </motion.h1>
+
+        {/* Sub */}
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, delay: 0.3, ease: EASE_OUT_EXPO }}
+          className="max-w-lg text-base md:text-lg text-white/45 mb-10 leading-relaxed"
+          style={FONT_BODY}
+        >
+          {t("landing_hero_sub")}
+        </motion.p>
+
+        {/* CTAs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.45, ease: EASE_OUT_EXPO }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full"
+        >
+          <button
+            onClick={() => navigate("/signup")}
+            className="group relative w-full sm:w-auto px-8 py-3.5 bg-[#39ff14] text-black font-bold rounded-xl text-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_30px_rgba(57,255,20,0.4)] overflow-hidden"
+            style={FONT_DISPLAY}
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {t("get_started")} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+          </button>
+          <button
+            onClick={() => navigate("/login")}
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl border border-white/10 text-white/60 font-medium text-sm hover:border-white/20 hover:text-white hover:bg-white/5 transition-all"
+            style={FONT_BODY}
+          >
+            {t("explore_engine")}
+          </button>
         </motion.div>
-      </div>
-    </div>
-  </section>
-  );
-};
 
-const PulseSection = () => {
-  const { t } = useTranslation();
-  return (
-  <section className="py-20 md:py-24 px-4 md:px-6 bg-surface-container-lowest overflow-hidden">
-    <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-      <div className="w-full lg:w-1/2 order-2 lg:order-1">
-        <div className="relative aspect-square max-w-[400px] md:max-w-none mx-auto">
-          <motion.div 
-            animate={{ opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#39ff14_0%,_transparent_70%)] blur-[80px] opacity-40 mix-blend-screen"
-          />
-          <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-6 md:inset-10 border border-primary/20 rounded-full"
-          />
-          <motion.div 
-            animate={{ rotate: -360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-12 md:inset-20 border border-primary/10 rounded-full"
-          />
-          
-          <motion.div 
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="absolute top-4 md:top-10 right-0 glass-effect p-3 md:p-4 rounded-xl shadow-xl border border-white/5"
-          >
-            <div className="text-primary font-headline font-bold text-lg md:text-xl">+12.4%</div>
-            <div className="text-on-surface-variant font-label text-[7px] md:text-[8px] uppercase">Alpha Detection</div>
-          </motion.div>
-
-          <motion.div 
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="absolute bottom-10 md:bottom-20 left-0 glass-effect p-3 md:p-4 rounded-xl shadow-xl border border-white/5"
-          >
-            <div className="text-primary font-headline font-bold text-lg md:text-xl">LOW</div>
-            <div className="text-on-surface-variant font-label text-[7px] md:text-[8px] uppercase">Risk Coefficient</div>
-          </motion.div>
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div 
-              {...animateScroll}
-              className="text-center"
+        {/* Stats row */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          transition={{ delayChildren: 0.6 }}
+          className="mt-16 w-full grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl"
+        >
+          {stats.map((stat, i) => (
+            <motion.div
+              key={stat.labelKey}
+              variants={staggerItem}
+              whileHover={{ y: -4, borderColor: 'rgba(57,255,20,0.2)', transition: { duration: 0.2 } }}
+              className="p-6 rounded-2xl border border-white/8 text-left cursor-default"
+              style={{ background: "rgba(255,255,255,0.03)" }}
             >
-              <Zap className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto" fill="currentColor" />
-              <div className="mt-2 md:mt-4 font-headline text-lg md:text-2xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-br from-[#39ff14] to-[rgba(57,255,20,0.3)] uppercase">SYNTHETIC PULSE</div>
+              <div className="flex items-center gap-2.5 mb-4">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, delay: i * 0.8 }}
+                >
+                  <stat.icon className="w-4 h-4 text-[#39ff14]" />
+                </motion.div>
+                <span className="text-[10px] tracking-widest text-white/30 uppercase font-medium" style={FONT_BODY}>
+                  {t(stat.labelKey)}
+                </span>
+              </div>
+              <motion.div
+                className="text-3xl font-bold text-white mb-3"
+                style={FONT_DISPLAY}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+              >
+                <CountUp value={stat.value} />
+              </motion.div>
+              <div className="w-full h-px bg-white/5 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: stat.progress }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.4, delay: 0.6 + i * 0.15, ease: EASE_OUT_EXPO }}
+                  className="h-full bg-gradient-to-r from-[#39ff14] to-[#8EFF71] shadow-[0_0_10px_rgba(57,255,20,0.7)]"
+                />
+              </div>
             </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEATURES SECTION  ← NEW
+// ══════════════════════════════════════════════════════════════════════════════
+const FEATURES = [
+  {
+    icon: Brain,
+    title: "AI Financial Assistant",
+    desc: "Groq-powered LLM analyses your portfolio in real-time, answers complex queries, and generates personalised insights instantly.",
+    tag: "Intelligence",
+    glow: "rgba(57,255,20,0.15)",
+  },
+  {
+    icon: BarChart3,
+    title: "Portfolio Analytics",
+    desc: "Deep P&L breakdowns, risk coefficients, beta calculation, and asset allocation — all rendered live from your actual holdings.",
+    tag: "Analytics",
+    glow: "rgba(99,126,234,0.15)",
+  },
+  {
+    icon: TrendingUp,
+    title: "Live Market Pulse",
+    desc: "Real-time stock & crypto data via Finnhub with sentiment indicators, alpha detection, and volatility signals.",
+    tag: "Markets",
+    glow: "rgba(20,241,149,0.15)",
+  },
+  {
+    icon: Newspaper,
+    title: "Smart News Feed",
+    desc: "Curated financial news ranked by relevance to your holdings, with AI-generated market impact summaries.",
+    tag: "News",
+    glow: "rgba(57,255,20,0.15)",
+  },
+  {
+    icon: Lock,
+    title: "Secure PDF Export",
+    desc: "AES-256 encrypted portfolio reports saved as .secure files — only readable inside Clarity. Checksum verified, expiry supported.",
+    tag: "Security",
+    glow: "rgba(239,68,68,0.12)",
+  },
+  {
+    icon: Camera,
+    title: "Camera Scanner",
+    desc: "Point your camera at any product — TensorFlow COCO-SSD detects it and instantly redirects you to BuyHatke for price comparison.",
+    tag: "Scan",
+    glow: "rgba(57,255,20,0.15)",
+  },
+  {
+    icon: Wallet,
+    title: "Multi-Bank Accounts",
+    desc: "Connect and manage multiple bank accounts and treasury vaults within a single unified financial workspace.",
+    tag: "Banking",
+    glow: "rgba(251,191,36,0.12)",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Biometric Access",
+    desc: "Enterprise-grade access control with biometric toggle, 2FA, and session-scoped decryption — your data never leaves your device.",
+    tag: "Security",
+    glow: "rgba(57,255,20,0.15)",
+  },
+  {
+    icon: Sparkles,
+    title: "Financial Wrapped",
+    desc: "A Spotify-Wrapped-style year-in-review of your financial journey — highlight reel, top holdings, and growth story.",
+    tag: "Experience",
+    glow: "rgba(99,126,234,0.15)",
+  },
+];
+
+function FeaturesSection() {
+  return (
+    <section id="features" className="py-28 px-5 md:px-10" style={{ background: "#070907" }}>
+      <div className="max-w-6xl mx-auto">
+        {/* Section header */}
+        <motion.div {...fadeUp} className="text-center mb-20">
+          <Pill>Platform Features</Pill>
+          <h2
+            className="mt-5 text-[clamp(2rem,5vw,3.8rem)] font-extrabold text-white tracking-tight leading-tight"
+            style={FONT_DISPLAY}
+          >
+            Everything you need to{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#8EFF71]">
+              own your finances
+            </span>
+          </h2>
+          <p className="mt-5 text-white/40 text-lg max-w-2xl mx-auto leading-relaxed" style={FONT_BODY}>
+            A full-stack financial intelligence suite — from AI chat to encrypted exports, live markets to camera scanning.
+          </p>
+        </motion.div>
+
+        {/* Bento grid */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
+          {FEATURES.map((f, i) => (
+            <motion.div
+              key={f.title}
+              variants={staggerItem}
+              whileHover={{
+                y: -6,
+                borderColor: "rgba(57,255,20,0.22)",
+                boxShadow: `0 20px 60px ${f.glow}`,
+                transition: { duration: 0.25, ease: 'easeOut' },
+              }}
+              className="group relative p-7 rounded-2xl border border-white/8 overflow-hidden cursor-default"
+              style={{ background: "rgba(255,255,255,0.025)" }}
+            >
+              {/* Glow blob — animates in on hover via CSS group */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.6 }}
+                whileHover={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="absolute -top-8 -right-8 w-32 h-32 rounded-full blur-[50px] pointer-events-none"
+                style={{ background: f.glow }}
+              />
+
+              {/* Icon with entrance spin */}
+              <motion.div
+                initial={{ rotate: -12, scale: 0.8, opacity: 0 }}
+                whileInView={{ rotate: 0, scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.05 * i, ease: EASE_OUT_EXPO }}
+                className="w-11 h-11 rounded-xl bg-[#39ff14]/8 border border-[#39ff14]/15 flex items-center justify-center mb-5 group-hover:bg-[#39ff14]/15 transition-colors"
+              >
+                <f.icon className="w-5 h-5 text-[#39ff14]" />
+              </motion.div>
+
+              {/* Tag */}
+              <span
+                className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[#39ff14]/50 mb-2 block"
+                style={FONT_BODY}
+              >
+                {f.tag}
+              </span>
+
+              {/* Title */}
+              <h3
+                className="text-base font-bold text-white mb-2 leading-snug"
+                style={FONT_DISPLAY}
+              >
+                {f.title}
+              </h3>
+
+              {/* Desc */}
+              <p className="text-sm text-white/40 leading-relaxed" style={FONT_BODY}>
+                {f.desc}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VELOCITY (MODES) SECTION
+// ══════════════════════════════════════════════════════════════════════════════
+function VelocitySection() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  return (
+    <section
+      className="py-28 md:py-36 px-5 md:px-10 overflow-hidden"
+      style={{ background: "rgba(5,7,5,1)" }}
+    >
+      <div className="max-w-6xl mx-auto">
+        <motion.div {...fadeUp} className="mb-16 md:mb-20">
+          <Pill>Access Modes</Pill>
+          <h2
+            className="mt-5 text-[clamp(2rem,5vw,3.8rem)] font-extrabold text-white tracking-tight"
+            style={FONT_DISPLAY}
+          >
+            {t("velocity_heading")}
+          </h2>
+          <p className="mt-4 text-white/40 text-lg max-w-xl leading-relaxed" style={FONT_BODY}>
+            {t("velocity_sub")}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Retail card */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ borderColor: "rgba(57,255,20,0.25)" }}
+            onClick={() => navigate("/signup")}
+            className="group relative overflow-hidden rounded-2xl border border-white/8 h-[500px] md:h-[580px] flex flex-col justify-end p-8 md:p-10 cursor-pointer transition-all duration-500"
+            style={{ background: "rgba(255,255,255,0.02)" }}
+          >
+            <div className="absolute inset-0 opacity-5 group-hover:opacity-10 flex items-center justify-center transition-all duration-700 pointer-events-none">
+              <User className="w-[250px] h-[250px] text-[#39ff14]" strokeWidth={0.5} />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
+            <div className="relative z-20">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[#39ff14]/10 border border-[#39ff14]/25 flex items-center justify-center">
+                  <User className="w-5 h-5 text-[#39ff14]" />
+                </div>
+                <span className="text-[10px] tracking-[0.2em] text-[#39ff14] uppercase font-semibold" style={FONT_BODY}>
+                  Level 01
+                </span>
+              </div>
+              <h3 className="text-3xl md:text-4xl font-bold text-white mb-3" style={FONT_DISPLAY}>
+                {t("retail_mode")}
+              </h3>
+              <p className="text-white/50 mb-6 leading-relaxed" style={FONT_BODY}>
+                {t("retail_mode_sub")}
+              </p>
+              <ul className="space-y-3 mb-8">
+                {["retail_feature_1", "retail_feature_2", "retail_feature_3"].map((key) => (
+                  <li key={key} className="flex items-center gap-2.5 text-white/70 text-sm" style={FONT_BODY}>
+                    <CheckCircle2 className="w-4 h-4 text-[#39ff14] shrink-0" />
+                    {t(key)}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate("/signup"); }}
+                className="px-7 py-3 rounded-xl border border-[#39ff14]/25 text-[#39ff14] text-sm font-semibold hover:bg-[#39ff14]/10 transition-all"
+                style={FONT_BODY}
+              >
+                {t("start_retail")}
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Pro card */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ borderColor: "rgba(57,255,20,0.25)" }}
+            className="group relative overflow-hidden rounded-2xl border border-white/8 h-[500px] md:h-[580px] flex flex-col justify-end p-8 md:p-10 transition-all duration-500"
+            style={{ background: "rgba(255,255,255,0.03)" }}
+          >
+            {/* Neon corner accent */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-[#39ff14]/5 rounded-full blur-[60px] pointer-events-none" />
+            <div className="absolute inset-0 opacity-10 group-hover:opacity-20 flex items-center justify-center transition-all duration-700 pointer-events-none">
+              <Terminal className="w-[200px] h-[200px] text-[#39ff14]" strokeWidth={0.5} />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
+            <div className="relative z-20">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[#39ff14]/15 border border-[#39ff14]/30 flex items-center justify-center">
+                  <Terminal className="w-5 h-5 text-[#39ff14]" />
+                </div>
+                <span className="text-[10px] tracking-[0.2em] text-[#39ff14] uppercase font-semibold" style={FONT_BODY}>
+                  Level MAX
+                </span>
+              </div>
+              <h3 className="text-3xl md:text-4xl font-bold text-white mb-3" style={FONT_DISPLAY}>
+                {t("pro_mode")}
+              </h3>
+              <p className="text-white/50 mb-8 leading-relaxed" style={FONT_BODY}>
+                {t("pro_mode_sub")}
+              </p>
+              <button
+                onClick={() => navigate("/signup")}
+                className="px-7 py-3 rounded-xl bg-[#39ff14] text-black font-bold text-sm hover:brightness-110 transition-all shadow-[0_0_20px_rgba(57,255,20,0.25)]"
+                style={FONT_DISPLAY}
+              >
+                {t("access_terminal")}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PULSE SECTION
+// ══════════════════════════════════════════════════════════════════════════════
+function PulseSection() {
+  const { t } = useTranslation();
+
+  return (
+    <section
+      id="pulse"
+      className="py-24 md:py-32 px-5 md:px-10 overflow-hidden"
+      style={{ background: "#070907" }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+        {/* Visual */}
+        <div className="w-full lg:w-1/2 order-2 lg:order-1 flex-shrink-0">
+          <div className="relative aspect-square max-w-[380px] mx-auto">
+            <motion.div
+              animate={{ opacity: [0.2, 0.45, 0.2] }}
+              transition={{ duration: 4.5, repeat: Infinity }}
+              className="absolute inset-0 bg-[radial-gradient(circle_at_center,#39ff14_0%,transparent_70%)] blur-[80px] opacity-35 mix-blend-screen"
+            />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-8 border border-[#39ff14]/15 rounded-full"
+            />
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-16 border border-[#39ff14]/8 rounded-full"
+            />
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="absolute top-6 right-2 px-4 py-3 rounded-xl border border-white/8 text-left"
+              style={{ background: "rgba(12,16,12,0.9)", backdropFilter: "blur(12px)" }}
+            >
+              <div className="text-[#39ff14] font-bold text-lg" style={FONT_DISPLAY}>+12.4%</div>
+              <div className="text-white/30 text-[8px] uppercase tracking-widest" style={FONT_BODY}>Alpha Detection</div>
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="absolute bottom-16 left-0 px-4 py-3 rounded-xl border border-white/8 text-left"
+              style={{ background: "rgba(12,16,12,0.9)", backdropFilter: "blur(12px)" }}
+            >
+              <div className="text-[#39ff14] font-bold text-lg" style={FONT_DISPLAY}>LOW</div>
+              <div className="text-white/30 text-[8px] uppercase tracking-widest" style={FONT_BODY}>Risk Coefficient</div>
+            </motion.div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div {...fadeUp} className="text-center">
+                <Zap className="w-14 h-14 text-[#39ff14] mx-auto" fill="currentColor" />
+                <div
+                  className="mt-3 text-sm font-bold tracking-[0.25em] text-transparent bg-clip-text bg-gradient-to-b from-[#39ff14] to-[rgba(57,255,20,0.3)] uppercase"
+                  style={FONT_DISPLAY}
+                >
+                  Synthetic Pulse
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Text */}
+        <div className="w-full lg:w-1/2 order-1 lg:order-2">
+          <Pill>Neural Engine</Pill>
+          <motion.h2
+            {...fadeUp}
+            className="mt-5 text-[clamp(2rem,5vw,3.5rem)] font-extrabold text-white tracking-tight leading-tight mb-10"
+            style={FONT_DISPLAY}
+          >
+            {t("pulse_heading_1")}
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[rgba(57,255,20,0.5)]">
+              {t("pulse_heading_2")}
+            </span>
+          </motion.h2>
+          <div className="space-y-10">
+            {[
+              { icon: Cpu,    titleKey: "neural_title",  descKey: "neural_desc"  },
+              { icon: Shield, titleKey: "quantum_title", descKey: "quantum_desc" },
+            ].map((feat, i) => (
+              <motion.div
+                key={feat.titleKey}
+                {...fadeUp}
+                transition={{ duration: 0.6, delay: i * 0.12 }}
+                className="flex gap-5"
+              >
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl border border-white/8 flex items-center justify-center text-[#39ff14]"
+                  style={{ background: "rgba(57,255,20,0.06)" }}>
+                  <feat.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-white mb-1.5" style={FONT_DISPLAY}>
+                    {t(feat.titleKey)}
+                  </h4>
+                  <p className="text-white/40 leading-relaxed text-sm" style={FONT_BODY}>
+                    {t(feat.descKey)}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
-      <div className="w-full lg:w-1/2 order-1 lg:order-2 text-center lg:text-left">
-        <motion.h2 
-          {...animateScroll}
-          className="font-headline text-3xl md:text-6xl font-bold text-[#fafdf5] tracking-tight mb-8"
-        >
-          {t('pulse_heading_1')} <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[rgba(57,255,20,0.4)]">{t('pulse_heading_2')}</span>
-        </motion.h2>
-        <div className="space-y-12">
-          {[
-            { icon: Cpu,    titleKey: "neural_title",  descKey: "neural_desc"  },
-            { icon: Shield, titleKey: "quantum_title", descKey: "quantum_desc" },
-          ].map((feature, i) => (
-            <motion.div 
-              key={feature.titleKey} 
-              {...animateScroll}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="flex gap-6"
+    </section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TESTIMONIALS (SOCIAL PROOF)  ← NEW
+// ══════════════════════════════════════════════════════════════════════════════
+const TESTIMONIALS = [
+  { name: "Arjun Mehta",  role: "Equity Trader",         avatar: "AM", body: "Finally a platform that merges institutional-grade analysis with a retail-friendly interface. The AI insights alone are worth it." },
+  { name: "Priya Sharma", role: "Portfolio Manager",      avatar: "PS", body: "Encrypted PDF exports and biometric access give me the security confidence I need for client portfolios." },
+  { name: "Rohan Das",    role: "Startup Founder",        avatar: "RD", body: "The camera scanner feature is genuinely unprecedented in a fintech app. BuyHatke integration is clever." },
+];
+
+function TestimonialsSection() {
+  return (
+    <section className="py-24 px-5 md:px-10" style={{ background: "rgba(5,7,5,1)" }}>
+      <div className="max-w-6xl mx-auto">
+        <motion.div {...fadeUp} className="text-center mb-16">
+          <Pill>Social Proof</Pill>
+          <h2
+            className="mt-5 text-[clamp(1.8rem,4vw,3rem)] font-extrabold text-white tracking-tight"
+            style={FONT_DISPLAY}
+          >
+            Trusted by investors who{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#8EFF71]">
+              demand more
+            </span>
+          </h2>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {TESTIMONIALS.map((t, i) => (
+            <motion.div
+              key={t.name}
+              {...fadeUp}
+              transition={{ duration: 0.55, delay: 0.08 * i }}
+              className="p-7 rounded-2xl border border-white/8 flex flex-col gap-4"
+              style={{ background: "rgba(255,255,255,0.025)" }}
             >
-              <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
-                <feature.icon className="w-6 h-6" />
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, si) => (
+                  <Star key={si} className="w-3.5 h-3.5 text-[#39ff14] fill-[#39ff14]" />
+                ))}
               </div>
-              <div>
-                <h4 className="font-headline text-xl font-bold mb-2">{t(feature.titleKey)}</h4>
-                <p className="text-on-surface-variant leading-relaxed">{t(feature.descKey)}</p>
+              <p className="text-white/60 text-sm leading-relaxed italic" style={FONT_BODY}>
+                "{t.body}"
+              </p>
+              <div className="flex items-center gap-3 pt-2 border-t border-white/5">
+                <div
+                  className="w-9 h-9 rounded-full bg-[#39ff14]/10 border border-[#39ff14]/20 flex items-center justify-center text-[#39ff14] text-[11px] font-bold"
+                  style={FONT_DISPLAY}
+                >
+                  {t.avatar}
+                </div>
+                <div>
+                  <p className="text-white text-sm font-semibold leading-none" style={FONT_DISPLAY}>{t.name}</p>
+                  <p className="text-white/30 text-[10px] mt-0.5" style={FONT_BODY}>{t.role}</p>
+                </div>
               </div>
             </motion.div>
           ))}
         </div>
       </div>
-    </div>
-  </section>
+    </section>
   );
-};
+}
 
-const CTASection = () => {
+// ══════════════════════════════════════════════════════════════════════════════
+// CTA SECTION
+// ══════════════════════════════════════════════════════════════════════════════
+function CTASection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   return (
-  <section className="py-20 md:py-32 px-4 md:px-6">
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.8, y: 30 }}
-      whileInView={{ opacity: 1, scale: 1, y: 0 }}
-      viewport={{ once: false, margin: "-100px" }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className="max-w-5xl mx-auto glass-effect rounded-2xl md:rounded-xl p-8 md:p-12 lg:p-24 border border-primary/10 text-center relative overflow-hidden"
-    >
-      <div className="absolute -top-12 -right-12 md:-top-24 md:-right-24 w-32 h-32 md:w-64 md:h-64 bg-primary/20 blur-[60px] md:blur-[100px] rounded-full"></div>
-      <div className="absolute -bottom-12 -left-12 md:-bottom-24 md:-left-24 w-32 h-32 md:w-64 md:h-64 bg-primary/10 blur-[60px] md:blur-[100px] rounded-full"></div>
-      <motion.h2 
-        initial={{ opacity: 0, y: 15 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false }}
-        transition={{ delay: 0.2 }}
-        className="font-headline text-3xl sm:text-4xl md:text-6xl font-bold text-[#fafdf5] mb-6 md:mb-8 relative z-10"
+    <section id="cta" className="py-20 md:py-32 px-5 md:px-10" style={{ background: "#070907" }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 24 }}
+        whileInView={{ opacity: 1, scale: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        className="max-w-5xl mx-auto relative overflow-hidden rounded-3xl border border-[#39ff14]/10 text-center p-10 md:p-20"
+        style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(57,255,20,0.07) 0%, rgba(10,14,10,1) 70%)" }}
       >
-        {t('cta_heading_1')} <br/><span className="text-primary italic">{t('cta_heading_2')}</span>
-      </motion.h2>
-      <motion.p 
-        initial={{ opacity: 0, y: 15 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false }}
-        transition={{ delay: 0.3 }}
-        className="text-on-surface-variant text-base md:text-xl mb-8 md:mb-12 max-w-2xl mx-auto relative z-10"
-      >
-        {t('cta_sub')}
-      </motion.p>
-      <motion.div 
-        initial={{ opacity: 0, y: 15 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false }}
-        transition={{ delay: 0.4 }}
-        className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 relative z-10 max-w-sm mx-auto sm:max-w-none"
-      >
-        <button
-          onClick={() => navigate("/signup")}
-          className="w-full sm:w-auto px-10 py-4 md:px-12 md:py-5 bg-primary text-on-primary rounded-full font-headline font-bold text-base md:text-xl shadow-[0_0_30px_rgba(57,255,20,0.3)] hover:scale-105 transition-transform active:scale-95"
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#39ff14]/10 blur-[80px] rounded-full" />
+        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-[#39ff14]/5 blur-[80px] rounded-full" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.15 }}
+          className="relative z-10"
         >
-          {t('get_started_now')}
-        </button>
+          <Pill>Get Started Today</Pill>
+          <h2
+            className="mt-6 text-[clamp(2rem,5vw,4rem)] font-extrabold text-white tracking-tight mb-5 leading-tight"
+            style={FONT_DISPLAY}
+          >
+            {t("cta_heading_1")}
+            <br />
+            <span className="text-[#39ff14] italic">{t("cta_heading_2")}</span>
+          </h2>
+          <p className="text-white/40 text-lg mb-10 max-w-2xl mx-auto leading-relaxed" style={FONT_BODY}>
+            {t("cta_sub")}
+          </p>
+          <button
+            onClick={() => navigate("/signup")}
+            className="group inline-flex items-center gap-2 px-10 py-4 bg-[#39ff14] text-black font-bold rounded-2xl text-base hover:brightness-110 active:scale-95 transition-all shadow-[0_0_35px_rgba(57,255,20,0.35)]"
+            style={FONT_DISPLAY}
+          >
+            {t("get_started_now")}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </motion.div>
       </motion.div>
-    </motion.div>
-  </section>
+    </section>
   );
-};
+}
 
-const Footer = () => {
+// ══════════════════════════════════════════════════════════════════════════════
+// FOOTER
+// ══════════════════════════════════════════════════════════════════════════════
+function Footer() {
   const { t } = useTranslation();
-  return (
-  <footer className="w-full py-10 md:py-12 border-t border-[#454943]/15 bg-[#000000]">
-    <div className="flex flex-col md:flex-row justify-between items-center px-6 md:px-12 gap-6 max-w-screen-2xl mx-auto">
-      <div className="flex flex-col items-center md:items-start gap-2 text-center md:text-left">
-        <img src={clarityLogo} alt="Clarity" className="h-6 md:h-8 w-auto mb-1 drop-shadow-[0_0_8px_rgba(57,255,20,0.3)]" />
-        <div className="font-label text-[8px] md:text-[10px] tracking-widest uppercase text-on-surface-variant">
-          {t('footer_copyright')}
-        </div>
-      </div>
-      <div className="flex flex-wrap justify-center md:justify-end gap-6 md:gap-8 mt-4 md:mt-0">
-        {[
-          {key: 'footer_privacy'},
-          {key: 'footer_terms'},
-          {key: 'footer_api'},
-          {key: 'footer_contact'},
-        ].map(link => (
-          <a key={link.key} className="font-label text-[8px] md:text-[10px] tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors block text-center" href="#">
-            {t(link.key)}
-          </a>
-        ))}
-      </div>
-      <div className="flex justify-center gap-4 mt-2 md:mt-0">
-        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full glass-effect flex items-center justify-center border border-white/5 hover:border-primary/40 transition-colors cursor-pointer">
-          <Globe className="w-4 h-4 md:w-5 md:h-5 text-on-surface-variant" />
-        </div>
-        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full glass-effect flex items-center justify-center border border-white/5 hover:border-primary/40 transition-colors cursor-pointer">
-          <Terminal className="w-4 h-4 md:w-5 md:h-5 text-on-surface-variant" />
-        </div>
-      </div>
-    </div>
-  </footer>
-  );
-};
 
+  return (
+    <footer
+      className="border-t border-white/5 py-10 px-6 md:px-12"
+      style={{ background: "#040604" }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex flex-col items-center md:items-start gap-2">
+          <img
+            src={clarityLogo}
+            alt="Clarity"
+            className="h-6 md:h-8 w-auto drop-shadow-[0_0_8px_rgba(57,255,20,0.3)]"
+          />
+          <div
+            className="text-[9px] tracking-widest uppercase text-white/25"
+            style={FONT_BODY}
+          >
+            {t("footer_copyright")}
+          </div>
+        </div>
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+          {[{ key: "footer_privacy" }, { key: "footer_terms" }, { key: "footer_api" }, { key: "footer_contact" }].map(
+            (link) => (
+              <a
+                key={link.key}
+                href="#"
+                className="text-[9px] tracking-[0.15em] uppercase text-white/25 hover:text-[#39ff14] transition-colors"
+                style={FONT_BODY}
+              >
+                {t(link.key)}
+              </a>
+            )
+          )}
+        </div>
+        <div className="flex gap-3">
+          {[Globe, Terminal].map((Icon, i) => (
+            <div
+              key={i}
+              className="w-9 h-9 rounded-full border border-white/8 flex items-center justify-center hover:border-[#39ff14]/30 hover:text-[#39ff14] text-white/30 cursor-pointer transition-colors"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <Icon className="w-4 h-4" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ROOT EXPORT
+// ══════════════════════════════════════════════════════════════════════════════
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background selection:bg-primary selection:text-on-primary">
+    <div
+      className="min-h-screen selection:bg-[#39ff14] selection:text-black"
+      style={{ background: "#070907", ...FONT_BODY }}
+    >
       <Navbar />
       <main>
         <Hero />
+        <FeaturesSection />
         <VelocitySection />
         <PulseSection />
+        <TestimonialsSection />
         <CTASection />
       </main>
       <Footer />

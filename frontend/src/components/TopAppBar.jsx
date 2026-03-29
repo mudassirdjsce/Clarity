@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, User, Languages, Type, Eye, Globe, Accessibility, Menu, Star } from 'lucide-react';
+import {User, Languages, Type, Eye, Globe, Accessibility, Menu, Star } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import logo from '../assets/CLARITY1.svg';
@@ -134,13 +134,7 @@ export function TopAppBar({ onMenuClick }) {
             <Star className="w-4 h-4 text-[#39ff14] group-hover:drop-shadow-[0_0_8px_rgba(57,255,20,0.6)] transition-all" fill="currentColor" />
             <span className="text-sm font-bold text-[#E8F5E9] font-mono tracking-wider">{points}</span>
           </div>
-
-          {/* Bell */}
-          <button className="p-2 hover:bg-white/5 rounded-xl transition-colors relative">
-            <Bell className="w-5 h-5 text-white/60" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-neon-green rounded-full border-2 border-obsidian" />
-          </button>
-
+          
           {/* ── Language button ─────────────────────────────────────────────── */}
           <div className="relative">
             <IconBtn
